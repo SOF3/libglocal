@@ -29,7 +29,7 @@ use function fgets;
 use function is_string;
 use function trim;
 
-class Libglocal{
+final class Libglocal{
 	public static function init(Plugin $plugin, string $langDir = "lang/") : LanguageManager{
 		$index = $plugin->getResource($langDir . "index.txt");
 		if($index === null){
