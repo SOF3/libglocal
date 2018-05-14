@@ -1,0 +1,44 @@
+base lang en_US English (US)
+author SOFe, SOF3, Iron(II) Sulphite
+version 2.0 // current version name. For non-base lang files, this should be the targetted base lang version.
+messages
+	internal
+		ordinal ${ord}
+			doc Convert a quantity into an ordinal number // Docs can be utilized by external editors to assist translation.
+			since 1.0 // The earliest version that added this message. Not sure why this is needed though... TODO decide whether to remove this
+			updated 2.0 // The last version this message was updated. If base lang has a more updated version, this means the base lang expects this message to mean something else, and the message in the base lang will be used.
+			arg ord quantity // TODO create quantity syntax
+    commands
+        friends
+            usage /friend list|add|remove
+        add
+            // Use ${...} to reference an argument. Argument declaration is only required in the base lang file, but special formats e.g. quantity may be overridden in other files.
+            success Added friend "${name}"
+                arg name
+                doc Informs the player the success of adding a friend.
+        error
+            // %{...} are spans.
+            // 5 "style" spans: info, success, notice, warn, error, which are color codes white, green, aqua, yellow and red.
+            // 8 "stack" spans:
+            //   hl1, hl2, hl3, hl4, represented as light purple, gold (red if the base color is yellow), aqua (yellow if the base color is already aqua), green (red if the base color is already green).
+            //   b, i, u, s, represented as bold, italic, underline, strikethrough.
+            // Write in the format %{NAME TEXT_CONTENT}, e.g. %{hl1 lorem ipsum} represents "lorem ipsum" in light purple
+            // These highlight constants can be stacked, i.e. the color outside the %{} will be restored after the span. the previous color shows up again. White is used if unknown.
+            his-full %{error}Cannot add friend %{hl1 "${name}"} %{hl2 (rank: ${rank})}, because his friend list is full.
+                arg name // you can put nothing here, or specify a type (e.g. "string")
+                arg rank
+            mine-full %{error}Cannot add friend %{hl1 "${name}"}, because you already have %{hl2 ${friends-count}}.
+                arg name
+                arg friends-count quantity // TODO make something like singular: "%d friend", plural: "%d friends"
+        list %{info}Your friends are: ${friends}
+            arg friends list:string
+    // #{lorem.ipsum} interpolates the message lorem.ipsum into this message. Parentheses can be added behind the message.
+    ordinalTest %{warn}Test for the #{internal.ordinal(ord = times)} time
+        arg times int
+    trivia
+        escape-sequence This a literal \${\} dollar sign with curly braces.
+            doc Note that close brace } also needs escaping, to distinguish from the close braces of spans
+    stacked-spans: You can %{b stack %{i multiple} %{u decoration %{s constants}}} too.
+
+
+

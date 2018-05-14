@@ -20,12 +20,8 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parameter;
+namespace SOFe\Libglocal;
 
-use SOFe\Libglocal\MessageParameter;
+class LanguageParser{
 
-class AsIsParameter implements MessageParameter{
-	public function acceptValue($value) : string{
-		return (string) $value;
-	}
 }
