@@ -1,18 +1,17 @@
----
 lang zh_TW 繁體中文
 
-messages:
-  libglocal:
-    list-delimiter: "、"
-  internal:
-    ordinal:
-  commands:
-    friends:
-      add:
-        success: 增加了朋友%{u}${name}%{} // 現在還有人用專名號嗎？
-        error:
-          his-full: '%{error}不能增加%{u}${name}%{} %{hl1}(階級︰${rank})%{}。原因︰他的朋友清單已滿。'
-          mine-full:
+messages
+  libglocal
+    list-delimiter 、
+  internal
+    ordinal
+  commands
+    friends
+      add
+        success 增加了朋友%{u ${name}} // 現在還有人用專名號嗎？
+        error
+          his-full %{error}不能增加%{u ${name}} %{hl1 (階級︰${rank})}。原因︰他的朋友清單已滿。
+          mine-full
             _: '%{error}不能增加%{u}${name}%{}。原因︰你已有${friends-count}個朋友。'
             $:
               friends-count:
