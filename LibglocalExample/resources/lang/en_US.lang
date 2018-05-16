@@ -1,7 +1,6 @@
 base lang en_US English (US)
 author SOFe, SOF3, Iron(II) Sulphite
 version 2.0 // current version name. For non-base lang files, this should be the targetted base lang version.
-
 messages
     commands // identifier without message = namespace
         friends // subnamespace, called "commands.friends". indent = something belonging to the above element.
@@ -42,4 +41,4 @@ messages
     trivia
         escape-sequence This a literal \${\} dollar sign with curly braces.
             doc Note that close brace } also needs escaping, to distinguish from the close braces of spans
-    stacked-spans: You can %{b stack %{i multiple} %{u decoration %{s constants}}} too.
+    stacked-spans You can %{b stack %{i multiple} %{u decoration %{s constants}}} too.

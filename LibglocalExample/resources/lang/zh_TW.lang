@@ -1,4 +1,6 @@
 lang zh_TW 繁體中文
+author SOFe
+version 2.0
 
 messages
   libglocal
@@ -11,11 +13,8 @@ messages
         success 增加了朋友%{u ${name}} // 現在還有人用專名號嗎？
         error
           his-full %{error}不能增加%{u ${name}} %{hl1 (階級︰${rank})}。原因︰他的朋友清單已滿。
-          mine-full
-            _: '%{error}不能增加%{u}${name}%{}。原因︰你已有${friends-count}個朋友。'
-            $:
-              friends-count:
-                default: 個
-      ordinalTest: '%{warn}${times}次測試'
-      list: '%{info}你的朋友清單︰${friends}'
-...
+          mine-full %{error}不能增加%{u ${name}}。原因︰你已有${friends-count}個朋友。
+            arg friends-count
+                //default: 個
+      ordinalTest %{warn}${times}次測試
+      list %{info}你的朋友清單︰${friends}
