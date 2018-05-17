@@ -26,17 +26,21 @@ use pocketmine\plugin\Plugin;
 use pocketmine\plugin\PluginException;
 use function fclose;
 use function fgets;
+use function get_class;
+use function gettype;
+use function is_array;
+use function is_object;
 use function is_string;
 use function trim;
 
 final class Libglocal{
-	public static function init(Plugin $plugin, string $langDir = "lang/") : LanguageManager{
-		$index = $plugin->getResource($langDir . "index.txt");
+	public static function init(Plugin $plugin, string $langDir = "lang/") : LangManager{
+		$index = $plugin->getResource($langDir . "langs.txt");
 		if($index === null){
-			throw new PluginException("resources/{$langDir}index.txt is missing in " . $plugin->getName());
+			throw new PluginException("resources/{$langDir}langs.txt is missing in " . $plugin->getName());
 		}
 
-		$mgr = new LanguageManager($plugin);
+		$mgr = new LangManager($plugin);
 		if($plugin instanceof MessageParameterFactory){
 			$mgr->addParameterFactory($plugin);
 		}
@@ -48,7 +52,7 @@ final class Libglocal{
 			if(!empty($line) && $line{0} !== "#"){
 				$fh = $plugin->getResource($fileName = $langDir . $line . ".yml");
 				if($fh === null){
-					throw new PluginException("resources/{$fileName} is missing in {$plugin->getName()}, defined on line $lineNumber of resources/{$langDir}index.txt");
+					throw new PluginException("resources/{$fileName} is missing in {$plugin->getName()}, defined on line $lineNumber of resources/{$langDir}langs.txt");
 				}
 				$mgr->loadFile($line, $fh, $fileName);
 				fclose($fh);
@@ -66,5 +70,15 @@ final class Libglocal{
 			}
 		}
 		return true;
+	}
+
+	public static function printVar($var) : string{
+		if(is_object($var)){
+			return get_class($var);
+		}
+		if(is_array($var)){
+			return "array";
+		}
+		return gettype($var) . "({$var})";
 	}
 }

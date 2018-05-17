@@ -20,18 +20,18 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal;
+namespace SOFe\Libglocal\Component;
 
-use pocketmine\plugin\Plugin;
+use SOFe\Libglocal\Arg\MessageArg;
+use SOFe\Libglocal\Translation;
 
-class LanguageManager{
-	/** @var Plugin */
-	protected $plugin;
+class ArgRefTranslationComponent extends TranslationComponent{
+	/** @var Translation */
+	protected $translation;
+	/** @var MessageArg */
+	protected $arg;
 
-	/** @var string */
-	protected $base;
-
-	public function __construct(Plugin $plugin){
-		$this->plugin = $plugin;
+	public function toString(array $args) : string{
+		return $this->arg->resolve($this->translation->getLang(), $args);
 	}
 }

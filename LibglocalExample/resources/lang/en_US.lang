@@ -1,6 +1,7 @@
 base lang en_US English (US)
 author SOFe, SOF3, Iron(II) Sulphite
 version 2.0 // current version name. For non-base lang files, this should be the targetted base lang version.
+
 messages
     commands // identifier without message = namespace
         friends // subnamespace, called "commands.friends". indent = something belonging to the above element.
@@ -11,7 +12,7 @@ messages
                 arg name // this declares the argument "name". The default argument type is string.
                 doc Informs the player the success of adding a friend.
                 // Docs can be utilized by external editors to assist translation.
-                // Known issue: docs cannot have comments
+                // Known issue in libglocal-idea-plugin: docs cannot have trailing comments on the same line
         error
             // %{...} are spans.
             // 5 "style" spans: info, success, notice, warn, error, which are color codes white, green, aqua, yellow and red.

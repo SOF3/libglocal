@@ -1,0 +1,99 @@
+<?php
+
+/*
+ * libglocal
+ *
+ * Copyright (C) 2018 SOFe
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+declare(strict_types=1);
+
+namespace SOFe\Libglocal;
+
+use InvalidArgumentException;
+use SOFe\Libglocal\Arg\MessageArg;
+use function assert;
+
+class Message{
+	/** @var LangManager */
+	protected $manager;
+	/** @var string */
+	protected $id;
+	/** @var Translation[] */
+	protected $translations = [];
+	/** @var MessageArg[] */
+	protected $args = [];
+	/** @var string */
+	protected $updated;
+
+	/**
+	 * @param LangManager $manager
+	 * @param string      $id
+	 */
+	public function __construct(LangManager $manager, string $id){
+		$this->manager = $manager;
+		$this->id = $id;
+	}
+
+	public function getId() : string{
+		return $this->id;
+	}
+
+	public function getTranslations() : array{
+		return $this->translations;
+	}
+
+	public function getTranslation(string $lang) : ?Translation{
+		return $this->translations[$lang] ?? null;
+	}
+
+	/**
+	 * @return MessageArg[]
+	 */
+	public function getArgs() : array{
+		return $this->args;
+	}
+
+	public function getArg(string $lang, string $name) : ?MessageArg{
+		if($this->translations[$lang] !== null && isset($this->translations[$lang]->getArgOverrides()[$name])){
+			return $this->translations[$lang]->getArgOverrides()[$name];
+		}
+		if(isset($this->args[$name])){
+			return $this->args[$name];
+		}
+		return null;
+	}
+
+	public function getUpdatedVersion() : string{
+		return $this->updated;
+	}
+
+	public function translate(string $lang, array $args) : string{
+		foreach($this->args as $argName => $argDecl){
+			if(!isset($args[$argName]) && $argDecl->getDefaultValue() === null){
+				throw new InvalidArgumentException("Required argument $argName for $this->id ($lang) is missing");
+			}
+		}
+
+		$translation = $this->translations[$lang] ?? $this->translations[$this->manager->getBaseLang()];
+		assert($translation !== null);
+
+		$output = "";
+		foreach($translation->getComponents() as $component){
+			$output .= $component->toString($args);
+		}
+		return $output;
+	}
+}

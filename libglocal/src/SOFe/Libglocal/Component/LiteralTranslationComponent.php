@@ -20,8 +20,13 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal;
+namespace SOFe\Libglocal\Component;
 
-class LanguageParser{
+class LiteralTranslationComponent extends TranslationComponent{
+	/** @var string */
+	protected $string;
 
+	public function toString(array $args) : string{
+		return $this->string;
+	}
 }
