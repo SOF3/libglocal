@@ -23,24 +23,39 @@ declare(strict_types=1);
 namespace SOFe\Libglocal;
 
 use SOFe\Libglocal\Arg\MessageArg;
+use SOFe\Libglocal\Component\ComponentHolder;
 use SOFe\Libglocal\Component\TranslationComponent;
 
-class Translation{
+class Translation implements ComponentHolder{
+	public const SPECIAL_ARG_STACK_COLOR = "!!StackSpanColorStack!!";
+	public const SPECIAL_ARG_STACK_FONT = "!!StackSpanFontStack!!";
+
+	/** @var Message */
+	private $message;
 	/** @var string */
 	protected $id;
-
 	/** @var string */
 	protected $lang;
 
 	/** @var TranslationComponent[] */
 	protected $components = [];
-
 	/** @var MessageArg[] */
 	protected $argOverrides = [];
 
 	/** @var string */
 	protected $updated;
 
+
+	public function __construct(Message $message, string $id, string $lang){
+		$this->message = $message;
+		$this->id = $id;
+		$this->lang = $lang;
+	}
+
+
+	public function getMessage() : Message{
+		return $this->message;
+	}
 
 	public function getId() : string{
 		return $this->id;
@@ -53,7 +68,7 @@ class Translation{
 	/**
 	 * @return TranslationComponent[]
 	 */
-	public function getComponents() : array{
+	public function &getComponents() : array{
 		return $this->components;
 	}
 

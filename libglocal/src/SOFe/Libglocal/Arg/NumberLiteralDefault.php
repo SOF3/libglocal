@@ -26,6 +26,10 @@ class NumberLiteralDefault extends MessageArgDefault{
 	/** @var int|float */
 	protected $number;
 
+	public function __construct(float $number){
+		$this->number = $number;
+	}
+
 	public function resolve(string $lang, array $args){
 		return $this->number;
 	}

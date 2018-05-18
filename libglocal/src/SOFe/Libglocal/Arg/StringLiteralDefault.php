@@ -26,6 +26,11 @@ class StringLiteralDefault extends MessageArgDefault{
 	/** @var string */
 	protected $string;
 
+	public function __construct(string $string){
+		$this->string = $string;
+	}
+
+
 	public function resolve(string $lang, array $args) : string{
 		return $this->string;
 	}

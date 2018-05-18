@@ -28,5 +28,8 @@ abstract class TranslationComponent{
 	/** @var Translation */
 	protected $myTranslation;
 
-	public abstract function toString(array $args) : string;
+	public function init() : void{
+	}
+
+	public abstract function toString(array &$args) : string;
 }

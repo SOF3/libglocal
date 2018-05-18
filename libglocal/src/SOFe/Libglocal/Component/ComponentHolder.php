@@ -22,19 +22,9 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\Component;
 
-use SOFe\Libglocal\Translation;
-
-class LiteralTranslationComponent extends TranslationComponent{
-	/** @var string */
-	protected $string;
-
-	public function __construct(Translation $translation, string $string){
-		$this->myTranslation = $translation;
-		$this->string = $string;
-	}
-
-
-	public function toString(array &$args) : string{
-		return $this->string;
-	}
+interface ComponentHolder{
+	/**
+	 * @return TranslationComponent[]
+	 */
+	public function &getComponents() : array;
 }

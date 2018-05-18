@@ -24,17 +24,18 @@ namespace SOFe\Libglocal\Component;
 
 use SOFe\Libglocal\Translation;
 
-class LiteralTranslationComponent extends TranslationComponent{
+class StyleSpanTranslationComponent extends TranslationComponent{
 	/** @var string */
-	protected $string;
+	protected $code;
 
-	public function __construct(Translation $translation, string $string){
+	public function __construct(Translation $translation, string $code){
 		$this->myTranslation = $translation;
-		$this->string = $string;
+		$this->code = $code;
 	}
 
 
 	public function toString(array &$args) : string{
-		return $this->string;
+		$args[Translation::SPECIAL_ARG_STACK_COLOR][0] = $this->code;
+		return $this->code;
 	}
 }

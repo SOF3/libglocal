@@ -22,16 +22,29 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\Component;
 
+use RuntimeException;
 use SOFe\Libglocal\Arg\MessageArg;
 use SOFe\Libglocal\Translation;
 
 class ArgRefTranslationComponent extends TranslationComponent{
-	/** @var Translation */
-	protected $translation;
+	/** @var string */
+	protected $argName;
 	/** @var MessageArg */
 	protected $arg;
 
-	public function toString(array $args) : string{
-		return $this->arg->resolve($this->translation->getLang(), $args);
+	public function __construct(Translation $translation, string $argName){
+		$this->myTranslation = $translation;
+		$this->argName = $argName;
+	}
+
+	public function init() : void{
+		$this->arg = $this->myTranslation->getMessage()->getArg($this->myTranslation->getLang(), $this->argName) ;
+		if($this->arg === null){
+			throw new RuntimeException("Unresolved argument reference \${{$this->argName}}");
+		}
+	}
+
+	public function toString(array &$args) : string{
+		return $this->arg->resolve($this->myTranslation->getLang(), $args);
 	}
 }

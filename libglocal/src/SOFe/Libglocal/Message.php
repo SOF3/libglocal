@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace SOFe\Libglocal;
 
 use InvalidArgumentException;
+use pocketmine\utils\TextFormat;
 use SOFe\Libglocal\Arg\MessageArg;
 use function assert;
 
@@ -31,10 +32,12 @@ class Message{
 	protected $manager;
 	/** @var string */
 	protected $id;
+
 	/** @var Translation[] */
 	protected $translations = [];
 	/** @var MessageArg[] */
 	protected $args = [];
+
 	/** @var string */
 	protected $updated;
 
@@ -47,11 +50,16 @@ class Message{
 		$this->id = $id;
 	}
 
+
+	public function getManager() : LangManager{
+		return $this->manager;
+	}
+
 	public function getId() : string{
 		return $this->id;
 	}
 
-	public function getTranslations() : array{
+	public function &getTranslations() : array{
 		return $this->translations;
 	}
 
@@ -80,6 +88,7 @@ class Message{
 		return $this->updated;
 	}
 
+
 	public function translate(string $lang, array $args) : string{
 		foreach($this->args as $argName => $argDecl){
 			if(!isset($args[$argName]) && $argDecl->getDefaultValue() === null){
@@ -89,6 +98,11 @@ class Message{
 
 		$translation = $this->translations[$lang] ?? $this->translations[$this->manager->getBaseLang()];
 		assert($translation !== null);
+
+		if(!isset($args[Translation::SPECIAL_ARG_STACK_COLOR], $args[Translation::SPECIAL_ARG_STACK_FONT])){
+			$args[Translation::SPECIAL_ARG_STACK_COLOR] = [TextFormat::WHITE];
+			$args[Translation::SPECIAL_ARG_STACK_FONT] = [];
+		}
 
 		$output = "";
 		foreach($translation->getComponents() as $component){

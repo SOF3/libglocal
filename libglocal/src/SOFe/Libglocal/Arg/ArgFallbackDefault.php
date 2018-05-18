@@ -22,9 +22,9 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\Arg;
 
-use function assert;
 use LogicException;
 use SOFe\Libglocal\Message;
+use function assert;
 use function sprintf;
 
 class ArgFallbackDefault extends MessageArgDefault{
@@ -37,23 +37,26 @@ class ArgFallbackDefault extends MessageArgDefault{
 
 	private $resolving = false; // circular reference detection
 
+	public function __construct(Message $message, ?string $myLang, string $argName){
+		$this->message = $message;
+		$this->myLang = $myLang;
+		$this->argName = $argName;
+	}
+
 	public function resolve(string $lang, array $args){
 		if($this->resolving){
 			throw new LogicException(sprintf("Circular argument reference to argument %s detected for %s in %s", $this->argName, $this->message->getId(), $this->myLang ?? "(base lang)"));
 		}
 
-
-		$arg = $this->message->getArg($lang, $this->argName);
-		assert($arg !== null);
 		if(isset($args[$this->argName])){
 			return $args[$this->argName];
 		}
 
 		$this->resolving = true;
-		assert($arg->getDefaultValue() !== null);
+		$arg = $this->message->getArg($lang, $this->argName);
+		assert($arg !== null && $arg->getDefaultValue() !== null);
 		$result = $arg->getDefaultValue()->resolve($lang, $args);
 		$this->resolving = false;
-
 
 		return $result;
 	}
