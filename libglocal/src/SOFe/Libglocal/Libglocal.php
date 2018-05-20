@@ -28,7 +28,8 @@ use function get_class;
 use function gettype;
 use function is_array;
 use function is_object;
-use function strpos;
+use function preg_match;
+use function preg_quote;
 use function substr;
 
 final class Libglocal{
@@ -46,7 +47,8 @@ final class Libglocal{
 		// TODO download stdlib
 
 		foreach($plugin->getResources() as $file){
-			if(strpos($file, $plugin->getResources() . $langDir) === 0){
+			$file = (string) $file;
+			if(preg_match('~/' . preg_quote($langDir, '~') . '[^/]+.lang$/~',  $file)){
 				$manager->loadFile($file, fopen($file, "rb"));
 			}
 		}
