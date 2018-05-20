@@ -1,0 +1,13 @@
+lang zh_TW 繁體中文
+author SOFe
+version 0.2.0
+
+messages
+    std
+        ordinal ${ord}
+            arg ord
+                default 第%d
+                updated 0.2.0
+        list
+            delimiter 、
+                updated 0.2.0

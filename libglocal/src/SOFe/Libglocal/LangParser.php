@@ -164,14 +164,14 @@ class LangParser{
 			}
 
 			$this->base = isset($match[1]);
-			$this->langId = $reader->substrBefore(" \t", "Missing lang local name; syntax: [base] lang <lang ID> <lang local name>");
+			$this->langId = $reader->consumeUntilAny(" \t", "Missing lang local name; syntax: [base] lang <lang ID> <lang local name>");
 			$reader->readWhitespace();
 			$this->langLocal = $reader->remaining();
 			return;
 		}
 
 		if($reader->consumeRegex('/^author[ \t]+/iu') !== null){
-			while(($author = $reader->substrBefore(",")) !== null){
+			while(($author = $reader->consumeUntilAny(",")) !== null){
 				$author = MultibyteLineReader::trim($author, true, true);
 				if($author !== null){
 					$this->authors[] = $author;
@@ -230,7 +230,7 @@ class LangParser{
 		if($this->scope === self::SCOPE_TREE || $this->scope === self::SCOPE_MESSAGE){
 			$this->idStack[] = $this->parseChildMessageGroupOrEntry($reader);
 		}elseif($this->scope === self::SCOPE_MODIFIER){
-			$this->parseMessageModifier($reader);
+			$this->parseModifier($reader);
 		}else{
 			$this->throw("Indentation error");
 		}
@@ -253,7 +253,7 @@ class LangParser{
 			$this->manager->getMessages()[$fullId] = $this->currentMessage;
 		}else{
 			if(!isset($this->manager->getMessages()[$fullId])){
-				$this->manager->getPlugin()->getLogger()->notice("The message $fullId from $this->fileHumanName will not be loaded because it is not declared in the base lang file");
+				$this->manager->getPlugin()->getLogger()->notice("[libglocal] The message $fullId from $this->fileHumanName will not be loaded because it is not declared in the base lang file");
 			}
 			$this->currentMessage = $this->manager->getMessages()[$fullId];
 		}
@@ -273,7 +273,7 @@ class LangParser{
 	private function parseMessageValue(MultibyteLineReader $reader, bool $inSpan) : void{
 		$buffer = "";
 
-		while(($literal = $reader->substrBefore("#\$%\\" . ($inSpan ? "}" : ""))) !== null){
+		while(($literal = $reader->consumeUntilAny("#\$%/\\" . ($inSpan ? "}" : ""))) !== null){
 			if($literal !== ""){
 				$buffer .= $literal;
 			}
@@ -281,6 +281,19 @@ class LangParser{
 			$char = $reader->consume(1);
 			if($char === "\\"){
 				$buffer .= $this->resolveEscape($reader->consume(1));
+				continue;
+			}
+
+			if($char === "/"){
+				if($reader->peek(1) === "/"){
+					if($inSpan){
+						$this->throw("Comments not allowed inside spans. Change // to \\// if you really intended to write slashes.");
+					}
+					$this->currentComponentHolder->getComponents()[] = new LiteralTranslationComponent($this->currentTranslation, $buffer);
+					return;
+				}
+
+				$buffer .= "/";
 				continue;
 			}
 
@@ -299,7 +312,7 @@ class LangParser{
 			$this->currentComponentHolder->getComponents()[] = new LiteralTranslationComponent($this->currentTranslation, $buffer);
 
 			if($char === "\$"){
-				$argName = MultibyteLineReader::trim($reader->substrBefore("}"), true, true);
+				$argName = MultibyteLineReader::trim($reader->consumeUntilAny("}"), true, true);
 				$this->currentComponentHolder->getComponents()[] = new ArgRefTranslationComponent($this->currentTranslation, $argName);
 				continue;
 			}
@@ -330,6 +343,10 @@ class LangParser{
 				return $char;
 			case 'n':
 				return "\n";
+			case 's':
+				return " ";
+			case '0':
+				return "";
 			default:
 				throw $this->throw("Illegal escape sequence \\$char");
 		}
@@ -337,12 +354,12 @@ class LangParser{
 
 	private function parseMessageRef(MultibyteLineReader $reader) : MessageRefTranslationComponent{
 		$reader->readWhitespace();
-		$messageId = $reader->substrBefore(" \t,}", "MESSAGE_ID expected after %{");
+		$messageId = $reader->consumeUntilAny(" \t,}", "MESSAGE_ID expected after %{");
 		$args = [];
 		while(([$argName] = $reader->consumeRegex('/^[, \t]+([\w.-]+)[ \t]*=[ \t]*/u')) !== null){
 			$args[$argName] = $this->parseDefaultValue($reader);
 		}
-		$substr = $reader->substrBefore("}", "#{} is not closed");
+		$substr = $reader->consumeUntilAny("}", "#{} is not closed");
 		if(trim($substr, ", \t") !== ""){
 			$this->throw("Invalid content in #{}: $substr");
 		}
@@ -375,18 +392,47 @@ class LangParser{
 		return $child;
 	}
 
-	private function parseMessageModifier(MultibyteLineReader $reader) : void{
-		if(($match = $reader->consumeRegex('/^arg[ \t]+/iu')) !== null){
-			// TODO parse args into MessageArg
+	private function parseModifier(MultibyteLineReader $reader) : void{
+		if($reader->consumeRegex('/^arg[ \t]+/iu') !== null){
+			$this->parseArgModifier($reader);
 			return;
 		}
-		if(($match = $reader->consumeRegex('/^doc[ \t]+/iu')) !== null){
-			// TODO store docs into the translation
+
+		if($reader->consumeRegex('/^doc[ \t]+/iu') !== null){
+			$this->parseDocModifier($reader);
 			return;
 		}
+
 		if(($match = $reader->consumeRegex('/^(since|updated)[ \t]+/iu')) !== null){
-			// TODO compare versions against base lang
+			$this->parseVersionModifier($reader, mb_strtolower($match[1]) === "since");
 			return;
+		}
+
+		$this->throw("Unknown modifier statement. Is the line mis-indented?");
+	}
+
+	private function parseArgModifier(MultibyteLineReader $reader) : void{
+
+	}
+
+	private function parseDocModifier(MultibyteLineReader $reader) : void{
+		if(!$this->base){
+			$this->throw("doc statement is only allowed in base lang file");
+		}
+
+		$reader->restoreComment();
+		$this->currentMessage->setDoc($reader->remaining());
+	}
+
+	private function parseVersionModifier(MultibyteLineReader $reader, bool $since) : void{
+		if($since){
+			return; // since is useless right now
+		}
+
+		if($this->base){
+			$this->currentMessage->setUpdatedVersion($reader->remaining());
+		}else{
+			$this->currentTranslation->setUpdated($reader->remaining());
 		}
 	}
 
@@ -398,7 +444,7 @@ class LangParser{
 		if($reader->peek(1) === '"'){
 			$reader->consume(1);
 			$literal = "";
-			while(($substr = $reader->substrBefore("\\\"")) !== null){
+			while(($substr = $reader->consumeUntilAny("\\\"")) !== null){
 				$literal .= $substr;
 				if($reader->consume(1) === '"'){
 					break;

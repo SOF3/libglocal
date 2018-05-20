@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal;
 
+use function mb_strtolower;
 use SOFe\Libglocal\Arg\MessageArg;
 use SOFe\Libglocal\Component\ComponentHolder;
 use SOFe\Libglocal\Component\TranslationComponent;
@@ -42,8 +43,8 @@ class Translation implements ComponentHolder{
 	/** @var MessageArg[] */
 	protected $argOverrides = [];
 
-	/** @var string */
-	protected $updated;
+	/** @var string|null */
+	protected $updated = null;
 
 
 	public function __construct(Message $message, string $id, string $lang){
@@ -79,7 +80,18 @@ class Translation implements ComponentHolder{
 		return $this->argOverrides;
 	}
 
-	public function getUpdated() : string{
+	public function getUpdated() : ?string{
 		return $this->updated;
+	}
+
+	public function setUpdated(?string $updated) : void{
+		$this->updated = $updated;
+
+		if($this->message->getUpdatedVersion() === null){
+			$this->message->getManager()->getPlugin()->getLogger()->warning("[libglocal] The message {$this->message->getId()} does not contain a base version, but the {$this->lang} translation declares a version.");
+		}
+		if(mb_strtolower($this->message->getUpdatedVersion()) !== mb_strtolower($updated)){
+			$this->message->getManager()->getPlugin()->getLogger()->warning("[libglocal] The base version of message {$this->message->getId()} is {$this->message->getUpdatedVersion()}, while the {$this->lang} translation targets the version {$updated}. This translation will not be used.");
+		}
 	}
 }

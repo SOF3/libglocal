@@ -38,8 +38,10 @@ class Message{
 	/** @var MessageArg[] */
 	protected $args = [];
 
-	/** @var string */
-	protected $updated;
+	/** @var string|null */
+	protected $doc = null;
+	/** @var string|null */
+	protected $updated = null;
 
 	/**
 	 * @param LangManager $manager
@@ -84,8 +86,20 @@ class Message{
 		return null;
 	}
 
-	public function getUpdatedVersion() : string{
+	public function getDoc() : ?string{
+		return $this->doc;
+	}
+
+	public function setDoc(?string $doc) : void{
+		$this->doc = $doc;
+	}
+
+	public function getUpdatedVersion() : ?string{
 		return $this->updated;
+	}
+
+	public function setUpdatedVersion(?string $updated) : void{
+		$this->updated = $updated;
 	}
 
 

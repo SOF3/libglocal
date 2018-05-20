@@ -97,7 +97,7 @@ class MultibyteLineReader{
 		return $whitespace;
 	}
 
-	public function substrBefore(string $charset, ?string $exception = null) : ?string{
+	public function consumeUntilAny(string $charset, ?string $exception = null) : ?string{
 		for($i = 0, $iMax = mb_strlen($charset); $i < $iMax; ++$i){
 			$char = mb_substr($charset, $i, 1);
 			if(($pos = mb_strpos($this->line, $char, $this->offset)) !== false){
@@ -112,6 +112,20 @@ class MultibyteLineReader{
 		}
 
 		return null;
+	}
+
+	public function consumeUntilExact(string $stop, ?string $exception = null) : ?string{
+		if(($pos = mb_strpos($this->line, $stop, $this->offset)) === false){
+			if($exception!==null){
+				throw $this->langParser->throw($exception);
+			}
+
+			return null;
+		}
+
+		$ret = mb_substr($this->line, $this->offset, $pos - $this->offset);
+		$this->offset = $pos;
+		return $ret;
 	}
 
 	public function remaining() : string{
