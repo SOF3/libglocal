@@ -22,10 +22,9 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal;
 
-use function mb_strtolower;
-use SOFe\Libglocal\Arg\MessageArg;
 use SOFe\Libglocal\Component\ComponentHolder;
 use SOFe\Libglocal\Component\TranslationComponent;
+use function mb_strtolower;
 
 class Translation implements ComponentHolder{
 	public const SPECIAL_ARG_STACK_COLOR = "!!StackSpanColorStack!!";
@@ -53,6 +52,15 @@ class Translation implements ComponentHolder{
 		$this->lang = $lang;
 	}
 
+	public function init() : void{
+		foreach($this->argOverrides as $arg){
+			$arg->init();
+		}
+		foreach($this->components as $component){
+			$component->init();
+		}
+	}
+
 
 	public function getMessage() : Message{
 		return $this->message;
@@ -76,7 +84,7 @@ class Translation implements ComponentHolder{
 	/**
 	 * @return MessageArg[]
 	 */
-	public function getArgOverrides() : array{
+	public function &getArgOverrides() : array{
 		return $this->argOverrides;
 	}
 

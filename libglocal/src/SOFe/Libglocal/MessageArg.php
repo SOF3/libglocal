@@ -20,19 +20,36 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Arg;
+namespace SOFe\Libglocal;
 
-use SOFe\Libglocal\Message;
+use SOFe\Libglocal\ArgDefault\ArgDefault;
+use SOFe\Libglocal\ArgType\ArgType;
 
 class MessageArg{
-	/** @var string */
-	protected $name;
 	/** @var Message */
 	protected $message;
-	/** @var MessageArgType */
+	/** @var string */
+	protected $name;
+	/** @var ArgType */
 	protected $type;
-	/** @var MessageArgDefault|null */
+	/** @var ArgDefault|null */
 	protected $defaultValue;
+
+	public function __construct(Message $message, string $name, ArgType $type, ?ArgDefault $defaultValue){
+		$this->message = $message;
+		$this->name = $name;
+		$this->type = $type;
+		$type->setArg($this);
+		$this->defaultValue = $defaultValue;
+	}
+
+	public function init() : void{
+		$this->type->init();
+		if($this->defaultValue !== null){
+			$this->defaultValue->init();
+		}
+	}
+
 
 	public function getName() : string{
 		return $this->name;
@@ -42,11 +59,11 @@ class MessageArg{
 		return $this->message;
 	}
 
-	public function getType() : MessageArgType{
+	public function getType() : ArgType{
 		return $this->type;
 	}
 
-	public function getDefaultValue() : ?MessageArgDefault{
+	public function getDefaultValue() : ?ArgDefault{
 		return $this->defaultValue;
 	}
 

@@ -23,43 +23,36 @@ declare(strict_types=1);
 namespace SOFe\Libglocal;
 
 use pocketmine\plugin\Plugin;
-use pocketmine\plugin\PluginException;
-use function fclose;
-use function fgets;
+use function fopen;
 use function get_class;
 use function gettype;
 use function is_array;
 use function is_object;
-use function is_string;
-use function trim;
+use function strpos;
+use function substr;
 
 final class Libglocal{
 	public static function init(Plugin $plugin, string $langDir = "lang/") : LangManager{
-		$index = $plugin->getResource($langDir . "langs.txt");
-		if($index === null){
-			throw new PluginException("resources/{$langDir}langs.txt is missing in " . $plugin->getName());
+		if(substr($langDir, -1) !== "/"){
+			$langDir .= "/";
 		}
 
-		$mgr = new LangManager($plugin);
-		if($plugin instanceof MessageParameterFactory){
-			$mgr->addParameterFactory($plugin);
+		$manager = new LangManager($plugin);
+
+		if($plugin instanceof ArgTypeProvider){
+			$manager->addTypeProvider($plugin);
 		}
 
-		$lineNumber = 0;
-		while(is_string($line = fgets($index))){
-			++$lineNumber;
-			$line = trim($line);
-			if(!empty($line) && $line{0} !== "#"){
-				$fh = $plugin->getResource($fileName = $langDir . $line . ".yml");
-				if($fh === null){
-					throw new PluginException("resources/{$fileName} is missing in {$plugin->getName()}, defined on line $lineNumber of resources/{$langDir}langs.txt");
-				}
-				$mgr->loadFile($line, $fh, $fileName);
-				fclose($fh);
+		// TODO download stdlib
+
+		foreach($plugin->getResources() as $file){
+			if(strpos($file, $plugin->getResources() . $langDir) === 0){
+				$manager->loadFile($file, fopen($file, "rb"));
 			}
 		}
 
-		return $mgr;
+		$manager->init();
+		return $manager;
 	}
 
 	public static function isLinearArray(array $array) : bool{

@@ -23,8 +23,8 @@ declare(strict_types=1);
 namespace SOFe\Libglocal;
 
 use InvalidArgumentException;
+use LogicException;
 use pocketmine\utils\TextFormat;
-use SOFe\Libglocal\Arg\MessageArg;
 use function assert;
 
 class Message{
@@ -33,6 +33,8 @@ class Message{
 	/** @var string */
 	protected $id;
 
+	/** @var Translation */
+	protected $baseTranslation;
 	/** @var Translation[] */
 	protected $translations = [];
 	/** @var MessageArg[] */
@@ -43,13 +45,17 @@ class Message{
 	/** @var string|null */
 	protected $updated = null;
 
-	/**
-	 * @param LangManager $manager
-	 * @param string      $id
-	 */
+
 	public function __construct(LangManager $manager, string $id){
 		$this->manager = $manager;
 		$this->id = $id;
+	}
+
+	public function setBaseTranslation(Translation $translation) : void{
+		if(isset($this->baseTranslation)){
+			throw new LogicException("Attempt to set base translation twice");
+		}
+		$this->baseTranslation = $translation;
 	}
 
 
@@ -72,7 +78,7 @@ class Message{
 	/**
 	 * @return MessageArg[]
 	 */
-	public function getArgs() : array{
+	public function &getArgs() : array{
 		return $this->args;
 	}
 
@@ -103,6 +109,16 @@ class Message{
 	}
 
 
+	public function init() : void{
+		foreach($this->args as $arg){
+			$arg->init();
+		}
+		foreach($this->translations as $translation){
+			$translation->init();
+		}
+	}
+
+
 	public function translate(string $lang, array $args) : string{
 		foreach($this->args as $argName => $argDecl){
 			if(!isset($args[$argName]) && $argDecl->getDefaultValue() === null){
@@ -110,7 +126,7 @@ class Message{
 			}
 		}
 
-		$translation = $this->translations[$lang] ?? $this->translations[$this->manager->getBaseLang()];
+		$translation = $this->translations[$lang] ?? $this->baseTranslation;
 		assert($translation !== null);
 
 		if(!isset($args[Translation::SPECIAL_ARG_STACK_COLOR], $args[Translation::SPECIAL_ARG_STACK_FONT])){

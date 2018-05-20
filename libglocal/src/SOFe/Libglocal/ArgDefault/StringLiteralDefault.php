@@ -20,11 +20,18 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Arg;
+namespace SOFe\Libglocal\ArgDefault;
 
-abstract class MessageArgType{
-	/** @var MessageArg */
-	protected $arg;
+class StringLiteralDefault extends ArgDefault{
+	/** @var string */
+	protected $string;
 
-	public abstract function toString($value) : string;
+	public function __construct(string $string){
+		$this->string = $string;
+	}
+
+
+	public function resolve(string $lang, array $args) : string{
+		return $this->string;
+	}
 }

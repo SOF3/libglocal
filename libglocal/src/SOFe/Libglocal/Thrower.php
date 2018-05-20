@@ -20,18 +20,10 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Arg;
+namespace SOFe\Libglocal;
 
-class StringLiteralDefault extends MessageArgDefault{
-	/** @var string */
-	protected $string;
+use Throwable;
 
-	public function __construct(string $string){
-		$this->string = $string;
-	}
-
-
-	public function resolve(string $lang, array $args) : string{
-		return $this->string;
-	}
+interface Thrower{
+	public function throw(string $message) : Throwable;
 }

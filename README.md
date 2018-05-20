@@ -100,7 +100,7 @@ There are two types for numbers: `int`/`integer` and `float`/`double`/`real`/`nu
 
 For the former type, the argument must be a PHP int. For the latter, the argument must be a PHP int or PHP float. Passing in other types would result in an `InvalidArgumentException`.
 
-Additionally, the range(s) of the number can be specified in the [numeric constraints format](#numeric-constraints) on an indented line. If there are multiple ranges, they are combined with a logic "or". For example:
+Additionally, the range(s) of the number can be specified in the [numeric constraints format](#numeric-constraints) on an indented line. If there are multiple ranges, they are combined with a logic "or", i.e. an `InvalidArgumentException` will be thrown if none of the constraints match the number. For example:
 
 ```
   message-id The year ${year} is a leap number, and the number ${n} is positive but less than or equal to 100.
@@ -113,7 +113,7 @@ Additionally, the range(s) of the number can be specified in the [numeric constr
 
 (Leap year algorithm based on [Microsoft's formula][microsoft leap year formula]: `OR(MOD(A1,400)=0,AND(MOD(A1,4)=0,MOD(A1,100)<>0))`)
 
-###### `quantity`
+###### `quantity`/`fquantity`
 The `quantity` argument type is a number that is expressed differently when the number changes. A common usage is to handle plural forms. The format should be like this:
 
 ```
@@ -127,7 +127,8 @@ There may be multiple `when` constraints. The part before the `:` is a [numeric 
 
 If none of the `when` constraints is matched, the `default` constraint would be used. The `default` line can be omitted if all acceptable numbers must match some of the `when` constriants.
 
-`quantity` is an extension of `number`, i.e. it can also use the `range` constraints from `number`.
+`fquantity` is a variant of `quantity` that allows non-integer numbers, just like `float` from `int`. `quantity` is an extension of `int` and `fquantity` is an extension of `number` , i.e. they can also use the `range` constraints from `int`/`number`.
+
 
 ###### Custom argument types
 The plugin can provide custom argument types. Argument type names must be in the identifier format (`A-Z` `a-z` `0-9` `_` `-` `.`).
@@ -140,13 +141,13 @@ The delimiter can be overridden both for the whole locale and only for this mess
 ```
   message-id You can choose ${color-options} wool.
     arg color-options list:string
-      delimiter: /
+      delimiter: \s/\s
 ```
 
 #### Numeric constraints
 Numeric constraints are used in int/float range and quantifiers to validate/filter a **single** value (can't be used to compare against other arguments). There are 6 basic constraint types: equal to (`=`), not equal to (`!=`/`<>`), less than (`<`), greater than (`>`), less than or equal to (`<=`), greater than or equal to (`>=`), followed by a number.
 
-In addition, the modulus operator `%` can be applied before the 6 constraints, also followed by a number (the modulus, can be any non-zero real number), e.g. `%2=0` is a constraint for even numbers.
+In addition, the modulus operator `%` can be applied before the 6 constraints, also followed by a number (the modulus, can be any non-zero real number), e.g. `%2=0` is a constraint for even numbers. Libglocal ensures that the remainder is always non-negative, i.e. if it is negative, libglocal adds the modulus to the remainder.
 
 Multiple constraints can be combined for a logic "or" by separating them by spaces. On the other hand, there must not be spaces within the same constraint.
 

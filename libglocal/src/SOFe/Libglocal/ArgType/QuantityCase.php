@@ -20,10 +20,27 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Arg;
+namespace SOFe\Libglocal\ArgType;
 
-class StringArgType extends MessageArgType{
-	public function toString($value) : string{
-		return (string) $value;
+use function sprintf;
+
+class QuantityCase{
+	/** @var NumberConstraint[] */
+	protected $constraints;
+	/** @var string */
+	protected $value;
+
+	public function __construct(array $constraints, string $value){
+		$this->constraints = $constraints;
+		$this->value = $value;
+	}
+
+	public function resolve(float $number) : ?string{
+		foreach($this->constraints as $constraint){
+			if(!$constraint->matches($number)){
+				return null;
+			}
+		}
+		return sprintf($this->value, $number);
 	}
 }

@@ -20,14 +20,14 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Arg;
+namespace SOFe\Libglocal\ArgDefault;
 
 use LogicException;
 use SOFe\Libglocal\Message;
 use function assert;
 use function sprintf;
 
-class ArgFallbackDefault extends MessageArgDefault{
+class ArgFallbackDefault extends ArgDefault{
 	/** @var Message */
 	protected $message;
 	/** @var string|null */

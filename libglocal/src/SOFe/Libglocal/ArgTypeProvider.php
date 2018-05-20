@@ -20,13 +20,10 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Arg;
+namespace SOFe\Libglocal;
 
-abstract class MessageArgDefault{
-	/**
-	 * @param string $lang
-	 * @param array  $args
-	 * @return mixed
-	 */
-	public abstract function resolve(string $lang, array $args);
+use SOFe\Libglocal\ArgType\ArgType;
+
+interface ArgTypeProvider{
+	public function createArgType(?string $modifier, string $type) : ?ArgType;
 }

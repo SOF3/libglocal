@@ -20,20 +20,17 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Arg;
+namespace SOFe\Libglocal\ArgDefault;
 
-use InvalidArgumentException;
-use SOFe\Libglocal\Libglocal;
-use function is_numeric;
-use function sprintf;
+class NumberLiteralDefault extends ArgDefault{
+	/** @var float */
+	protected $number;
 
-class NumericArgType extends MessageArgType{
+	public function __construct(float $number){
+		$this->number = $number;
+	}
 
-	public function toString($value) : string{
-		if(!is_numeric($value)){
-			throw new InvalidArgumentException(sprintf("%s expected argument %s to be int/float/numeric string, got %s", $this->arg->getMessage()->getId(), $this->arg->getName(), Libglocal::printVar($value)));
-		}
-
-		return (string) $value;
+	public function resolve(string $lang, array $args){
+		return $this->number;
 	}
 }

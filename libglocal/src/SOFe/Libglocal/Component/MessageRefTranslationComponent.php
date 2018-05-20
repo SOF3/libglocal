@@ -24,16 +24,15 @@ namespace SOFe\Libglocal\Component;
 
 use pocketmine\utils\TextFormat;
 use RuntimeException;
-use SOFe\Libglocal\Arg\MessageArgDefault;
 use SOFe\Libglocal\Message;
 use SOFe\Libglocal\Translation;
 
 class MessageRefTranslationComponent extends TranslationComponent{
-	/** @var string  */
+	/** @var string */
 	protected $refMessageId;
 	/** @var Message */
 	protected $refMessage;
-	/** @var MessageArgDefault[] */
+	/** @var \SOFe\Libglocal\ArgDefault\ArgDefault[] */
 	protected $refArgs;
 
 	protected $resolving = false;

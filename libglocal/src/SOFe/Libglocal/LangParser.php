@@ -23,10 +23,10 @@ declare(strict_types=1);
 namespace SOFe\Libglocal;
 
 use pocketmine\utils\TextFormat;
-use SOFe\Libglocal\Arg\ArgFallbackDefault;
-use SOFe\Libglocal\Arg\MessageArgDefault;
-use SOFe\Libglocal\Arg\NumberLiteralDefault;
-use SOFe\Libglocal\Arg\StringLiteralDefault;
+use SOFe\Libglocal\ArgDefault\ArgDefault;
+use SOFe\Libglocal\ArgDefault\ArgFallbackDefault;
+use SOFe\Libglocal\ArgDefault\NumberLiteralDefault;
+use SOFe\Libglocal\ArgDefault\StringLiteralDefault;
 use SOFe\Libglocal\Component\ArgRefTranslationComponent;
 use SOFe\Libglocal\Component\ComponentHolder;
 use SOFe\Libglocal\Component\LiteralTranslationComponent;
@@ -34,6 +34,7 @@ use SOFe\Libglocal\Component\MessageRefTranslationComponent;
 use SOFe\Libglocal\Component\StackSpanTranslationComponent;
 use SOFe\Libglocal\Component\StyleSpanTranslationComponent;
 use SOFe\Libglocal\Component\TranslationComponent;
+use Throwable;
 use function array_slice;
 use function array_unshift;
 use function assert;
@@ -46,13 +47,15 @@ use function max;
 use function mb_strlen;
 use function mb_strtolower;
 use function mb_substr;
+use function preg_match;
 use function trim;
 
-class LangParser{
+class LangParser implements Thrower{
 	private const SCOPE_ROOT = 1;
 	private const SCOPE_TREE = 2;
 	private const SCOPE_MESSAGE = 3;
 	private const SCOPE_MODIFIER = 4;
+	private const SCOPE_CONSTRAINT = 5;
 
 	private const SPAN_STYLES = [
 		"info" => TextFormat::WHITE,
@@ -90,6 +93,8 @@ class LangParser{
 	protected $currentTranslation = null;
 	/** @var ComponentHolder|null */
 	protected $currentComponentHolder = null;
+	/** @var MessageArg|null */
+	protected $currentArg = null;
 
 	/** @var bool */
 	protected $base = false;
@@ -111,6 +116,26 @@ class LangParser{
 
 	public function close() : void{
 		fclose($this->fh);
+	}
+
+	public function isBase() : bool{
+		return $this->base;
+	}
+
+	public function getLangId() : string{
+		return $this->langId;
+	}
+
+	public function getLangLocal() : string{
+		return $this->langLocal;
+	}
+
+	public function getAuthors() : array{
+		return $this->authors;
+	}
+
+	public function getVersion() : ?string{
+		return $this->version;
 	}
 
 	public function parseHeader() : void{
@@ -143,7 +168,7 @@ class LangParser{
 		}
 	}
 
-	public function throw(string $exception) : ParseException{
+	public function throw(string $exception) : Throwable{
 		throw new ParseException("Error parsing lang file: {$exception} on line {$this->line} in $this->fileHumanName");
 	}
 
@@ -231,6 +256,10 @@ class LangParser{
 			$this->idStack[] = $this->parseChildMessageGroupOrEntry($reader);
 		}elseif($this->scope === self::SCOPE_MODIFIER){
 			$this->parseModifier($reader);
+		}elseif($this->scope === self::SCOPE_CONSTRAINT){
+			if(!$this->currentArg->getType()->parseConstraint($reader)){
+				$this->throw("This argType does not support this constraint");
+			}
 		}else{
 			$this->throw("Indentation error");
 		}
@@ -258,12 +287,14 @@ class LangParser{
 			$this->currentMessage = $this->manager->getMessages()[$fullId];
 		}
 
-		$this->currentMessage->getTranslations()[$this->langId]
-			= $this->currentComponentHolder
+		$this->currentMessage->getTranslations()[$this->langId] = $this->currentComponentHolder
 			= $this->currentTranslation = new Translation($this->currentMessage, $fullId, $this->langId);
+		if($this->base){
+			$this->currentMessage->setBaseTranslation($this->currentTranslation);
+		}
 
 		$reader->readWhitespace();
-		$reader->restoreComment();
+		$reader->useEscapedComment();
 		$this->parseMessageValue($reader, false);
 
 		$this->scope = self::SCOPE_MESSAGE;
@@ -280,7 +311,7 @@ class LangParser{
 
 			$char = $reader->consume(1);
 			if($char === "\\"){
-				$buffer .= $this->resolveEscape($reader->consume(1));
+				$buffer .= self::resolveEscape($reader->consume(1), $this);
 				continue;
 			}
 
@@ -329,26 +360,6 @@ class LangParser{
 		$buffer .= $reader->remaining();
 		if($buffer !== ""){
 			$this->currentComponentHolder->getComponents()[] = new LiteralTranslationComponent($this->currentTranslation, $buffer);
-		}
-	}
-
-	private function resolveEscape(string $char) : string{
-		switch($char){
-			case '#':
-			case '$':
-			case '%':
-			case '/':
-			case '\\':
-			case '}':
-				return $char;
-			case 'n':
-				return "\n";
-			case 's':
-				return " ";
-			case '0':
-				return "";
-			default:
-				throw $this->throw("Illegal escape sequence \\$char");
 		}
 	}
 
@@ -412,7 +423,40 @@ class LangParser{
 	}
 
 	private function parseArgModifier(MultibyteLineReader $reader) : void{
+		$argName = $reader->consumeUntilAny(" \t") ?? $reader->remaining();
+		if(!preg_match('/^[\w.-]+$/u', $argName)){
+			$this->throw("$argName is not a valid argument name");
+		}
 
+		$type = null;
+		$reader->readWhitespace();
+		$argType = mb_strtolower($reader->consumeUntilAny(" \t") ?? $reader->remaining() ?: "string");
+		if($argType !== ""){
+			if(!preg_match('/^(?:([\w.-]+):)([\w.-]+)$/u', $argType, $match)){
+				$this->throw("$argType is not a valid argument type");
+			}
+			$type = $this->manager->createArgType($match[1] !== "" ? $match[1] : null, $match[2]);
+		}
+
+		$default = null;
+		$reader->readWhitespace();
+		if($reader->hasMore() && $reader->peek(1) === "="){
+			$reader->consume(1);
+			$reader->readWhitespace();
+			$default = $this->parseDefaultValue($reader);
+		}
+
+		$reader->readWhitespace();
+		if($reader->hasMore()){
+			$this->throw("End of line expected, got " . $reader->remaining());
+		}
+
+		$this->currentArg = new MessageArg($this->currentMessage, $argName, $type, $default);
+		if($this->base){
+			$this->currentMessage->getArgs()[$argName] = $this->currentArg;
+		}else{
+			$this->currentTranslation->getArgOverrides()[$argName] = $this->currentArg;
+		}
 	}
 
 	private function parseDocModifier(MultibyteLineReader $reader) : void{
@@ -420,7 +464,7 @@ class LangParser{
 			$this->throw("doc statement is only allowed in base lang file");
 		}
 
-		$reader->restoreComment();
+		$reader->useEscapedComment();
 		$this->currentMessage->setDoc($reader->remaining());
 	}
 
@@ -436,7 +480,7 @@ class LangParser{
 		}
 	}
 
-	private function parseDefaultValue(MultibyteLineReader $reader) : MessageArgDefault{
+	private function parseDefaultValue(MultibyteLineReader $reader) : ArgDefault{
 		if(($number = $reader->consumeRegex('/^-?[0-9]+(?:\.[0-9]+)?/u')) !== null){
 			return new NumberLiteralDefault((float) $number);
 		}
@@ -492,5 +536,25 @@ class LangParser{
 			}
 		}
 		throw $this->throw("Inconsistent indentation");
+	}
+
+	public static function resolveEscape(string $char, Thrower $thrower) : string{
+		switch($char){
+			case '#':
+			case '$':
+			case '%':
+			case '/':
+			case '\\':
+			case '}':
+				return $char;
+			case 'n':
+				return "\n";
+			case 's':
+				return " ";
+			case '0':
+				return "";
+			default:
+				throw $thrower->throw("Illegal escape sequence \\$char");
+		}
 	}
 }

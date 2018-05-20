@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal;
 
+use AssertionError;
+use Throwable;
 use function assert;
 use function mb_strlen;
 use function mb_strpos;
@@ -29,7 +31,7 @@ use function mb_strtolower;
 use function mb_substr;
 use function preg_match;
 
-class MultibyteLineReader{
+class MultibyteLineReader implements Thrower{
 	/** @var LangParser */
 	private $langParser;
 	/** @var string */
@@ -116,7 +118,7 @@ class MultibyteLineReader{
 
 	public function consumeUntilExact(string $stop, ?string $exception = null) : ?string{
 		if(($pos = mb_strpos($this->line, $stop, $this->offset)) === false){
-			if($exception!==null){
+			if($exception !== null){
 				throw $this->langParser->throw($exception);
 			}
 
@@ -161,10 +163,61 @@ class MultibyteLineReader{
 		return mb_substr($this->line, $this->offset, $length);
 	}
 
+	public function hasMore() : bool{
+		return $this->offset < $this->lineLength;
+	}
+
 	public function restoreComment() : void{
 		$this->line = $this->original;
 		$this->lowerLine = mb_strtolower($this->original);
 		$this->lineLength = mb_strlen($this->original);
+	}
+
+	public function useEscapedComment(int $offset = -1) : void{
+		if($offset === -1){
+			$offset = $this->offset;
+		}
+		$slash = mb_strpos($this->original, "/");
+		$backslash = mb_strpos($this->original, "\\");
+
+		// five conditions:
+		// (1) neither exist
+		// (2) backslash exist but slash does not exist
+		// (3) slash exist but backslash does not exist
+		// (4) both exist and slash is before backslash
+		// (5) both exist and backslash is before slash
+		if($backslash === false && $slash === false){
+			// (1)
+			$this->restoreComment(); // last part of line without any /\ reached, line has no comments
+			return;
+		}
+
+
+		if($backslash !== false && ($slash === false || $backslash < $slash)){
+			// (2) or (5)
+			$this->useEscapedComment($backslash + 2); // skip backslash
+			return;
+		}
+
+
+		if($slash !== false && ($backslash === false || $slash < $backslash)){
+			// (3) or (4): we have a slash, and backslash might be somewhere behind the slash which we don't care
+			if(mb_substr($this->original, $slash + 1, 1) !== "/"){
+				$this->useEscapedComment($slash + 1); // not a //, but watch out for /\, so only skip this slash
+				return;
+			}
+			// found a //, truncate before slash
+			$this->line = mb_substr($this->original, 0, $slash);
+			$this->lowerLine = mb_strtolower($this->line);
+			$this->lineLength = mb_strlen($this->line);
+			return;
+		}
+
+		throw new AssertionError("Invalid control flow");
+	}
+
+	public function throw(string $error) : Throwable{
+		throw $this->langParser->throw($error);
 	}
 
 	public static function trim(string $string, bool $left, bool $right) : string{

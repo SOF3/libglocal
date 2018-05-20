@@ -20,31 +20,26 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Component;
+namespace SOFe\Libglocal\ArgType;
 
-use RuntimeException;
 use SOFe\Libglocal\MessageArg;
-use SOFe\Libglocal\Translation;
+use SOFe\Libglocal\MultibyteLineReader;
 
-class ArgRefTranslationComponent extends TranslationComponent{
-	/** @var string */
-	protected $argName;
+abstract class ArgType{
 	/** @var MessageArg */
 	protected $arg;
 
-	public function __construct(Translation $translation, string $argName){
-		$this->myTranslation = $translation;
-		$this->argName = $argName;
+	public function setArg(MessageArg $arg) : void{
+		$this->arg = $arg;
 	}
 
 	public function init() : void{
-		$this->arg = $this->myTranslation->getMessage()->getArg($this->myTranslation->getLang(), $this->argName);
-		if($this->arg === null){
-			throw new RuntimeException("Unresolved argument reference \${{$this->argName}}");
-		}
+
 	}
 
-	public function toString(array &$args) : string{
-		return $this->arg->resolve($this->myTranslation->getLang(), $args);
+	public abstract function toString($value) : string;
+
+	public function parseConstraint(MultibyteLineReader $reader) : bool{
+		return false;
 	}
 }
