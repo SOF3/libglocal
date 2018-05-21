@@ -28,16 +28,12 @@ use function get_class;
 use function gettype;
 use function is_array;
 use function is_object;
-use function preg_match;
-use function preg_quote;
+use function str_replace;
+use function strpos;
 use function substr;
 
 final class Libglocal{
 	public static function init(Plugin $plugin, string $langDir = "lang/") : LangManager{
-		if(substr($langDir, -1) !== "/"){
-			$langDir .= "/";
-		}
-
 		$manager = new LangManager($plugin);
 
 		if($plugin instanceof ArgTypeProvider){
@@ -46,10 +42,13 @@ final class Libglocal{
 
 		// TODO download stdlib
 
-		foreach($plugin->getResources() as $file){
+		if(substr($langDir, -1) !== "/"){
+			$langDir .= "/";
+		}
+		foreach($plugin->getResources() as $name => $file){
 			$file = (string) $file;
-			if(preg_match('~/' . preg_quote($langDir, '~') . '[^/]+.lang$/~',  $file)){
-				$manager->loadFile($file, fopen($file, "rb"));
+			if(strpos(str_replace("\\", "/", $name), str_replace("\\", "/", $langDir)) === 0){
+				$manager->loadFile($name, fopen($file, "rb"));
 			}
 		}
 

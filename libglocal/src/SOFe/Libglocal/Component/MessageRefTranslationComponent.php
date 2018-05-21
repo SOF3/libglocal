@@ -24,10 +24,13 @@ namespace SOFe\Libglocal\Component;
 
 use pocketmine\utils\TextFormat;
 use RuntimeException;
+use SOFe\Libglocal\LangParser;
 use SOFe\Libglocal\Message;
 use SOFe\Libglocal\Translation;
 
 class MessageRefTranslationComponent extends TranslationComponent{
+	/** @var LangParser */
+	private $parser;
 	/** @var string */
 	protected $refMessageId;
 	/** @var Message */
@@ -37,13 +40,14 @@ class MessageRefTranslationComponent extends TranslationComponent{
 
 	protected $resolving = false;
 
-	public function __construct(string $refMessageId, array $refArgs){
+	public function __construct(LangParser $parser, string $refMessageId, array $refArgs){
+		$this->parser = $parser;
 		$this->refMessageId = $refMessageId;
 		$this->refArgs = $refArgs;
 	}
 
 	public function init() : void{
-		$this->refMessage = $this->myTranslation->getMessage()->getManager()->getMessages()[$this->refMessageId] ?? null;
+		$this->refMessage = $this->myTranslation->getMessage()->getManager()->getMessages()[$this->refMessageId] ?? $this->parser->getLocalMessage($this->refMessageId);
 		if($this->refMessage === null){
 			throw new RuntimeException("Unresolved message reference #{{$this->refMessageId}}");
 		}

@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal;
 
+use pocketmine\utils\Terminal;
 use pocketmine\utils\TextFormat;
 use SOFe\Libglocal\ArgDefault\ArgDefault;
 use SOFe\Libglocal\ArgDefault\ArgFallbackDefault;
@@ -35,6 +36,8 @@ use SOFe\Libglocal\Component\StackSpanTranslationComponent;
 use SOFe\Libglocal\Component\StyleSpanTranslationComponent;
 use SOFe\Libglocal\Component\TranslationComponent;
 use Throwable;
+use function array_merge;
+use function array_shift;
 use function array_slice;
 use function array_unshift;
 use function assert;
@@ -52,7 +55,7 @@ use function trim;
 
 class LangParser implements Thrower{
 	private const SCOPE_ROOT = 1;
-	private const SCOPE_TREE = 2;
+	private const SCOPE_GROUP = 2;
 	private const SCOPE_MESSAGE = 3;
 	private const SCOPE_MODIFIER = 4;
 	private const SCOPE_CONSTRAINT = 5;
@@ -106,6 +109,8 @@ class LangParser implements Thrower{
 	protected $authors = [];
 	/** @var string|null */
 	protected $version = null;
+	/** @var Message[] */
+	protected $localMessages = [];
 
 
 	public function __construct(LangManager $manager, string $fileHumanName, $fh){
@@ -138,6 +143,10 @@ class LangParser implements Thrower{
 		return $this->version;
 	}
 
+	public function getLocalMessage(string $id) : ?Message{
+		return $this->localMessages[$id] ?? null;
+	}
+
 	public function parseHeader() : void{
 		while(!feof($this->fh) && ($line = fgets($this->fh)) !== false){
 			++$this->line;
@@ -149,7 +158,7 @@ class LangParser implements Thrower{
 			}
 			$this->parseLine($line);
 
-			if($this->scope === self::SCOPE_TREE){
+			if($this->scope === self::SCOPE_GROUP){
 				return;
 			}
 		}
@@ -225,7 +234,7 @@ class LangParser implements Thrower{
 			if(!isset($this->langId)){
 				$this->throw("lang type must be declared before the messages");
 			}
-			$this->scope = self::SCOPE_TREE;
+			$this->scope = self::SCOPE_GROUP;
 			return;
 		}
 
@@ -233,27 +242,57 @@ class LangParser implements Thrower{
 	}
 
 	private function parseTreeLine(MultibyteLineReader $reader) : void{
-		[$indentString] = $reader->consumeRegex('/^[ \t]/u', "messages must be the last root element");
+		$line = $reader->remaining();
+		[$indentString] = $reader->consumeRegex('/^[ \t]+/u', "messages must be the last root element");
 
 		$indents = $this->countIndent($indentString);
-		if($indents <= 0){
-			$shifts = 1 - $indents; // $shifts in [1, count($this->indentStack)]
-			$this->idStack = array_slice($this->idStack, 0, -$shifts);
-			$this->scope = max($this->scope - $shifts, self::SCOPE_TREE);
+		// $this->scope is the type of the previous line
+		if($indents <= 0){ // same indentation or dedent
+			// idStack contains the message IDs of the parent groups
+			// idStack only needs to be popped when we dedent from one group to a parent group
+
+			// if we dedent from a modifier or higher, we dedent group only if we dedent out of the message scope, i.e. the first ($this->scope - SCOPE_MESSAGE) dedents should not count
+			// e.g. constraint, dedent 0 is another constraint, does not pop groups, dedent 1 is a modifier, dedent 2 is a group/message in the same group
+			// e.g. modifier, dedent 0 is another modifier, does not pop groups, dedent 1 is a group/message in the same group, dedent 2 pops one group
+			// e.g. message, dedent 0 is a group/message in the same group, dedent 1 pops one group
+			// e.g. group, dedent 0 is also a group/message in the same group (but needs to pop the previous group!), dedent 1 pops 2 groups
+			$groupPops = -$indents + 1 - ($this->scope - self::SCOPE_GROUP);
+			if($groupPops > 0){
+				$this->idStack = array_slice($this->idStack, 0, -$groupPops);
+			}
+
+			if($this->scope >= self::SCOPE_MODIFIER){
+				$this->scope = max($this->scope + $indents, self::SCOPE_GROUP);
+				// same indentation => same scope
+				// dedent 1 => one lower scope
+				if($this->scope === self::SCOPE_MESSAGE){
+					$this->scope = self::SCOPE_GROUP; // we don't know if this is a message or a group, so we always assume it's a group
+				}
+			}
+			$this->scope = max($this->scope + $indents - 1, self::SCOPE_GROUP);
+			// now $this->scope is the parent scope of the current line
+
 			// scope is only _read_ at the indent parser, but _written_ both at the indent parser and at the EOL (to determine tree vs message)
 			// sibling = scope retained
 			// modifier => dedent 1 into another message or tree (may be changed)
 			// message => dedent 1 into tree
-		}else{
-			if($this->scope > self::SCOPE_TREE){
+		}else{ // indented
+			if($this->scope >= self::SCOPE_MESSAGE){
+				if($this->scope === self::SCOPE_CONSTRAINT){
+					$this->throw("Cannot indent from a modifier constraint");
+				}
+				// tree => indent 1 into message or tree (may be changed)
+				// message => indent 1 into modifier
+				// modifier => indent 1 into constraint
 				++$this->scope;
 			}
-			// tree => indent 1 into message or tree (may be changed)
-			// message => indent 1 into
-			// modifier indent is currently undefined
 		}
-		if($this->scope === self::SCOPE_TREE || $this->scope === self::SCOPE_MESSAGE){
-			$this->idStack[] = $this->parseChildMessageGroupOrEntry($reader);
+		// now $this->scope is the expected type of the current line
+//		echo "Parse line: " . Terminal::$COLOR_AQUA . "$line\n" . Terminal::$FORMAT_RESET;
+//		echo "indents=$indents, scope = $this->scope, idStack = " . json_encode($this->idStack) . "\n";
+
+		if($this->scope === self::SCOPE_GROUP || $this->scope === self::SCOPE_MESSAGE){
+			$this->parseChildMessageGroupOrEntry($reader);
 		}elseif($this->scope === self::SCOPE_MODIFIER){
 			$this->parseModifier($reader);
 		}elseif($this->scope === self::SCOPE_CONSTRAINT){
@@ -265,15 +304,18 @@ class LangParser implements Thrower{
 		}
 	}
 
-	private function parseChildMessageGroupOrEntry(MultibyteLineReader $reader) : string{
+	private function parseChildMessageGroupOrEntry(MultibyteLineReader $reader) : void{
 		$match = $reader->consumeRegex('/^([\w.-]+)(?:[ \t]+(.+))?/u', "MESSAGE_ID expected", 1);
 		$messageId = $match[1];
 		if(!isset($match[2])){
-			$this->scope = self::SCOPE_TREE;
-			return $messageId;
+			$this->scope = self::SCOPE_GROUP;
+			$this->idStack[] = $messageId;
+//			echo ("Start group $messageId, full ID " . implode(".", $this->idStack)) . "\n";
+			return;
 		}
 
-		$fullId = implode(".", $this->idStack) . "." . $messageId;
+		$fullId = implode(".", array_merge($this->idStack, [$messageId]));
+//		echo "Start message $fullId\n";
 		if($this->base){
 			$this->currentMessage = new Message($this->manager, $fullId);
 			if(isset($this->manager->getMessages()[$fullId])){
@@ -281,10 +323,12 @@ class LangParser implements Thrower{
 			}
 			$this->manager->getMessages()[$fullId] = $this->currentMessage;
 		}else{
-			if(!isset($this->manager->getMessages()[$fullId])){
-				$this->manager->getPlugin()->getLogger()->notice("[libglocal] The message $fullId from $this->fileHumanName will not be loaded because it is not declared in the base lang file");
+			if(isset($this->manager->getMessages()[$fullId])){
+				$this->currentMessage = $this->manager->getMessages()[$fullId];
+			}else{
+				$this->manager->getPlugin()->getLogger()->debug("[libglocal] The message $fullId from $this->fileHumanName will not be visible to other files because it is not declared in the base lang file");
+				$this->localMessages[$fullId] = $this->currentMessage = new Message($this->manager, $fullId);
 			}
-			$this->currentMessage = $this->manager->getMessages()[$fullId];
 		}
 
 		$this->currentMessage->getTranslations()[$this->langId] = $this->currentComponentHolder
@@ -298,7 +342,6 @@ class LangParser implements Thrower{
 		$this->parseMessageValue($reader, false);
 
 		$this->scope = self::SCOPE_MESSAGE;
-		return $messageId;
 	}
 
 	private function parseMessageValue(MultibyteLineReader $reader, bool $inSpan) : void{
@@ -374,7 +417,7 @@ class LangParser implements Thrower{
 		if(trim($substr, ", \t") !== ""){
 			$this->throw("Invalid content in #{}: $substr");
 		}
-		return new MessageRefTranslationComponent($messageId, $args);
+		return new MessageRefTranslationComponent($this, $messageId, $args);
 	}
 
 	private function parseSpanRef(MultibyteLineReader $reader) : TranslationComponent{
@@ -423,16 +466,16 @@ class LangParser implements Thrower{
 	}
 
 	private function parseArgModifier(MultibyteLineReader $reader) : void{
-		$argName = $reader->consumeUntilAny(" \t") ?? $reader->remaining();
+		$argName = $reader->consumeUntilAny(" \t") ?? $reader->consumeRemaining();
 		if(!preg_match('/^[\w.-]+$/u', $argName)){
 			$this->throw("$argName is not a valid argument name");
 		}
 
 		$type = null;
 		$reader->readWhitespace();
-		$argType = mb_strtolower($reader->consumeUntilAny(" \t") ?? $reader->remaining() ?: "string");
+		$argType = mb_strtolower($reader->consumeUntilAny(" \t") ?? ($reader->consumeRemaining() ?: "string"));
 		if($argType !== ""){
-			if(!preg_match('/^(?:([\w.-]+):)([\w.-]+)$/u', $argType, $match)){
+			if(!preg_match('/^(?:([\w.-]+):)?([\w.-]+)$/u', $argType, $match)){
 				$this->throw("$argType is not a valid argument type");
 			}
 			$type = $this->manager->createArgType($match[1] !== "" ? $match[1] : null, $match[2]);
@@ -530,10 +573,13 @@ class LangParser implements Thrower{
 			return 1; // indent
 		}
 
-		foreach($this->indentStack as $i => $stacked){
-			if($indent === $stacked){
-				return -$i; // $i dedents
+		$i = 0;
+		while(!empty($this->indentStack)){
+			if($this->indentStack[0] === $indent){
+				return -$i;
 			}
+			array_shift($this->indentStack);
+			++$i;
 		}
 		throw $this->throw("Inconsistent indentation");
 	}

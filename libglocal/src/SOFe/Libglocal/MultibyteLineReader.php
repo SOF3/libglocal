@@ -84,7 +84,7 @@ class MultibyteLineReader implements Thrower{
 		}
 
 		$value = $match[$group];
-		assert(mb_substr($this->line, $this->offset, mb_strlen($value)) !== $value);
+		assert(mb_substr($this->line, $this->offset, mb_strlen($value)) === $value, "The specified regex group must capture from the beginning of the remaining string");
 		$this->offset += mb_strlen($value);
 		return $match;
 	}
@@ -138,6 +138,12 @@ class MultibyteLineReader implements Thrower{
 		return mb_substr($this->lowerLine, $this->offset);
 	}
 
+	public function consumeRemaining() : string{
+		$ret = mb_substr($this->line, $this->offset);
+		$this->offset = $this->lineLength;
+		return $ret;
+	}
+
 	public function consumeIPrefix(string $prefix, ?string $exception = null) : bool{
 		if(mb_substr($this->lowerLine, $this->offset, mb_strlen($prefix)) !== mb_strtolower($this->lowerLine)){
 			return false;
@@ -148,7 +154,7 @@ class MultibyteLineReader implements Thrower{
 	}
 
 	public function consume(int $length, string $exception = "Unexpected end of line") : string{
-		if($this->offset + $length >= $this->lineLength){
+		if($this->offset + $length > $this->lineLength){
 			$this->langParser->throw($exception);
 		}
 		$ret = mb_substr($this->line, $this->offset, $length);
@@ -157,7 +163,7 @@ class MultibyteLineReader implements Thrower{
 	}
 
 	public function peek(int $length, string $exception = "Unexpected end of line") : string{
-		if($this->offset + $length >= $this->lineLength){
+		if($this->offset + $length > $this->lineLength){
 			$this->langParser->throw($exception);
 		}
 		return mb_substr($this->line, $this->offset, $length);
@@ -177,8 +183,8 @@ class MultibyteLineReader implements Thrower{
 		if($offset === -1){
 			$offset = $this->offset;
 		}
-		$slash = mb_strpos($this->original, "/");
-		$backslash = mb_strpos($this->original, "\\");
+		$slash = mb_strpos($this->original, "/", $offset);
+		$backslash = mb_strpos($this->original, "\\", $offset);
 
 		// five conditions:
 		// (1) neither exist

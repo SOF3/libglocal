@@ -27,6 +27,7 @@ use pocketmine\plugin\Plugin;
 use SOFe\Libglocal\ArgType\ArgType;
 use SOFe\Libglocal\ArgType\DefaultArgTypeProvider;
 use function in_array;
+use function sprintf;
 
 class LangManager{
 	/** @var Plugin */
@@ -53,6 +54,7 @@ class LangManager{
 		if($parser->isBase()){
 			$this->bases[] = $parser;
 		}
+		$this->plugin->getLogger()->debug(sprintf("Loaded %s (%s, %s, %s)", $humanName, $parser->isBase() ? "base" : "not base", $parser->getLangId(), $parser->getLangLocal()));
 	}
 
 	public function init() : void{
