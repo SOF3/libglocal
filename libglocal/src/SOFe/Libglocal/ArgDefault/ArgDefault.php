@@ -22,7 +22,9 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\ArgDefault;
 
-abstract class ArgDefault{
+use JsonSerializable;
+
+abstract class ArgDefault implements JsonSerializable{
 	public function init() : void{
 
 	}

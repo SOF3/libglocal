@@ -117,4 +117,16 @@ class StackSpanTranslationComponent extends TranslationComponent implements Comp
 				return $component->toHtml();
 			}, $this->childComponents)) . $suffix . '}';
 	}
+
+	public function jsonSerialize() : array{
+		return [
+			"type" => "StackSpan",
+			"isColor" => $this->isColor,
+			"code" => $this->code,
+			"fallback" => [
+				"condition" => $this->fallbackCondition,
+				"code" => $this->fallbackCode,
+			],
+		];
+	}
 }

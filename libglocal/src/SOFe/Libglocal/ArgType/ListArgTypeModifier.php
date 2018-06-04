@@ -28,6 +28,7 @@ use function array_map;
 use function implode;
 
 class ListArgTypeModifier extends ArgTypeModifier{
+	/** @var string */
 	protected $delimiter;
 
 	public function __construct(ArgType $child){
@@ -61,5 +62,11 @@ class ListArgTypeModifier extends ArgTypeModifier{
 
 	public function getModifierName() : string{
 		return "list";
+	}
+
+	public function jsonSerialize() : array{
+		return parent::jsonSerialize() + [
+				"delimiter" => $this->delimiter,
+			];
 	}
 }

@@ -22,11 +22,12 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal;
 
+use JsonSerializable;
 use SOFe\Libglocal\Component\ComponentHolder;
 use SOFe\Libglocal\Component\TranslationComponent;
 use function mb_strtolower;
 
-class Translation implements ComponentHolder{
+class Translation implements ComponentHolder, JsonSerializable{
 	public const SPECIAL_ARG_STACK_COLOR = "!!StackSpanColorStack!!";
 	public const SPECIAL_ARG_STACK_FONT = "!!StackSpanFontStack!!";
 
@@ -108,5 +109,16 @@ class Translation implements ComponentHolder{
 		if(mb_strtolower($this->message->getUpdatedVersion()) !== mb_strtolower($updated)){
 			$this->message->getManager()->getLogger()->warning("[libglocal] The base version of message {$this->message->getId()} is {$this->message->getUpdatedVersion()}, while the {$this->lang} translation targets the version {$updated}. This translation will not be used.");
 		}
+	}
+
+	public function jsonSerialize() : array{
+		return [
+			"id" => $this->id,
+			"lang" => $this->lang,
+			"declaration" => $this->declaration,
+			"components" => $this->components,
+			"argOverrides" => $this->argOverrides,
+			"updated" => $this->updated,
+		];
 	}
 }

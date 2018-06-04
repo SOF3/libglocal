@@ -81,4 +81,12 @@ class MessageRefTranslationComponent extends TranslationComponent{
 		$out .= ')}';
 		return $out;
 	}
+
+	public function jsonSerialize() : array{
+		return [
+			"type" => "MessageRef",
+			"refMessageId" => $this->refMessageId,
+			"refArgs" => $this->refArgs,
+		];
+	}
 }

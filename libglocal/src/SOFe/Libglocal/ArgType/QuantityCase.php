@@ -22,9 +22,10 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\ArgType;
 
+use JsonSerializable;
 use function sprintf;
 
-class QuantityCase{
+class QuantityCase implements JsonSerializable{
 	/** @var NumberConstraint[] */
 	protected $constraints;
 	/** @var string */
@@ -42,5 +43,12 @@ class QuantityCase{
 			}
 		}
 		return sprintf($this->value, $number);
+	}
+
+	public function jsonSerialize() : array{
+		return [
+			"constraints" => $this->constraints,
+			"value" => $this->value,
+		];
 	}
 }

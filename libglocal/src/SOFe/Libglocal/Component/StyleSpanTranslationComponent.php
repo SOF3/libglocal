@@ -42,4 +42,11 @@ class StyleSpanTranslationComponent extends TranslationComponent{
 	public function toHtml() : string{
 		return '%{' . $this->code . '}';
 	}
+
+	public function jsonSerialize() : array{
+		return [
+			"type" => "StyleSpan",
+			"code" => $this->code,
+		];
+	}
 }

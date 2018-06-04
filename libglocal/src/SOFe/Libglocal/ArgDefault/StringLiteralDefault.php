@@ -38,4 +38,11 @@ class StringLiteralDefault extends ArgDefault{
 	public function toHtml() : string{
 		return '"' . $this->string . '"';
 	}
+
+	public function jsonSerialize() : array{
+		return [
+			"type" => "String",
+			"value" => $this->string,
+		];
+	}
 }

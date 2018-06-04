@@ -75,4 +75,11 @@ class QuantityArgType extends NumericArgType{
 
 		return sprintf($this->default, $value);
 	}
+
+	public function jsonSerialize() : array{
+		return parent::jsonSerialize() + [
+				"cases" => $this->cases,
+				"default" => $this->default,
+			];
+	}
 }

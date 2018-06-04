@@ -64,4 +64,11 @@ class ArgFallbackDefault extends ArgDefault{
 	public function toHtml() : string{
 		return $this->argName;
 	}
+
+	public function jsonSerialize() : array{
+		return [
+			"type" => "ArgRef",
+			"argName" => $this->argName,
+		];
+	}
 }

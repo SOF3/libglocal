@@ -22,9 +22,10 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\Component;
 
+use JsonSerializable;
 use SOFe\Libglocal\Translation;
 
-abstract class TranslationComponent{
+abstract class TranslationComponent implements JsonSerializable{
 	/** @var Translation */
 	protected $myTranslation;
 

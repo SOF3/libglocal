@@ -22,10 +22,11 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal;
 
+use JsonSerializable;
 use SOFe\Libglocal\ArgDefault\ArgDefault;
 use SOFe\Libglocal\ArgType\ArgType;
 
-class MessageArg{
+class MessageArg implements JsonSerializable{
 	/** @var Message */
 	protected $message;
 	/** @var string */
@@ -73,5 +74,13 @@ class MessageArg{
 
 	public function __toString() : string{
 		return "{$this->message->getId()}({$this->name})";
+	}
+
+	public function jsonSerialize() : array{
+		return [
+			"name" => $this->name,
+			"type" => $this->type,
+			"default" => $this->defaultValue,
+		];
 	}
 }

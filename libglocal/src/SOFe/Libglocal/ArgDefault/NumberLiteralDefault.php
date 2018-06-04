@@ -37,4 +37,11 @@ class NumberLiteralDefault extends ArgDefault{
 	public function toHtml() : string{
 		return (string) $this->number;
 	}
+
+	public function jsonSerialize() : array{
+		return [
+			"type" => "Number",
+			"value" => $this->number,
+		];
+	}
 }

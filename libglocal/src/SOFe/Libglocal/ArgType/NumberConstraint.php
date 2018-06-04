@@ -23,12 +23,13 @@ declare(strict_types=1);
 namespace SOFe\Libglocal\ArgType;
 
 use AssertionError;
+use JsonSerializable;
 use SOFe\Libglocal\ParseException;
 use function fmod;
 use function is_numeric;
 use function preg_match;
 
-class NumberConstraint{
+class NumberConstraint implements JsonSerializable{
 	public const OP_EQ = 1; // = == ===
 	public const OP_NEQ = 2; // != !== <>
 	public const OP_LT = 3; // <
@@ -36,8 +37,20 @@ class NumberConstraint{
 	public const OP_GT = 5; // >
 	public const OP_GTE = 6; // >=
 
+	public const OP_NAMES = [
+		self::OP_EQ => "=",
+		self::OP_NEQ => "!=",
+		self::OP_LT => "<",
+		self::OP_LTE => "<=",
+		self::OP_GT => ">",
+		self::OP_GTE => ">=",
+	];
+
+	/** @var int */
 	protected $modulusSize = 0;
+	/** @var int */
 	protected $operator;
+	/** @var float */
 	protected $operand;
 
 	public static function parseNumberConstraint(string $string) : NumberConstraint{
@@ -113,14 +126,14 @@ class NumberConstraint{
 	}
 
 	public function toString() : string{
-		static $name = [
-			self::OP_EQ => "=",
-			self::OP_NEQ => "!=",
-			self::OP_LT => "<",
-			self::OP_LTE => "<=",
-			self::OP_GT => ">",
-			self::OP_GTE => ">=",
+		return ($this->modulusSize !== 0 ? "%{$this->modulusSize}" : "") . self::OP_NAMES[$this->operator] . $this->operand;
+	}
+
+	public function jsonSerialize() : array{
+		return [
+			"modulus" => $this->modulusSize !== 0 ? $this->modulusSize : null,
+			"operator" => self::OP_NAMES[$this->operator],
+			"operand" => $this->operand,
 		];
-		return ($this->modulusSize !== 0 ? "%{$this->modulusSize}" : "") . "{$name[$this->operator]}{$this->operand}";
 	}
 }
