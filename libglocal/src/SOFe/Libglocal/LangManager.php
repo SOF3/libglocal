@@ -58,7 +58,7 @@ class LangManager implements JsonSerializable{
 		$this->logger->debug(sprintf("Loaded %s (%s, %s, %s)", $humanName, $parser->isBase() ? "base" : "not base", $parser->getLangId(), $parser->getLangLocal()));
 	}
 
-	public function init() : void{
+	public function init(bool $initInner = true) : void{
 		foreach($this->bases as $langParser){
 			$langParser->parseMessages();
 		}
@@ -68,8 +68,10 @@ class LangManager implements JsonSerializable{
 			}
 		}
 
-		foreach($this->messages as $message){
-			$message->init();
+		if($initInner){
+			foreach($this->messages as $message){
+				$message->init();
+			}
 		}
 	}
 

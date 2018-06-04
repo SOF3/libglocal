@@ -32,6 +32,8 @@ use function implode;
 use function in_array;
 
 class StackSpanTranslationComponent extends TranslationComponent implements ComponentHolder{
+	/** @var string */
+	protected $codeName;
 	/** @var bool */
 	protected $isColor;
 	/** @var string */
@@ -44,8 +46,9 @@ class StackSpanTranslationComponent extends TranslationComponent implements Comp
 	/** @var TranslationComponent[] */
 	protected $childComponents = [];
 
-	public function __construct(Translation $translation, bool $isColor, string $code, ?string $fallbackCondition, ?string $fallbackCode){
+	public function __construct(Translation $translation, string $codeName, bool $isColor, string $code, ?string $fallbackCondition, ?string $fallbackCode){
 		$this->myTranslation = $translation;
+		$this->codeName = $codeName;
 		$this->isColor = $isColor;
 		$this->code = $code;
 		$this->fallbackCondition = $fallbackCondition;
@@ -113,7 +116,7 @@ class StackSpanTranslationComponent extends TranslationComponent implements Comp
 			$prefix = $suffix = "";
 		}
 
-		return '%{' . $this->code . ' ' . $prefix . implode('', array_map(function(TranslationComponent $component) : string{
+		return '%{' . $this->codeName . ' ' . $prefix . implode('', array_map(function(TranslationComponent $component) : string{
 				return $component->toHtml();
 			}, $this->childComponents)) . $suffix . '}';
 	}
@@ -121,6 +124,7 @@ class StackSpanTranslationComponent extends TranslationComponent implements Comp
 	public function jsonSerialize() : array{
 		return [
 			"type" => "StackSpan",
+			"codeName" => $this->codeName,
 			"isColor" => $this->isColor,
 			"code" => $this->code,
 			"fallback" => [

@@ -391,6 +391,7 @@ class LangParser implements Thrower{
 			if($char === "\$"){
 				$argName = MultibyteLineReader::trim($reader->consumeUntilAny("}"), true, true);
 				$this->currentComponentHolder->getComponents()[] = new ArgRefTranslationComponent($this->currentTranslation, $argName);
+				$reader->consume(1, "should be }");
 				continue;
 			}
 
@@ -403,7 +404,7 @@ class LangParser implements Thrower{
 			$this->currentComponentHolder->getComponents()[] = $this->parseSpanRef($reader);
 		}
 
-		$buffer .= $reader->remaining();
+		$buffer = $reader->remaining();
 		if($buffer !== ""){
 			$this->currentComponentHolder->getComponents()[] = new LiteralTranslationComponent($this->currentTranslation, $buffer);
 		}
@@ -440,7 +441,7 @@ class LangParser implements Thrower{
 		}
 
 		$args = self::SPAN_STACKS[$name];
-		$child = new StackSpanTranslationComponent($this->currentTranslation, ...$args);
+		$child = new StackSpanTranslationComponent($this->currentTranslation, $name, ...$args);
 		$parent = $this->currentComponentHolder;
 		$this->currentComponentHolder = $child;
 		$this->parseMessageValue($reader, true);
@@ -585,6 +586,14 @@ class LangParser implements Thrower{
 			++$i;
 		}
 		throw $this->throw("Inconsistent indentation");
+	}
+
+	public function getCurrentMessage() : ?Message{
+		return $this->currentMessage;
+	}
+
+	public function getCurrentTranslation() : ?Translation{
+		return $this->currentTranslation;
 	}
 
 	public static function resolveEscape(string $char, Thrower $thrower) : string{

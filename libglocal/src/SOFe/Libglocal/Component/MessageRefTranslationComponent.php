@@ -41,6 +41,7 @@ class MessageRefTranslationComponent extends TranslationComponent{
 	protected $resolving = false;
 
 	public function __construct(LangParser $parser, string $refMessageId, array $refArgs){
+		$this->myTranslation = $parser->getCurrentTranslation();
 		$this->parser = $parser;
 		$this->refMessageId = $refMessageId;
 		$this->refArgs = $refArgs;

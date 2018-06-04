@@ -78,7 +78,7 @@ $manager = new LangManager(new class implements Logger{
 	}
 });
 $manager->loadFile($file, fopen($file, "rb"));
-$manager->init();
+$manager->init(false);
 
 $EOL = PHP_EOL;
 $INDENT = "\t";
