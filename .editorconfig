@@ -9,7 +9,7 @@ indent_size = 4
 
 [*.lang]
 indent_style = space
-indent_size = 4
+indent_size = 2
 
 [*.md]
 indent-style = space

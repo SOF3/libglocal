@@ -33,8 +33,8 @@ abstract class ArgTypeModifier extends ArgType{
 	public abstract function getModifierName() : string;
 
 	public function jsonSerialize() : array{
-		return parent::jsonSerialize() + [
-				"delegate" => $this->delegate,
-			];
+		return [
+			"delegate" => $this->delegate,
+		];
 	}
 }

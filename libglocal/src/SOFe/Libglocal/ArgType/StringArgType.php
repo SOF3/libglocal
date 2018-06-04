@@ -30,4 +30,10 @@ class StringArgType extends ArgType{
 	public function getName() : string{
 		return "string";
 	}
+
+	public function jsonSerialize(){
+		return [
+			"type" => "String",
+		];
+	}
 }

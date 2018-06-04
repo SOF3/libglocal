@@ -3,37 +3,37 @@ author SOFe, SOF3, Iron(II) Sulphite
 version 2.0 // current version name. For non-base lang files, this should be the targetted base lang version.
 
 messages
-    commands // identifier without message = namespace
-        friends // subnamespace, called "commands.friends". indent = something belonging to the above element.
-            usage /friend list|add|remove // The message "commands.friends.usage" with content "/friend list|add|remove"
-        add // subnamespace "commands.add"
-            // Use ${...} to reference an argument. Argument declaration is only required in the base lang file, but special formats e.g. quantity may be overridden in other files.
-            success Added friend "${name}"
-                arg name // this declares the argument "name". The default argument type is string.
-                doc Informs the player the success of adding a friend.
-                // Docs can be utilized by external editors to assist translation.
-                // Known issue in libglocal-idea-plugin: docs cannot have trailing comments on the same line
-        error
-            // %{...} are spans.
-            // 5 "style" spans: info, success, notice, warn, error, which are color codes white, green, aqua, yellow and red.
-            // Style spans will change the color of the rest of the string (except inside stack spans) until the next style span is encountered, similar to Minecraft or ANSI color codes
-            // 8 "stack" spans:
-            //   hl1, hl2, hl3, hl4, represented as light purple, gold (red if the base color is yellow), aqua (yellow if the base color is already aqua), green (red if the base color is already green).
-            //   b, i, u, s, represented as bold, italic, underline, strikethrough.
-            // Stack spans are written in the format %{NAME TEXT_CONTENT}, e.g. %{hl1 lorem ipsum} represents "lorem ipsum" in light purple
-            // These highlight constants can be stacked, i.e. the color outside the %{} will be restored after the span. the previous color shows up again. White is used if unknown.
-            his-full %{error}Cannot add friend %{hl1 "${name}"} %{hl2 (rank: ${rank})}, because his friend list is full.
-                arg name // you can put nothing here, or specify a type (e.g. "string")
-                arg rank
-            mine-full %{error}Cannot add friend %{hl1 "${name}"}, because you already have %{hl2 ${friends-count}}.
-                arg name
-                arg friends-count quantity // TODO make something like singular: "%d friend", plural: "%d friends"
-        list %{info}Your friends are: ${friends}
-            arg friends list:string
-    // #{lorem.ipsum} interpolates the message lorem.ipsum into this message. Parentheses can be added behind the message to pass arguments. Integer literals, string literals and direct references (to arguments of this message) can be used.
-    ordinalTest %{warn}Test for the #{internal.ordinal ord=times} time
-        arg times int
-    trivia
-        escape-sequence This a literal \${\} dollar sign with curly braces.
-            doc Note that close brace } also needs escaping, to distinguish from the close braces of spans
-    stacked-spans You can %{b stack %{i multiple} %{u decoration %{s constants}}} too.
+  commands // identifier without message = namespace
+    friends // subnamespace, called "commands.friends". indent = something belonging to the above element.
+      usage /friend list|add|remove // The message "commands.friends.usage" with content "/friend list|add|remove"
+      add // subnamespace "commands.add"
+        // Use ${...} to reference an argument. Argument declaration is only required in the base lang file, but special formats e.g. quantity may be overridden in other files.
+        success Added friend "${name}"
+          arg name // this declares the argument "name". The default argument type is string.
+          doc Informs the player the success of adding a friend.
+          // Docs can be utilized by external editors to assist translation.
+          // Known issue in libglocal-idea-plugin: docs cannot have trailing comments on the same line
+      error
+        // %{...} are spans.
+        // 5 "style" spans: info, success, notice, warn, error, which are color codes white, green, aqua, yellow and red.
+        // Style spans will change the color of the rest of the string (except inside stack spans) until the next style span is encountered, similar to Minecraft or ANSI color codes
+        // 8 "stack" spans:
+        //   hl1, hl2, hl3, hl4, represented as light purple, gold (red if the base color is yellow), aqua (yellow if the base color is already aqua), green (red if the base color is already green).
+        //   b, i, u, s, represented as bold, italic, underline, strikethrough.
+        // Stack spans are written in the format %{NAME TEXT_CONTENT}, e.g. %{hl1 lorem ipsum} represents "lorem ipsum" in light purple
+        // These highlight constants can be stacked, i.e. the color outside the %{} will be restored after the span. the previous color shows up again. White is used if unknown.
+        his-full %{error}Cannot add friend %{hl1 "${name}"} %{hl2 (rank: ${rank})}, because his friend list is full.
+          arg name // you can put nothing here, or specify a type (e.g. "string")
+          arg rank
+        mine-full %{error}Cannot add friend %{hl1 "${name}"}, because you already have %{hl2 ${friends-count}}.
+          arg name
+          arg friends-count quantity // TODO make something like singular: "%d friend", plural: "%d friends"
+      list %{info}Your friends are: ${friends}
+      arg friends list:string
+  // #{lorem.ipsum} interpolates the message lorem.ipsum into this message. Parentheses can be added behind the message to pass arguments. Integer literals, string literals and direct references (to arguments of this message) can be used.
+  ordinalTest %{warn}Test for the #{internal.ordinal ord=times} time
+    arg times int
+  trivia
+    escape-sequence This a literal \${\} dollar sign with curly braces.
+      doc Note that close brace } also needs escaping, to distinguish from the close braces of spans
+  stacked-spans You can %{b stack %{i multiple} %{u decoration %{s constants}}} too.

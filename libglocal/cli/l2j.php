@@ -28,15 +28,18 @@ require_once __DIR__ . "/polyfill.php";
 
 if(!isset($argv[2])){
 	throw new InvalidArgumentException(/** @lang text */
-		"Usage: php $argv[0] def <base lang file>");
-}
-$file = $argv[2];
-if(!is_file($file)){
-	throw new InvalidArgumentException("$file is not a file");
+		"Usage: php $argv[0] def <lang files>...");
 }
 
 $manager = new LangManager(new DummyLogger);
-$manager->loadFile($file, fopen($file, "rb"));
+for($i = 2; $i < $argc; ++$i){
+	$file = $argv[$i];
+	if(!is_file($file)){
+		throw new InvalidArgumentException("$file is not a file");
+	}
+	$manager->loadFile($file, fopen($file, "rb"));
+}
+
 $manager->init(false);
 
 echo json_encode($manager->getMessages(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);

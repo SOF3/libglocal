@@ -29,7 +29,9 @@ use function mb_strlen;
 use function mb_strpos;
 use function mb_strtolower;
 use function mb_substr;
+use function min;
 use function preg_match;
+use const PHP_INT_MAX;
 
 class MultibyteLineReader implements Thrower{
 	/** @var LangParser */
@@ -100,13 +102,18 @@ class MultibyteLineReader implements Thrower{
 	}
 
 	public function consumeUntilAny(string $charset, ?string $exception = null) : ?string{
+		$minPos = PHP_INT_MAX;
 		for($i = 0, $iMax = mb_strlen($charset); $i < $iMax; ++$i){
 			$char = mb_substr($charset, $i, 1);
 			if(($pos = mb_strpos($this->line, $char, $this->offset)) !== false){
-				$ret = mb_substr($this->line, $this->offset, $pos - $this->offset);
-				$this->offset = $pos;
-				return $ret;
+				$minPos = min($minPos, $pos);
 			}
+		}
+
+		if($minPos !== PHP_INT_MAX){
+			$ret = mb_substr($this->line, $this->offset, $minPos - $this->offset);
+			$this->offset = $minPos;
+			return $ret;
 		}
 
 		if($exception !== null){

@@ -25,7 +25,6 @@ namespace SOFe\Libglocal\ArgType;
 use JsonSerializable;
 use SOFe\Libglocal\MessageArg;
 use SOFe\Libglocal\MultibyteLineReader;
-use function get_class;
 
 abstract class ArgType implements JsonSerializable{
 	/** @var MessageArg */
@@ -45,11 +44,5 @@ abstract class ArgType implements JsonSerializable{
 
 	public function parseConstraint(MultibyteLineReader $reader) : bool{
 		return false;
-	}
-
-	public function jsonSerialize() : array{
-		return [
-			"class" => get_class($this),
-		];
 	}
 }

@@ -87,9 +87,10 @@ class NumericArgType extends ArgType{
 	}
 
 	public function jsonSerialize() : array{
-		return parent::jsonSerialize() + [
-				"isInteger" => $this->int,
-				"ranges" => $this->ranges,
-			];
+		return [
+			"type" => "Numeric",
+			"isInteger" => $this->int,
+			"ranges" => $this->ranges,
+		];
 	}
 }

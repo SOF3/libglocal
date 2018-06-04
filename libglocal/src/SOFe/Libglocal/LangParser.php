@@ -366,7 +366,10 @@ class LangParser implements Thrower{
 					if($inSpan){
 						$this->throw("Comments not allowed inside spans. Change // to \\// if you really intended to write slashes.");
 					}
-					$this->currentComponentHolder->getComponents()[] = new LiteralTranslationComponent($this->currentTranslation, $buffer);
+
+					if($buffer !== ""){
+						$this->currentComponentHolder->getComponents()[] = new LiteralTranslationComponent($this->currentTranslation, $buffer);
+					}
 					return;
 				}
 
@@ -375,7 +378,9 @@ class LangParser implements Thrower{
 			}
 
 			if($char === "}"){
-				$this->currentComponentHolder->getComponents()[] = new LiteralTranslationComponent($this->currentTranslation, $buffer);
+				if($buffer !== ""){
+					$this->currentComponentHolder->getComponents()[] = new LiteralTranslationComponent($this->currentTranslation, $buffer);
+				}
 				return;
 			}
 
@@ -386,7 +391,10 @@ class LangParser implements Thrower{
 				continue;
 			}
 
-			$this->currentComponentHolder->getComponents()[] = new LiteralTranslationComponent($this->currentTranslation, $buffer);
+			if($buffer !== ""){
+				$this->currentComponentHolder->getComponents()[] = new LiteralTranslationComponent($this->currentTranslation, $buffer);
+				$buffer = ""; // buffer was flushed
+			}
 
 			if($char === "\$"){
 				$argName = MultibyteLineReader::trim($reader->consumeUntilAny("}"), true, true);
@@ -404,7 +412,7 @@ class LangParser implements Thrower{
 			$this->currentComponentHolder->getComponents()[] = $this->parseSpanRef($reader);
 		}
 
-		$buffer = $reader->remaining();
+		$buffer .= $reader->remaining();
 		if($buffer !== ""){
 			$this->currentComponentHolder->getComponents()[] = new LiteralTranslationComponent($this->currentTranslation, $buffer);
 		}

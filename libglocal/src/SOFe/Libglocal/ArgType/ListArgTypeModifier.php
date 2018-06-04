@@ -65,7 +65,9 @@ class ListArgTypeModifier extends ArgTypeModifier{
 	}
 
 	public function jsonSerialize() : array{
-		return parent::jsonSerialize() + [
+		return [
+				"type" => "List",
+			] + parent::jsonSerialize() + [
 				"delimiter" => $this->delimiter,
 			];
 	}
