@@ -270,7 +270,7 @@ class LangParser implements Thrower{
 					$this->scope = self::SCOPE_GROUP; // we don't know if this is a message or a group, so we always assume it's a group
 				}
 			}
-			$this->scope = max($this->scope + $indents - 1, self::SCOPE_GROUP);
+//			$this->scope = max($this->scope + $indents - 1, self::SCOPE_GROUP);
 			// now $this->scope is the parent scope of the current line
 
 			// scope is only _read_ at the indent parser, but _written_ both at the indent parser and at the EOL (to determine tree vs message)
