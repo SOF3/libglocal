@@ -29,6 +29,10 @@ class DefaultArgTypeProvider implements ArgTypeProvider{
 	/** @var LangManager */
 	protected $manager;
 
+	public function __construct(LangManager $manager){
+		$this->manager = $manager;
+	}
+
 	public function createArgType(?string $modifier, string $type) : ?ArgType{
 		if($modifier !== null){
 			switch($modifier){

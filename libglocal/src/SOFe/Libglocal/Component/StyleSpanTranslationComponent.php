@@ -38,4 +38,8 @@ class StyleSpanTranslationComponent extends TranslationComponent{
 		$args[Translation::SPECIAL_ARG_STACK_COLOR][0] = $this->code;
 		return $this->code;
 	}
+
+	public function toHtml() : string{
+		return '%{' . $this->code . '}';
+	}
 }

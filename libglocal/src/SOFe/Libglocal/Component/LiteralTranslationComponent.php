@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\Component;
 
+use function htmlspecialchars;
 use SOFe\Libglocal\Translation;
 
 class LiteralTranslationComponent extends TranslationComponent{
@@ -36,5 +37,9 @@ class LiteralTranslationComponent extends TranslationComponent{
 
 	public function toString(array &$args) : string{
 		return $this->string;
+	}
+
+	public function toHtml() : string{
+		return htmlspecialchars($this->string);
 	}
 }

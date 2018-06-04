@@ -23,24 +23,34 @@ declare(strict_types=1);
 namespace SOFe\Libglocal;
 
 use pocketmine\plugin\Plugin;
+use pocketmine\utils\Utils;
+use RuntimeException;
+use function file_put_contents;
 use function fopen;
 use function get_class;
 use function gettype;
 use function is_array;
+use function is_dir;
 use function is_object;
+use function json_decode;
+use function mkdir;
 use function str_replace;
 use function strpos;
 use function substr;
 
 final class Libglocal{
 	public static function init(Plugin $plugin, string $langDir = "lang/") : LangManager{
-		$manager = new LangManager($plugin);
+		$manager = new LangManager($plugin->getLogger());
 
 		if($plugin instanceof ArgTypeProvider){
 			$manager->addTypeProvider($plugin);
 		}
 
-		// TODO download stdlib
+		if(!is_dir($plugin->getDataFolder() . "libglocal-default-lib")){
+			$plugin->getLogger()->info("Downloading libglocal-default-lib for the first time...");
+
+			self::downloadDefaultLib($plugin);
+		}
 
 		if(substr($langDir, -1) !== "/"){
 			$langDir .= "/";
@@ -52,8 +62,24 @@ final class Libglocal{
 			}
 		}
 
+		// TODO load online translations
+		// TODO load extracted files
+
 		$manager->init();
 		return $manager;
+	}
+
+	private static function downloadDefaultLib(Plugin $plugin) : void{
+		$folder = $plugin->getDataFolder() . "libglocal-default-lib/";
+		if(!is_dir($folder) && !mkdir($folder, 0777, true)){
+			throw new RuntimeException("Failed to create $folder");
+		}
+
+		$files = Utils::getURL("https://api.github.com/repos/SOF3/libglocal/contents/default-lib");
+		foreach(json_decode($files) as $file){
+			$plugin->getLogger()->debug("Downloading $file->name");
+			file_put_contents($folder . $file->name, Utils::getURL($file->download_url));
+		}
 	}
 
 	public static function isLinearArray(array $array) : bool{

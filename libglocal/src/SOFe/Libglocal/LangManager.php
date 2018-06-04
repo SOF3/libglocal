@@ -23,15 +23,16 @@ declare(strict_types=1);
 namespace SOFe\Libglocal;
 
 use InvalidArgumentException;
-use pocketmine\plugin\Plugin;
+use JsonSerializable;
+use Logger;
 use SOFe\Libglocal\ArgType\ArgType;
 use SOFe\Libglocal\ArgType\DefaultArgTypeProvider;
 use function in_array;
 use function sprintf;
 
-class LangManager{
-	/** @var Plugin */
-	protected $plugin;
+class LangManager implements JsonSerializable{
+	/** @var Logger */
+	protected $logger;
 	/** @var ArgTypeProvider[] */
 	public $typeProviders = [];
 
@@ -43,9 +44,9 @@ class LangManager{
 	/** @var Message[] */
 	protected $messages = [];
 
-	public function __construct(Plugin $plugin){
-		$this->plugin = $plugin;
-		$this->typeProviders[] = new DefaultArgTypeProvider();
+	public function __construct(Logger $logger){
+		$this->logger = $logger;
+		$this->typeProviders[] = new DefaultArgTypeProvider($this);
 	}
 
 	public function loadFile(string $humanName, $resource) : void{
@@ -54,7 +55,7 @@ class LangManager{
 		if($parser->isBase()){
 			$this->bases[] = $parser;
 		}
-		$this->plugin->getLogger()->debug(sprintf("Loaded %s (%s, %s, %s)", $humanName, $parser->isBase() ? "base" : "not base", $parser->getLangId(), $parser->getLangLocal()));
+		$this->logger->debug(sprintf("Loaded %s (%s, %s, %s)", $humanName, $parser->isBase() ? "base" : "not base", $parser->getLangId(), $parser->getLangLocal()));
 	}
 
 	public function init() : void{
@@ -73,12 +74,19 @@ class LangManager{
 	}
 
 
-	public function getPlugin() : Plugin{
-		return $this->plugin;
+	public function getLogger() : Logger{
+		return $this->logger;
 	}
 
 	public function &getMessages() : array{
 		return $this->messages;
+	}
+
+	/**
+	 * @return LangParser[]
+	 */
+	public function getInputs() : array{
+		return $this->inputs;
 	}
 
 
@@ -102,5 +110,12 @@ class LangManager{
 
 	public function addTypeProvider(ArgTypeProvider $provider) : void{
 		$this->typeProviders[] = $provider;
+	}
+
+
+	public function jsonSerialize() : array{
+		return [
+			"messages" => $this->messages,
+		];
 	}
 }

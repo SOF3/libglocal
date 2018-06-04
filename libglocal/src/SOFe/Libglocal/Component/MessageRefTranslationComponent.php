@@ -72,4 +72,13 @@ class MessageRefTranslationComponent extends TranslationComponent{
 		$this->resolving = false;
 		return $ret;
 	}
+
+	public function toHtml() : string{
+		$out = '#{' . $this->refMessageId . ' ( ';
+		foreach($this->refArgs as $name => $value){
+			$out .= "$name = {$value->toHtml()} ";
+		}
+		$out .= ')}';
+		return $out;
+	}
 }

@@ -39,6 +39,8 @@ abstract class ArgType{
 
 	public abstract function toString($value) : string;
 
+	public abstract function getName() : string;
+
 	public function parseConstraint(MultibyteLineReader $reader) : bool{
 		return false;
 	}

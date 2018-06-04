@@ -33,4 +33,8 @@ class NumberLiteralDefault extends ArgDefault{
 	public function resolve(string $lang, array $args){
 		return $this->number;
 	}
+
+	public function toHtml() : string{
+		return (string) $this->number;
+	}
 }

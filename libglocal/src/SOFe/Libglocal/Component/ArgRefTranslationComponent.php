@@ -47,4 +47,8 @@ class ArgRefTranslationComponent extends TranslationComponent{
 	public function toString(array &$args) : string{
 		return $this->arg->resolve($this->myTranslation->getLang(), $args);
 	}
+
+	public function toHtml() : string{
+		return '${' . $this->argName . '}';
+	}
 }

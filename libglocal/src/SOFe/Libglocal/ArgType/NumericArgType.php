@@ -25,6 +25,8 @@ namespace SOFe\Libglocal\ArgType;
 use InvalidArgumentException;
 use SOFe\Libglocal\Libglocal;
 use SOFe\Libglocal\MultibyteLineReader;
+use function array_map;
+use function implode;
 use function is_float;
 use function is_int;
 use function sprintf;
@@ -72,5 +74,15 @@ class NumericArgType extends ArgType{
 		}
 
 		return (string) $value;
+	}
+
+	public function getName() : string{
+		$ret = $this->int ? "int" : "float";
+		if(!empty($this->ranges)){
+			$ret .= " (" . implode("; ", array_map(function(NumberConstraint $constraint) : string{
+					return $constraint->toString();
+				}, $this->ranges)) . ")";
+		}
+		return $ret;
 	}
 }

@@ -33,4 +33,6 @@ abstract class ArgDefault{
 	 * @return mixed
 	 */
 	public abstract function resolve(string $lang, array $args);
+
+	public abstract function toHtml() : string;
 }

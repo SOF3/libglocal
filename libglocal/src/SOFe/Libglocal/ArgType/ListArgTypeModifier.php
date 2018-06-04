@@ -58,4 +58,8 @@ class ListArgTypeModifier extends ArgTypeModifier{
 	public function getDelimiter() : string{
 		return $this->delimiter;
 	}
+
+	public function getModifierName() : string{
+		return "list";
+	}
 }

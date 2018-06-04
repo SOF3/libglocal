@@ -60,4 +60,8 @@ class ArgFallbackDefault extends ArgDefault{
 
 		return $result;
 	}
+
+	public function toHtml() : string{
+		return $this->argName;
+	}
 }

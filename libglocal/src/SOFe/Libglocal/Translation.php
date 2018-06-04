@@ -36,6 +36,8 @@ class Translation implements ComponentHolder{
 	protected $id;
 	/** @var string */
 	protected $lang;
+	/** @var string */
+	protected $declaration;
 
 	/** @var TranslationComponent[] */
 	protected $components = [];
@@ -46,10 +48,11 @@ class Translation implements ComponentHolder{
 	protected $updated = null;
 
 
-	public function __construct(Message $message, string $id, string $lang){
+	public function __construct(Message $message, string $id, string $lang, string $declaration){
 		$this->message = $message;
 		$this->id = $id;
 		$this->lang = $lang;
+		$this->declaration = $declaration;
 	}
 
 	public function init() : void{
@@ -74,6 +77,10 @@ class Translation implements ComponentHolder{
 		return $this->lang;
 	}
 
+	public function getDeclaration() : string{
+		return $this->declaration;
+	}
+
 	/**
 	 * @return TranslationComponent[]
 	 */
@@ -96,10 +103,10 @@ class Translation implements ComponentHolder{
 		$this->updated = $updated;
 
 		if($this->message->getUpdatedVersion() === null){
-			$this->message->getManager()->getPlugin()->getLogger()->warning("[libglocal] The message {$this->message->getId()} does not contain a base version, but the {$this->lang} translation declares a version.");
+			$this->message->getManager()->getLogger()->warning("[libglocal] The message {$this->message->getId()} does not contain a base version, but the {$this->lang} translation declares a version.");
 		}
 		if(mb_strtolower($this->message->getUpdatedVersion()) !== mb_strtolower($updated)){
-			$this->message->getManager()->getPlugin()->getLogger()->warning("[libglocal] The base version of message {$this->message->getId()} is {$this->message->getUpdatedVersion()}, while the {$this->lang} translation targets the version {$updated}. This translation will not be used.");
+			$this->message->getManager()->getLogger()->warning("[libglocal] The base version of message {$this->message->getId()} is {$this->message->getUpdatedVersion()}, while the {$this->lang} translation targets the version {$updated}. This translation will not be used.");
 		}
 	}
 }

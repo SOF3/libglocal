@@ -222,6 +222,10 @@ class MultibyteLineReader implements Thrower{
 		throw new AssertionError("Invalid control flow");
 	}
 
+	public function getOriginal() : string{
+		return $this->original;
+	}
+
 	public function throw(string $error) : Throwable{
 		throw $this->langParser->throw($error);
 	}

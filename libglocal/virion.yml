@@ -1,4 +1,7 @@
 name: libglocal
 version: 0.2.0
-api: [3.0.0-ALPHA12]
+api:
+  - 3.0.0-ALPHA11
+  - 3.0.0-ALPHA12
 antigen: SOFe\Libglocal
+author: SOFe

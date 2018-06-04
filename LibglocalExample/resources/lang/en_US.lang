@@ -33,12 +33,6 @@ messages
     // #{lorem.ipsum} interpolates the message lorem.ipsum into this message. Parentheses can be added behind the message to pass arguments. Integer literals, string literals and direct references (to arguments of this message) can be used.
     ordinalTest %{warn}Test for the #{internal.ordinal ord=times} time
         arg times int
-    internal
-        ordinal ${ord}
-            doc Convert a quantity into an ordinal number
-            since 1.0 // The earliest version that added this message. Not sure why this is needed though... TODO decide whether to remove this
-            updated 2.0 // The last version this message was updated. If base lang has a more updated version, this means the base lang expects this message to mean something else, and the message in the base lang will be used.
-            arg ord quantity // TODO create quantity syntax
     trivia
         escape-sequence This a literal \${\} dollar sign with curly braces.
             doc Note that close brace } also needs escaping, to distinguish from the close braces of spans

@@ -32,4 +32,6 @@ abstract class TranslationComponent{
 	}
 
 	public abstract function toString(array &$args) : string;
+
+	public abstract function toHtml() : string;
 }

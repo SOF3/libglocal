@@ -34,4 +34,8 @@ class StringLiteralDefault extends ArgDefault{
 	public function resolve(string $lang, array $args) : string{
 		return $this->string;
 	}
+
+	public function toHtml() : string{
+		return '"' . $this->string . '"';
+	}
 }

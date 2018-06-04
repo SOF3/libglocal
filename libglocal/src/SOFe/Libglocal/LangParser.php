@@ -22,7 +22,6 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal;
 
-use pocketmine\utils\Terminal;
 use pocketmine\utils\TextFormat;
 use SOFe\Libglocal\ArgDefault\ArgDefault;
 use SOFe\Libglocal\ArgDefault\ArgFallbackDefault;
@@ -242,7 +241,9 @@ class LangParser implements Thrower{
 	}
 
 	private function parseTreeLine(MultibyteLineReader $reader) : void{
-		$line = $reader->remaining();
+		if(trim($reader->remaining()) === ""){
+			return;
+		}
 		[$indentString] = $reader->consumeRegex('/^[ \t]+/u', "messages must be the last root element");
 
 		$indents = $this->countIndent($indentString);
@@ -314,6 +315,9 @@ class LangParser implements Thrower{
 			return;
 		}
 
+		$reader->readWhitespace();
+		$reader->useEscapedComment();
+
 		$fullId = implode(".", array_merge($this->idStack, [$messageId]));
 //		echo "Start message $fullId\n";
 		if($this->base){
@@ -326,19 +330,18 @@ class LangParser implements Thrower{
 			if(isset($this->manager->getMessages()[$fullId])){
 				$this->currentMessage = $this->manager->getMessages()[$fullId];
 			}else{
-				$this->manager->getPlugin()->getLogger()->debug("[libglocal] The message $fullId from $this->fileHumanName will not be visible to other files because it is not declared in the base lang file");
+				$this->manager->getLogger()->debug("[libglocal] The message $fullId from $this->fileHumanName will not be visible to other files because it is not declared in the base lang file");
 				$this->localMessages[$fullId] = $this->currentMessage = new Message($this->manager, $fullId);
 			}
 		}
 
+
 		$this->currentMessage->getTranslations()[$this->langId] = $this->currentComponentHolder
-			= $this->currentTranslation = new Translation($this->currentMessage, $fullId, $this->langId);
+			= $this->currentTranslation = new Translation($this->currentMessage, $fullId, $this->langId, $reader->remaining());
 		if($this->base){
 			$this->currentMessage->setBaseTranslation($this->currentTranslation);
 		}
 
-		$reader->readWhitespace();
-		$reader->useEscapedComment();
 		$this->parseMessageValue($reader, false);
 
 		$this->scope = self::SCOPE_MESSAGE;
@@ -378,8 +381,8 @@ class LangParser implements Thrower{
 
 			assert($char === "#" || $char === "\$" || $char === "%");
 
-			if($reader->consume(1) === "{"){
-				$buffer .= $char . "{";
+			if(($next = $reader->consume(1)) !== "{"){
+				$buffer .= $char . $next;
 				continue;
 			}
 

@@ -23,11 +23,13 @@ declare(strict_types=1);
 namespace SOFe\Libglocal;
 
 use InvalidArgumentException;
+use JsonSerializable;
 use LogicException;
 use pocketmine\utils\TextFormat;
+use RuntimeException;
 use function assert;
 
-class Message{
+class Message implements JsonSerializable{
 	/** @var LangManager */
 	protected $manager;
 	/** @var string */
@@ -56,6 +58,10 @@ class Message{
 			throw new LogicException("Attempt to set base translation twice");
 		}
 		$this->baseTranslation = $translation;
+	}
+
+	public function getBaseTranslation() : Translation{
+		return $this->baseTranslation;
 	}
 
 
@@ -113,8 +119,12 @@ class Message{
 		foreach($this->args as $arg){
 			$arg->init();
 		}
-		foreach($this->translations as $translation){
-			$translation->init();
+		foreach($this->translations as $lang => $translation){
+			try{
+				$translation->init();
+			}catch(RuntimeException $e){
+				throw new RuntimeException("Error initializing translation $this->id:$lang", 0, $e);
+			}
 		}
 	}
 
@@ -139,5 +149,16 @@ class Message{
 			$output .= $component->toString($args);
 		}
 		return $output;
+	}
+
+
+	public function jsonSerialize() : array{
+		return [
+			"id" => $this->id,
+			"args" => $this->args,
+			"doc" => $this->doc,
+			"updated" => $this->updated,
+			"translations" => $this->translations,
+		];
 	}
 }

@@ -25,4 +25,10 @@ namespace SOFe\Libglocal\ArgType;
 abstract class ArgTypeModifier extends ArgType{
 	/** @var ArgType */
 	protected $delegate;
+
+	public function getName() : string{
+		return $this->getModifierName() . ":" . $this->delegate->getName();
+	}
+
+	public abstract function getModifierName() : string;
 }

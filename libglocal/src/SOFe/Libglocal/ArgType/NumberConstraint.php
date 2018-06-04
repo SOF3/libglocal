@@ -111,4 +111,16 @@ class NumberConstraint{
 		}
 		throw new AssertionError("Unexpected operator");
 	}
+
+	public function toString() : string{
+		static $name = [
+			self::OP_EQ => "=",
+			self::OP_NEQ => "!=",
+			self::OP_LT => "<",
+			self::OP_LTE => "<=",
+			self::OP_GT => ">",
+			self::OP_GTE => ">=",
+		];
+		return ($this->modulusSize !== 0 ? "%{$this->modulusSize}" : "") . "{$name[$this->operator]}{$this->operand}";
+	}
 }

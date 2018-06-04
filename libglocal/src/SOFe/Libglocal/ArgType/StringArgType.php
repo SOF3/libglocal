@@ -26,4 +26,8 @@ class StringArgType extends ArgType{
 	public function toString($value) : string{
 		return (string) $value;
 	}
+
+	public function getName() : string{
+		return "string";
+	}
 }

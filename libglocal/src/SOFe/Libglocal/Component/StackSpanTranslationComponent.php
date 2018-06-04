@@ -24,6 +24,7 @@ namespace SOFe\Libglocal\Component;
 
 use pocketmine\utils\TextFormat;
 use SOFe\Libglocal\Translation;
+use function array_map;
 use function array_pop;
 use function array_unique;
 use function count;
@@ -35,15 +36,15 @@ class StackSpanTranslationComponent extends TranslationComponent implements Comp
 	protected $isColor;
 	/** @var string */
 	protected $code;
-	/** @var string */
+	/** @var string|null */
 	protected $fallbackCondition;
-	/** @var string */
+	/** @var string|null */
 	protected $fallbackCode;
 
 	/** @var TranslationComponent[] */
 	protected $childComponents = [];
 
-	public function __construct(Translation $translation, bool $isColor, string $code, string $fallbackCondition, string $fallbackCode){
+	public function __construct(Translation $translation, bool $isColor, string $code, ?string $fallbackCondition, ?string $fallbackCode){
 		$this->myTranslation = $translation;
 		$this->isColor = $isColor;
 		$this->code = $code;
@@ -86,5 +87,34 @@ class StackSpanTranslationComponent extends TranslationComponent implements Comp
 		$output .= $args[Translation::SPECIAL_ARG_STACK_COLOR][count($args[Translation::SPECIAL_ARG_STACK_COLOR]) - 1];
 		$output .= implode("", array_unique($args[Translation::SPECIAL_ARG_STACK_FONT]));
 		return $output;
+	}
+
+	public function toHtml() : string{
+		$tag = null;
+		switch($this->code){
+			case TextFormat::BOLD:
+				$tag = "strong";
+				break;
+			case TextFormat::ITALIC:
+				$tag = "em";
+				break;
+			case TextFormat::UNDERLINE:
+				$tag = "u";
+				break;
+			case TextFormat::STRIKETHROUGH:
+				$tag = "strikethrough";
+				break;
+		}
+
+		if($tag !== null){
+			$prefix = "<{$tag}>";
+			$suffix = "</{$tag}>";
+		}else{
+			$prefix = $suffix = "";
+		}
+
+		return '%{' . $this->code . ' ' . $prefix . implode('', array_map(function(TranslationComponent $component) : string{
+				return $component->toHtml();
+			}, $this->childComponents)) . $suffix . '}';
 	}
 }
