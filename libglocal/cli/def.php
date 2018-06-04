@@ -20,6 +20,7 @@
 
 declare(strict_types=1);
 
+use SOFe\Libglocal\CLI\DummyLogger;
 use SOFe\Libglocal\LangManager;
 use SOFe\Libglocal\Message;
 
@@ -35,48 +36,7 @@ if(!is_file($file)){
 	throw new InvalidArgumentException("$file is not a file");
 }
 
-$manager = new LangManager(new class implements Logger{
-	public function emergency($message) : void{
-		echo "[" . __FUNCTION__ . "] " . $message . "\n";
-	}
-
-	public function alert($message) : void{
-		echo "[" . __FUNCTION__ . "] " . $message . "\n";
-	}
-
-	public function critical($message) : void{
-		echo "[" . __FUNCTION__ . "] " . $message . "\n";
-	}
-
-	public function error($message) : void{
-		echo "[" . __FUNCTION__ . "] " . $message . "\n";
-	}
-
-	public function warning($message) : void{
-		echo "[" . __FUNCTION__ . "] " . $message . "\n";
-	}
-
-	public function notice($message) : void{
-		echo "[" . __FUNCTION__ . "] " . $message . "\n";
-	}
-
-	public function info($message) : void{
-		echo "[" . __FUNCTION__ . "] " . $message . "\n";
-	}
-
-	public function debug($message) : void{
-		echo "[" . __FUNCTION__ . "] " . $message . "\n";
-	}
-
-	public function log($level, $message) : void{
-		echo "[$level] " . $message . "\n";
-
-	}
-
-	public function logException(\Throwable $e, $trace = null) : void{
-		echo $e->getTraceAsString();
-	}
-});
+$manager = new LangManager(new DummyLogger);
 $manager->loadFile($file, fopen($file, "rb"));
 $manager->init(false);
 

@@ -131,6 +131,7 @@ class StackSpanTranslationComponent extends TranslationComponent implements Comp
 				"condition" => $this->fallbackCondition,
 				"code" => $this->fallbackCode,
 			],
+			"children" => $this->childComponents,
 		];
 	}
 }
