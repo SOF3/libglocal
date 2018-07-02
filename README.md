@@ -3,7 +3,7 @@ A virion for localization.
 
 Features:
 - Translations of the same [locale](#libglocal-terminology) can be split into different files to favour user-side editing
-- Flexiblw message grouping
+- Flexible message grouping
 - Argument substitution by name No more confusing `{$1}`!
 - Argument validation
 - Argument defaults and cross-fallbacks
