@@ -20,8 +20,9 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal;
+namespace SOFe\Libglocal\Parser\Lexer;
 
+use function json_encode;
 use function mb_strlen;
 use function mb_strpos;
 use function mb_substr;
@@ -40,7 +41,7 @@ class StringReader{
 
 	public function __construct(string $string){
 		$this->string = $string;
-		$this->length = mb_strlen($this->length);
+		$this->length = mb_strlen($this->string);
 	}
 
 	public function startsWith(string $string) : bool{
@@ -48,12 +49,12 @@ class StringReader{
 		return substr($this->string, 0, min(strlen($this->string), strlen($string))) === $string;
 	}
 
-	public function matches(string $regex) : ?string{
+	public function matches(string $regex, &$match = null) : ?string{
 		return preg_match('/^' . $regex . '/iu', $this->string, $match) ? $match[0] : null;
 	}
 
-	public function matchRead(string $regex) : ?string{
-		$match = $this->matches($regex);
+	public function matchRead(string $regex, &$m = null) : ?string{
+		$match = $this->matches($regex, $m);
 		if($match !== null){
 			$this->advance(mb_strlen($match));
 		}
@@ -66,6 +67,9 @@ class StringReader{
 			$char = mb_substr($this->string, 0, 1);
 			if(mb_strpos($charset, $char) !== false xor $invert){
 				$ret .= $char;
+				if($char === "\n"){
+					$this->line++;
+				}
 			}else{
 				break;
 			}
@@ -83,6 +87,7 @@ class StringReader{
 		$ret = mb_substr($this->string, 0, $chars);
 		$this->string = substr($this->string, strlen($ret));
 		$this->length -= $chars;
+		$this->line += mb_substr_count($ret, "\n");
 		return $ret;
 	}
 
@@ -90,13 +95,14 @@ class StringReader{
 		if(!$this->startsWith($expected)){
 			throw $this->throw("Expected $expected");
 		}
+		$this->advance(mb_strlen($expected));
 		return $expected;
 	}
 
 	public function advance(int $chars) : void{
+		$this->line += mb_substr_count(mb_substr($this->string, 0, $chars), "\n");
 		$this->string = mb_substr($this->string, $chars);
 		$this->length -= $chars;
-		$this->line += mb_substr_count(mb_substr($this->string, 0, $chars), "\n");
 	}
 
 	public function eof() : bool{
@@ -108,6 +114,19 @@ class StringReader{
 	}
 
 	public function throw(string $message) : LexException{
-		throw new LexException($message . " on line {$this->line}");
+		if(strlen($this->string) > 12){
+			$got = json_encode(substr($this->string, 0, 10)) . "...";
+		}else{
+			$got = json_encode($this->string);
+		}
+		throw new LexException("$message on line {$this->line}, got $got");
+	}
+
+	public function getRemainingString() : string{
+		return $this->string;
+	}
+
+	public function getRemainingLength() : int{
+		return $this->length;
 	}
 }

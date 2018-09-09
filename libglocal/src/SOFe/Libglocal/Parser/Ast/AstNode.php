@@ -20,10 +20,30 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal;
+namespace SOFe\Libglocal\Parser\Ast;
 
-use RuntimeException;
+use SOFe\Libglocal\Parser\Lexer\LibglocalLexer;
 
-class LexException extends RuntimeException{
+abstract class AstNode{
+	/** @var LibglocalLexer */
+	protected $lexer;
 
+	/**
+	 * @param LibglocalLexer $lexer
+	 * @return static
+	 */
+	public static function try(LibglocalLexer $lexer){
+		$instance = new static($lexer);
+
+	}
+
+	private function __construct(LibglocalLexer $lexer){
+		$this->lexer = $lexer;
+	}
+
+	protected abstract function accept() : bool;
+
+	protected function expect(int $type) : void{
+		$token = $this->lexer->next();
+	}
 }

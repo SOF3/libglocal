@@ -1,4 +1,5 @@
 // Libglocal supports comments, but comments must be whole-line comments with optional indents.
+
 // Putting "//" in the middle of a message will not turn it into a comment.
 // Comments should only be written for developer use. Translators will not see comments through translators' editors.
 // Use the "*" doc modifier per-message to document messages.

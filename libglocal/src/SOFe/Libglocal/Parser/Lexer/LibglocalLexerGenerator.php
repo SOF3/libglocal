@@ -20,17 +20,19 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal;
+namespace SOFe\Libglocal\Parser\Lexer;
 
 use Generator;
+use SOFe\Libglocal\Parser\Token;
 use function array_pop;
 use function assert;
 use function count;
+use function json_encode;
 use function mb_strtolower;
 use function str_replace;
 use function strpos;
 
-class LangLexer{
+class LibglocalLexerGenerator{
 	protected const IDENTIFIER_REGEX = '[A-Za-z0-9_\\.\\-]+';
 
 	protected $afterMessages = false;
@@ -39,7 +41,7 @@ class LangLexer{
 	public function lex(StringReader $reader) : Generator{
 		while(!$reader->eof()){
 			yield from $this->lexLine($reader);
-			yield new Token(Token::TERMINATOR, "");
+			yield new Token(Token::CHECKSUM, "");
 		}
 	}
 
@@ -50,30 +52,40 @@ class LangLexer{
 		}
 
 		$identifiers = yield from $this->command($reader);
-		while($identifiers !== 0){
+
+		while(true){
+			yield from $this->readWhitespace($reader);
 			$lf = $reader->readAny("\r\n", false);
 			if(!empty($lf)){
 				yield new Token(Token::WHITESPACE, $lf);
 				return;
 			}
+			if($reader->eof()){
+				return;
+			}
 
-			yield from $this->readWhitespace($reader);
+			if($identifiers === 0){
+				yield from $this->literal($reader, false);
+				if($reader->startsWith("\r\n")){
+					yield new Token(Token::WHITESPACE, $reader->readExpected("\r\n"));
+					return;
+				}
+				if($reader->startsWith("\n")){
+					yield new Token(Token::WHITESPACE, $reader->readExpected("\n"));
+					return;
+				}
+			}
 
 			if($identifiers === -1 && $reader->startsWith("=")){
-				yield new Token(Token::EQUALS, "=");
+				yield new Token(Token::EQUALS, $reader->readExpected("="));
 				continue;
 			}
 
 			yield from $this->readIdentifier($reader, true);
-
 			if($identifiers > 0){
 				$identifiers--;
-			}else{
-				assert($identifiers === -1);
 			}
 		}
-
-		yield from $this->literal($reader, false);
 	}
 
 	protected function lineStart(StringReader $reader) : Generator{
@@ -85,8 +97,10 @@ class LangLexer{
 		$white = $reader->readAny(" \t", false);
 
 		if($reader->startsWith("//")){
-			yield new Token(Token::WHITESPACE, $white);
-			$comment = $reader->readAny("\r\n", true);
+			if(!empty($white)){
+				yield new Token(Token::WHITESPACE, $white);
+			}
+			$comment = $reader->readAny("\r\n", true) . $reader->readAny("\r\n", false);
 			yield new Token(Token::COMMENT, $comment);
 			return false;
 		}
@@ -103,30 +117,39 @@ class LangLexer{
 				yield new Token(Token::INDENT_DECREASE, "");
 			}
 			$this->indentStack = [];
-		}else{
-			$last = $this->indentStack[count($this->indentStack) - 1];
-			if(strpos($white, $last) === 0){
-				if($white !== $last){
-					$this->indentStack[] = $white;
-					yield new Token(Token::INDENT_INCREASE, "");
-				}
-			}else{
-				$ok = false;
-				while(!empty($this->indentStack)){
-					$last = $this->indentStack[count($this->indentStack) - 1];
-					if($last === $white){
-						$ok = true;
-						break;
-					}
-					yield new Token(Token::INDENT_DECREASE, "");
-					array_pop($this->indentStack);
-				}
-				if(!$ok){
-					throw $reader->throw("Invalid indent \"" . str_replace("\t", "\\t", $white) . "\"");
-				}
+
+			return true;
+		}
+
+		if(empty($this->indentStack)){
+			yield new Token(Token::INDENT_INCREASE, $white);
+			return true;
+		}
+
+		$last = $this->indentStack[count($this->indentStack) - 1];
+		if(strpos($white, $last) === 0){
+			if($white !== $last){ // $white starts with $last
+				$this->indentStack[] = $white;
+				yield new Token(Token::INDENT_INCREASE, "");
 			}
 			yield new Token(Token::INDENT, $white);
+			return true;
 		}
+
+		$ok = false;
+		while(!empty($this->indentStack)){
+			$last = $this->indentStack[count($this->indentStack) - 1];
+			if($last === $white){
+				$ok = true;
+				break;
+			}
+			yield new Token(Token::INDENT_DECREASE, "");
+			array_pop($this->indentStack);
+		}
+		if(!$ok){
+			throw $reader->throw("Invalid indent \"" . str_replace("\t", "\\t", $white) . "\"");
+		}
+		yield new Token(Token::INDENT, $white);
 
 		return true;
 	}
@@ -197,8 +220,26 @@ class LangLexer{
 				yield new Token(Token::LITERAL, $literal);
 			}
 
-			if($reader->eof() || $reader->startsWith("\r\n") || $reader->startsWith("\n")){
-				// TODO handle cont
+			if($reader->eof()){
+				return;
+			}
+			if($reader->startsWith("\r\n") || $reader->startsWith("\n")){
+				if($reader->matchRead('[ \\t\\r\\n]+([!|\\\\])', $match) !== null){
+					switch($match[1]){
+						case '!':
+							yield new Token(Token::CONT_NEWLINE, $match[0]);
+							break;
+						case '|':
+							yield new Token(Token::CONT_SPACE, $match[0]);
+							break;
+						case '\\':
+							yield new Token(Token::CONT_CONCAT, $match[0]);
+							break;
+						default:
+							assert(false, "Unexpected match {$match[1]}");
+					}
+					continue;
+				}
 				return;
 			}
 			if($reader->startsWith("\\")){
@@ -212,7 +253,7 @@ class LangLexer{
 				return;
 			}
 
-			if(!$reader->startsWith('#{') || !$reader->startsWith('${') || !$reader->startsWith('%{')){
+			if($reader->getRemainingString(){1} !== "{"){
 				yield new Token(Token::LITERAL, $reader->read(1));
 				continue;
 			}
@@ -240,19 +281,22 @@ class LangLexer{
 			yield new Token(Token::MOD_ARG, $reader->readExpected('$'));
 			yield from $this->readWhitespace($reader, " \t\r\n");
 		}
-		yield from $this->readIdentifier($reader, true);
-		yield from $this->readWhitespace($reader, " \t,\r\n");
+		yield from $this->readIdentifier($reader, true, false);
 
 		while(!$reader->startsWith("}")){
-			yield from $this->readIdentifier($reader, true);
+			yield from $this->readWhitespace($reader, " \t,\r\n", true);
+			if($reader->startsWith("}")){
+				break;
+			}
+			yield from $this->readIdentifier($reader, true, false);
 			yield from $this->readWhitespace($reader, " \t\r\n");
 			yield new Token(Token::EQUALS, $reader->readExpected("="));
 			yield from $this->readWhitespace($reader, " \t\r\n");
 			yield from $this->readMessageArgValue($reader);
-			yield from $this->readWhitespace($reader, " \t,\r\n");
 		}
 
-		yield new Token(Token::WHITESPACE, "}");
+		yield new Token(Token::WHITESPACE, $reader->readExpected("}"));
+		yield new Token(Token::CHECKSUM, "");
 	}
 
 	protected function readMessageArgValue(StringReader $reader) : Generator{
@@ -266,7 +310,7 @@ class LangLexer{
 			yield new Token(Token::CLOSE_BRACE, $reader->readExpected("}"));
 			return;
 		}
-		$hasIdentifier = yield from $this->readIdentifier($reader, false);
+		$hasIdentifier = yield from $this->readIdentifier($reader, false, false);
 		if(!$hasIdentifier){
 			throw $reader->throw("Expected identifier, number or {literal}");
 		}
@@ -275,28 +319,36 @@ class LangLexer{
 	protected function argRef(StringReader $reader) : Generator{
 		yield new Token(Token::ARG_REF_START, $reader->read(2));
 		yield from $this->readWhitespace($reader);
-		yield from $this->readIdentifier($reader, true);
+		yield from $this->readIdentifier($reader, true, false);
 		yield from $this->readWhitespace($reader);
 		yield new Token(Token::CLOSE_BRACE, $reader->readExpected("}"));
+		yield new Token(Token::CHECKSUM, "");
 	}
 
 	protected function span(StringReader $reader) : Generator{
 		yield new Token(Token::SPAN_START, $reader->read(2));
 		yield from $this->readWhitespace($reader);
+		yield from $this->readIdentifier($reader, true, true, Token::SPAN_NAME);
+		yield from $this->readWhitespace($reader);
 		yield from $this->literal($reader, true);
 		yield new Token(Token::CLOSE_BRACE, $reader->readExpected("}"));
+		yield new Token(Token::CHECKSUM, "");
 	}
 
-	protected function readWhitespace(StringReader $reader, string $charset = " \t") : Generator{
+	protected function readWhitespace(StringReader $reader, string $charset = " \t", bool $must = false) : Generator{
 		$white = $reader->readAny($charset, false);
 		if(!empty($white)){
 			yield new Token(Token::WHITESPACE, $white);
 			return true;
 		}
+
+		if($must){
+			throw $reader->throw("Expected any of " . json_encode($charset));
+		}
 		return false;
 	}
 
-	protected function readIdentifier(StringReader $reader, bool $must, int $identifierType = Token::IDENTIFIER) : Generator{
+	protected function readIdentifier(StringReader $reader, bool $must, bool $needWhite = true, int $identifierType = Token::IDENTIFIER) : Generator{
 		while(true){
 			$identifier = $reader->matchRead(self::IDENTIFIER_REGEX);
 			if($identifier === null){
@@ -327,7 +379,7 @@ class LangLexer{
 			}
 
 			yield new Token($identifierType, $identifier);
-			if(!$reader->eof() && $reader->matches('[ \\t\\r\\n]+') === null){
+			if($needWhite && !$reader->eof() && $reader->matches('[ \\t\\r\\n]+') === null){
 				throw $reader->throw("Expected whitespace behind identifier");
 			}
 			return true;
