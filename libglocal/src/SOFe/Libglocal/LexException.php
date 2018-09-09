@@ -20,33 +20,10 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Component;
+namespace SOFe\Libglocal;
 
-use SOFe\Libglocal\Translation;
+use RuntimeException;
 
-class StyleSpanTranslationComponent extends TranslationComponent{
-	/** @var string */
-	protected $code;
+class LexException extends RuntimeException{
 
-	public function __construct(Translation $translation, string $code){
-		$this->myTranslation = $translation;
-		$this->code = $code;
-	}
-
-
-	public function toString(array &$args) : string{
-		$args[Translation::SPECIAL_ARG_STACK_COLOR][0] = $this->code;
-		return $this->code;
-	}
-
-	public function toHtml() : string{
-		return '%{' . $this->code . '}';
-	}
-
-	public function jsonSerialize() : array{
-		return [
-			"type" => "StyleSpan",
-			"code" => $this->code,
-		];
-	}
 }

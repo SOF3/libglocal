@@ -1,39 +1,139 @@
-base lang en_US English (US)
-author SOFe, SOF3, Iron(II) Sulphite
-version 2.0 // current version name. For non-base lang files, this should be the targetted base lang version.
+// Libglocal supports comments, but comments must be whole-line comments with optional indents.
+// Putting "//" in the middle of a message will not turn it into a comment.
+// Comments should only be written for developer use. Translators will not see comments through translators' editors.
+// Use the "*" doc modifier per-message to document messages.
 
-messages
-  commands // identifier without message = namespace
-    friends // subnamespace, called "commands.friends". indent = something belonging to the above element.
-      usage /friend list|add|remove // The message "commands.friends.usage" with content "/friend list|add|remove"
-      add // subnamespace "commands.add"
-        // Use ${...} to reference an argument. Argument declaration is only required in the base lang file, but special formats e.g. quantity may be overridden in other files.
-        success Added friend "${name}"
-          arg name // this declares the argument "name". The default argument type is string.
-          doc Informs the player the success of adding a friend.
-          // Docs can be utilized by external editors to assist translation.
-          // Known issue in libglocal-idea-plugin: docs cannot have trailing comments on the same line
-      error
-        // %{...} are spans.
-        // 5 "style" spans: info, success, notice, warn, error, which are color codes white, green, aqua, yellow and red.
-        // Style spans will change the color of the rest of the string (except inside stack spans) until the next style span is encountered, similar to Minecraft or ANSI color codes
-        // 8 "stack" spans:
-        //   hl1, hl2, hl3, hl4, represented as light purple, gold (red if the base color is yellow), aqua (yellow if the base color is already aqua), green (red if the base color is already green).
-        //   b, i, u, s, represented as bold, italic, underline, strikethrough.
-        // Stack spans are written in the format %{NAME TEXT_CONTENT}, e.g. %{hl1 lorem ipsum} represents "lorem ipsum" in light purple
-        // These highlight constants can be stacked, i.e. the color outside the %{} will be restored after the span. the previous color shows up again. White is used if unknown.
-        his-full %{error}Cannot add friend %{hl1 "${name}"} %{hl2 (rank: ${rank})}, because his friend list is full.
-          arg name // you can put nothing here, or specify a type (e.g. "string")
-          arg rank
-        mine-full %{error}Cannot add friend %{hl1 "${name}"}, because you already have %{hl2 ${friends-count}}.
-          arg name
-          arg friends-count quantity // TODO make something like singular: "%d friend", plural: "%d friends"
-      list %{info}Your friends are: ${friends}
-      arg friends list:string
-  // #{lorem.ipsum} interpolates the message lorem.ipsum into this message. Parentheses can be added behind the message to pass arguments. Integer literals, string literals and direct references (to arguments of this message) can be used.
-  ordinalTest %{warn}Test for the #{internal.ordinal ord=times} time
-    arg times int
-  trivia
-    escape-sequence This a literal \${\} dollar sign with curly braces.
-      doc Note that close brace } also needs escaping, to distinguish from the close braces of spans
-  stacked-spans You can %{b stack %{i multiple} %{u decoration %{s constants}}} too.
+base lang en_US English (US)
+
+author SOFe
+author Iron(II) Sulphite
+version 1.0
+
+// This is just an example. stdlib is automatically loaded all the time, so it is pointless to check stdlib dependency.
+require stdlib
+
+messages LibglocalExample
+	basic This is a simple message. The ID is "LibglocalExample.basic".
+
+	group
+		child Messages can be grouped. The ID of this message is "LibglocalExample.group.child".
+		subgroup
+			child Groups can be stacked. The ID of this message is "LibglocalExample.group.subgroup.child".
+	group
+		another It is valid to redeclare a group, as long as the messages inside do not have duplicate IDs. The ID of this message is "LibglocalExample.group.another".
+	group.compact It is also valid to write the dots directly like this.
+
+	escape
+		must These characters must be escaped: \} \\
+		brace These normally don't need to be escaped: # $ % But if followed by {, they must be escaped as \#{ \#{ \%{
+		white "\n" "\s" "\0" These are translated into newline, space and nothing.
+		because \sTo have leading/trailing spaces, \\s must be used. It can also be replaced by a literal space before/after a \\0 like this \0
+		otherwise Libglocal will trim the spaces away. In addition, empty messages must contain a \\0, otherwise libglocal will parse them as message groups rather than empty messages.
+
+	continuation
+		space There will be a space between "because" and "the" because
+				| the | character means "continue on next line and insert a space in between".
+				| Trailing spaces on the first line and spaces in front of or behind the | character will be trimmed.
+| The indent of the next line
+					| does not matter
+	| at all.
+				| Conventionally, two indent units are used for continuation.
+		newline "because" and "the" will be on two separate lines because
+				! the ! character means "continue on next line and insert a newline in between".
+		concat "be" and "cause" will be one word be
+				\ cause the \\ character means "continue on next line and join them directly".
+
+	doc You can document messages too. Documentation is only allowed in base lang files.
+		* This documentation will be shown to translators.
+		* The documentation can be split into multiple lines. Two lines are joined by spaces.
+		*
+		* To have actual line breaks in the docs, there should be an empty doc line in between.
+
+	arguments
+		simple The argument is "${argName}". No conversion. There can be space/tabs between the $ and the arg name like ${spaced}.
+			$argName
+			$ spaced
+		explicit-type The argument "${arg}" is resolved in the same way, because "string" is the default argument type.
+			$arg string
+		other-types Arguments can also be int (${integer}), float (${float}), or booleans (${bool}).
+			$integer int
+			$float float
+			$bool bool
+
+		defaults These scalar types can have default values.
+				| ${str}, ${integer}, ${float} and ${bool} will show "foo" "1234" "-3.14" "false" if no arguments are passed.
+			$str string foo
+			$integer int 1234
+			$float float -3.140
+			$bool bool false
+
+		lists The "list:" flag can be applied in front of the type to turn it into a list type.
+			| The elements will be displayed with a delimiter between every two elements, e.g. ${items}.
+			| List types cannot have defaults.
+			$items list:string
+				// stdlib.list.delimiter is the default list delimiter. It is not necessary to declare the default delimiter.
+				// This is just an example.
+				#delim stdlib.list.delimiter
+		objects Arguments may be objects. Their properties can be accessed like this: ${object.name}.
+				| If the object property is a list, the property is retrieved per list element like this: ${object.structs.leaf}.
+				| The delimiter for list fields should be defined under the field.
+				| Scalar object fields may have default values. If the object does not have list fields and all scalar fields have default values, the object itself is optional.
+			$obj object
+				$name string
+					$age float
+					$structs list:object
+						#delim stdlib.list.delimiter
+						$ leaf string
+
+	message-references
+		ref This message will be included below.
+		simple Let's include #{LibglocalExample.message-references.ref} here!
+		relative We can include #{.ref} like this if they are in the same group.
+		grouped
+			local:child2 Set it as "local" such that it can only be used from lang files of the current language.
+			note3 Local messages can be overwritten in lang
+			lib:another option is to set it as "lib" such that it can be overridden/used in other languages by
+		nephew Access grouped messages #{.grouped.child} the same way.
+		group
+			uncle Or access a message in a grandparent group as #{..ref}.
+				| Each extra . in the beginning represents "parent group", just like "/.." in a filesystem.
+
+		requires-args This message will be included with ${arg1}, ${arg2}, ${arg3}, ${arg4} and ${arg5}.
+			$arg1 string foo
+			$arg2 string bar
+			$arg3 float -3.14
+			$arg4 string qux
+			$arg5 string corge
+		use-args Now we can reference it like this: #{.requires-args arg1={literal string} arg2={\0} arg3=-2.76 arg4=myarg arg5={arguments  ${myarg2} and messages #{.requires-args arg1={with stacked arguments}} are also valid}}
+				| Any number of spaces, tabs, commas and line breaks are allowed between arguments, like this: #{.requires-args
+					arg1={literal}
+							arg2={another literal with messed up indents}, arg3=-3.14
+					arg4={if you want to go crazy} ,,,,,,   ,,,  ,,,, arg5={this is also possible}
+				,,, } Or have nothing between them: #{.requires-args}
+			$myarg
+			$myarg2
+
+		requires-object This message requires an object parameter: ${object.field1}, ${object.field2}
+			$object object
+				$field1
+				$field2
+		object Object fields can be passed separately like this: #{.requires-object object.field1={foo} object.field2={bar}}
+		all All arguments can be represented as an object called . and be used in the argument name/value of the list.
+		one-to-all \${arg\} in this message contains some of the fields in requires-args, so we can pass it directly:
+				| #{.requires-args .=arg}
+			$arg
+				$field1
+				$field2
+		all-to-one All parameters of this message can be grouped into an object ".", like this: #{.requires-object object=.}
+			$field1
+			$field2
+		all-to-all Or just throw all args over: #{.requires-args .=. arg3=another-name}
+			$field1
+			$field2
+			$another-name float
+
+	spans
+		styles %{info This is an info message.} %{success This is a success message.} %{notice This is a notice message.}
+			| %{warn This is a warning message.} %{error This is an error message.}
+		highlight You can %{hl1 highlight %{hl2 certain %{hl3 certain %{hl4 words}} in a} %{hl3 sentence}}.
+		decoration Or %{b bold, %{i italic, %{u underline and %{s strikethrough}}}} them.

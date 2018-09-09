@@ -1,0 +1,15 @@
+// This is the standard libglocal library, loaded before any other lang files, and therefore can be overridden by any lang files
+
+base lang en_US English (US)
+author SOFe
+version 0.2.0
+
+messages stdlib
+	ordinal ${ord}
+		$ord quantity
+		* Converts an integer into its ordinal expression in this locale.
+		~0.2.0
+	list
+		delimiter ,\s
+			* The normal list delimiter symbol.
+			~0.2.0
