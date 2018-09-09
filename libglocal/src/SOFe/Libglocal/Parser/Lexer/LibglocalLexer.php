@@ -24,10 +24,13 @@ namespace SOFe\Libglocal\Parser\Lexer;
 
 use AssertionError;
 use Generator;
+use SOFe\Libglocal\Parser\ParseException;
 use SOFe\Libglocal\Parser\Token;
 use function array_merge;
 use function array_pop;
 use function array_push;
+use function array_shift;
+use function array_unshift;
 use function assert;
 use function count;
 use function json_encode;
@@ -69,20 +72,38 @@ class LibglocalLexer{
 
 	public function acceptStack() : void{
 		$buffer = array_pop($this->bufferStack);
-		array_push($this->bufferStack[count($this->bufferStack) - 1], ...$buffer);
+		if(!empty($this->bufferStack)){
+			array_push($this->bufferStack[count($this->bufferStack) - 1], ...$buffer);
+		}
+	}
+
+	public function eof() : bool{
+		if(!empty($this->future)){
+			return false;
+		}
+		$next = $this->nextTokenSkipping();
+		if($next === null){
+			return true;
+		}
+		$this->future[] = $next;
+		return false;
 	}
 
 	public function next() : ?Token{
 		if(empty($this->future)){
 			$token = $this->nextTokenSkipping();
 		}else{
-			$token = array_pop($this->future);
+			$token = array_shift($this->future);
 		}
 
 		if(!empty($this->bufferStack)){
 			$this->bufferStack[count($this->bufferStack) - 1][] = $token;
 		}
 		return $token;
+	}
+
+	public function rewind(Token $token) : void{
+		array_unshift($this->future, $token);
 	}
 
 	protected function nextTokenSkipping() : ?Token{
@@ -124,5 +145,14 @@ class LibglocalLexer{
 		$ret->setLine($this->reader->getLine());
 
 		return $ret;
+	}
+
+	public function throwExpect(string $expect) : ParseException{
+		if($this->eof()){
+			throw new ParseException("Expecting $expect, end of line reached");
+		}
+		$next = $this->next();
+		assert($next !== null);
+		throw $next->throwExpect($expect);
 	}
 }

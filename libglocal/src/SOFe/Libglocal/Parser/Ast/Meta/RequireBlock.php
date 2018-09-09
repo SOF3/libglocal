@@ -20,19 +20,24 @@
 
 declare(strict_types=1);
 
-use SOFe\Libglocal\Parser\Lexer\LibglocalLexer;
+namespace SOFe\Libglocal\Parser\Ast\Meta;
 
-require_once __DIR__ . "/autoload.php";
+use SOFe\Libglocal\Parser\Ast\AstNode;
+use SOFe\Libglocal\Parser\Token;
 
-$data = file_get_contents(__DIR__ . "/../LibglocalExample/resources/lang/en_US.lang");
-$lexer = new LibglocalLexer($data);
+class RequireBlock extends AstNode{
+	/** @var string */
+	protected $target;
 
-while(true){
-	$token = $lexer->next();
-	if($token === null){
-		break;
+	protected function accept() : bool{
+		return $this->acceptToken(Token::REQUIRE) !== null;
 	}
 
-	printf("Token %s: \"%s\" #%d\n", $token->getTypeName(), json_encode($token->getCode()),
-		$token->getLine());
+	protected function complete() : void{
+		$this->target = $this->expectToken(Token::IDENTIFIER)->getCode();
+	}
+
+	protected static function getName() : string{
+		return "<require>";
+	}
 }

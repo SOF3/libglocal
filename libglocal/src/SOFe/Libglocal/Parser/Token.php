@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\Parser;
 
-use function array_search;
 use ReflectionClass;
+use function array_search;
 
 final class Token{
 	protected const BITMASK_TOKEN_CATEGORY = 0xFF00;
@@ -104,9 +104,13 @@ final class Token{
 		return $this->type & self::BITMASK_TOKEN_CATEGORY;
 	}
 
-	public function getTypeName() : string {
-		$class = new ReflectionClass($this);
-		return array_search($this->type, $class->getConstants(), true) ?: "<unknown>";
+	public function getTypeName() : string{
+		return self::idToName($this->type);
+	}
+
+	public static function idToName(int $id) : string{
+		$class = new ReflectionClass(Token::class);
+		return array_search($id, $class->getConstants(), true) ?: "<unknown>";
 	}
 
 	public function getCode() : string{
@@ -119,5 +123,13 @@ final class Token{
 
 	public function setLine(int $line) : void{
 		$this->line = $line;
+	}
+
+	public function throwExpect(string $expect) : ParseException{
+		throw new ParseException("Expecting $expect, got {$this->getTypeName()} on line {$this->line}");
+	}
+
+	public function throwUnexpected() : ParseException{
+		throw new ParseException("Unexpected {$this->getTypeName()} on line {$this->line}");
 	}
 }

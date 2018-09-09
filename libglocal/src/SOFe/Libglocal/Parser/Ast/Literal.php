@@ -20,19 +20,18 @@
 
 declare(strict_types=1);
 
-use SOFe\Libglocal\Parser\Lexer\LibglocalLexer;
+namespace SOFe\Libglocal\Parser\Ast;
 
-require_once __DIR__ . "/autoload.php";
-
-$data = file_get_contents(__DIR__ . "/../LibglocalExample/resources/lang/en_US.lang");
-$lexer = new LibglocalLexer($data);
-
-while(true){
-	$token = $lexer->next();
-	if($token === null){
-		break;
+class Literal extends AstNode{
+	protected function accept() : bool{
+		// TODO read the first token here
 	}
 
-	printf("Token %s: \"%s\" #%d\n", $token->getTypeName(), json_encode($token->getCode()),
-		$token->getLine());
+	protected function complete() : void{
+		// TODO read the remaining tokens here
+	}
+
+	protected static function getName() : string{
+		return "literal";
+	}
 }

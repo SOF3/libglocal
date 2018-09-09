@@ -20,19 +20,22 @@
 
 declare(strict_types=1);
 
-use SOFe\Libglocal\Parser\Lexer\LibglocalLexer;
+namespace SOFe\Libglocal\Parser\Ast\Meta;
 
-require_once __DIR__ . "/autoload.php";
+use SOFe\Libglocal\Parser\Ast\AstNode;
+use SOFe\Libglocal\Parser\Ast\Literal;
+use SOFe\Libglocal\Parser\Token;
 
-$data = file_get_contents(__DIR__ . "/../LibglocalExample/resources/lang/en_US.lang");
-$lexer = new LibglocalLexer($data);
-
-while(true){
-	$token = $lexer->next();
-	if($token === null){
-		break;
+class AuthorBlock extends AstNode{
+	protected function accept() : bool{
+		return $this->acceptToken(Token::AUTHOR) !== null;
 	}
 
-	printf("Token %s: \"%s\" #%d\n", $token->getTypeName(), json_encode($token->getCode()),
-		$token->getLine());
+	protected function complete() : void{
+		$this->expectAnyChildren(Literal::class);
+	}
+
+	protected static function getName() : string{
+		return "<author>";
+	}
 }

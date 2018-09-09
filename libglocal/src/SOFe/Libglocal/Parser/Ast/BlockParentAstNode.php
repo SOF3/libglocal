@@ -20,19 +20,24 @@
 
 declare(strict_types=1);
 
-use SOFe\Libglocal\Parser\Lexer\LibglocalLexer;
+namespace SOFe\Libglocal\Parser\Ast;
 
-require_once __DIR__ . "/autoload.php";
+use SOFe\Libglocal\Parser\Token;
 
-$data = file_get_contents(__DIR__ . "/../LibglocalExample/resources/lang/en_US.lang");
-$lexer = new LibglocalLexer($data);
-
-while(true){
-	$token = $lexer->next();
-	if($token === null){
-		break;
+abstract class BlockParentAstNode extends AstNode{
+	protected final function complete() : void{
+		$this->initial();
+		if($this->acceptToken(Token::INDENT_INCREASE)){
+			while(true){
+				if($this->acceptToken(Token::INDENT_DECREASE)){
+					break;
+				}
+				$this->acceptChild();
+			}
+		}
 	}
 
-	printf("Token %s: \"%s\" #%d\n", $token->getTypeName(), json_encode($token->getCode()),
-		$token->getLine());
+	protected abstract function initial() : void;
+
+	protected abstract function acceptChild() : void;
 }
