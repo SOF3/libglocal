@@ -34,7 +34,7 @@ abstract class AstNode{
 	/** @var AstNode[] */
 	protected $children = [];
 
-	private function __construct(LibglocalLexer $lexer){
+	protected function __construct(LibglocalLexer $lexer){
 		$this->lexer = $lexer;
 	}
 

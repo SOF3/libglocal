@@ -24,6 +24,7 @@ namespace SOFe\Libglocal\Parser;
 
 use ReflectionClass;
 use function array_search;
+use function strpos;
 
 final class Token{
 	protected const BITMASK_TOKEN_CATEGORY = 0xFF00;
@@ -84,6 +85,17 @@ final class Token{
 	public const SPAN_START = 0x0900;
 	public const SPAN_NAME = 0x0900;
 
+	public const CATEGORY_MATH = 0x0a00;
+	public const MATH_AT = 0x0a00;
+	public const MATH_MOD = 0x0a01; // %
+	public const MATH_EQ = 0x0a02; // =
+	public const MATH_NE = 0x0a03; // <>
+	public const MATH_LE = 0x0a04; // <=
+	public const MATH_LT = 0x0a05; // <
+	public const MATH_GE = 0x0a06; // >=
+	public const MATH_GT = 0x0a07; // >
+	public const MATH_SEPARATOR = 0x0a08;
+
 
 	/** @var int */
 	protected $type;
@@ -110,8 +122,17 @@ final class Token{
 	}
 
 	public static function idToName(int $id) : string{
-		$class = new ReflectionClass(Token::class);
-		return array_search($id, $class->getConstants(), true) ?: "<unknown>";
+		static $constantsCache = null;
+		if($constantsCache === null){
+			$constantsCache = [];
+			$class = new ReflectionClass(Token::class);
+			foreach($class->getConstants() as $name => $value){
+				if(strpos($name, "CATEGORY_") !== 0){
+					$constantsCache[$name] = $value;
+				}
+			}
+		}
+		return array_search($id, $constantsCache, true) ?: "<unknown>";
 	}
 
 	public function getCode() : string{

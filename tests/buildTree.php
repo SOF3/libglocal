@@ -20,19 +20,11 @@
 
 declare(strict_types=1);
 
+use SOFe\Libglocal\Parser\Ast\LibglocalFile;
 use SOFe\Libglocal\Parser\Lexer\LibglocalLexer;
 
 require_once __DIR__ . "/autoload.php";
 
 $data = file_get_contents(__DIR__ . "/../LibglocalExample/resources/lang/en_US.lang");
 $lexer = new LibglocalLexer($data);
-
-while(true){
-	$token = $lexer->next();
-	if($token === null){
-		break;
-	}
-
-	printf("Token %s: %s #%d\n", $token->getTypeName(), json_encode($token->getCode()),
-		$token->getLine());
-}
+$parser = new LibglocalFile($lexer);

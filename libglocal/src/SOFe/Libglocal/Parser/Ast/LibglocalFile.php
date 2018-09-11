@@ -28,6 +28,7 @@ use SOFe\Libglocal\Parser\Ast\Meta\AuthorBlock;
 use SOFe\Libglocal\Parser\Ast\Meta\LangBlock;
 use SOFe\Libglocal\Parser\Ast\Meta\RequireBlock;
 use SOFe\Libglocal\Parser\Ast\Meta\VersionBlock;
+use SOFe\Libglocal\Parser\Lexer\LibglocalLexer;
 use SOFe\Libglocal\Parser\ParseException;
 
 class LibglocalFile extends AstNode{
@@ -41,6 +42,13 @@ class LibglocalFile extends AstNode{
 	protected $requires = [];
 	/** @var MessagesBlock */
 	protected $messages;
+
+	// TODO add support for math rules
+
+	public function __construct(LibglocalLexer $lexer){
+		parent::__construct($lexer);
+		$this->complete();
+	}
 
 	protected function complete() : void{
 		while(true){

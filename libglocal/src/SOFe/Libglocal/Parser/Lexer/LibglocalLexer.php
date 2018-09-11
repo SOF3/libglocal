@@ -41,7 +41,7 @@ class LibglocalLexer{
 	/** @var StringReader */
 	protected $reader;
 	/** @var Generator */
-	protected $lexer;
+	protected $generator;
 
 	protected $first = true;
 
@@ -57,7 +57,7 @@ class LibglocalLexer{
 
 	public function __construct(string $data){
 		$this->reader = new StringReader($data);
-		$this->lexer = (new LibglocalLexerGenerator)->lex($this->reader);
+		$this->generator = (new LibglocalLexerGenerator)->lex($this->reader);
 		$this->peer = $data;
 	}
 
@@ -126,16 +126,16 @@ class LibglocalLexer{
 
 	protected function nextTokenPeer() : ?Token{
 		if($this->first){
-			$this->lexer->rewind();
+			$this->generator->rewind();
 		}else{
-			$this->lexer->next();
+			$this->generator->next();
 		}
 		$this->first = false;
 
-		if(!$this->lexer->valid()){
+		if(!$this->generator->valid()){
 			return null;
 		}
-		$ret = $this->lexer->current();
+		$ret = $this->generator->current();
 		assert($ret instanceof Token);
 
 		assert(substr($this->peer, $this->peerPointer, strlen($ret->getCode())) === $ret->getCode(),

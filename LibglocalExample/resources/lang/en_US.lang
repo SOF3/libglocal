@@ -68,7 +68,8 @@ messages LibglocalExample
 			$float float -3.140
 			$bool bool false
 
-		quantity ${apples @one={apple} @={apples}} reads "3 apples" when
+		quantity ${apples @one={apple} @={apples}} reads "3 apples" when apples = 3, "1 apple" when apple is one
+			$apples int
 
 		lists The "list:" flag can be applied in front of the type to turn it into a list type.
 			| The elements will be displayed with a delimiter between every two elements, e.g. ${items delim=#stdlib.list.delimiter}.
