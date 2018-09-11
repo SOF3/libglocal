@@ -45,6 +45,10 @@ class LibglocalLexerGenerator{
 			yield from $this->lexLine($reader);
 			yield new Token(Token::CHECKSUM, "");
 		}
+		/** @noinspection PhpUnusedLocalVariableInspection */
+		foreach($this->indentStack as $_){
+			yield new Token(Token::INDENT_DECREASE, "");
+		}
 	}
 
 	protected function lexLine(StringReader $reader) : Generator{
@@ -124,6 +128,7 @@ class LibglocalLexerGenerator{
 		}
 
 		if(empty($this->indentStack)){
+			$this->indentStack[] = $white;
 			yield new Token(Token::INDENT_INCREASE, $white);
 			return true;
 		}
@@ -176,7 +181,7 @@ class LibglocalLexerGenerator{
 				return 0;
 			}
 			if(($match = $reader->matchRead('version\\b')) !== null){
-				yield new Token(Token::AUTHOR, $match);
+				yield new Token(Token::VERSION, $match);
 				return 1;
 			}
 			if(($match = $reader->matchRead('require\\b')) !== null){
@@ -315,7 +320,7 @@ class LibglocalLexerGenerator{
 		yield from $this->readWhitespace($reader);
 		yield from $this->readIdentifier($reader, true, false);
 
-		yield from $this->argList($reader);
+		yield from $this->attributeList($reader);
 
 		yield new Token(Token::CLOSE_BRACE, $reader->readExpected("}"));
 		yield new Token(Token::CHECKSUM, "");
@@ -330,13 +335,13 @@ class LibglocalLexerGenerator{
 		}
 		yield from $this->readIdentifier($reader, true, false);
 
-		yield from $this->argList($reader);
+		yield from $this->attributeList($reader);
 
 		yield new Token(Token::CLOSE_BRACE, $reader->readExpected("}"));
 		yield new Token(Token::CHECKSUM, "");
 	}
 
-	protected function argList(StringReader $reader) : Generator{
+	protected function attributeList(StringReader $reader) : Generator{
 		while(!$reader->startsWith("}")){
 			yield from $this->readWhitespace($reader, " \t,\r\n", true);
 			if($reader->startsWith("}")){
@@ -349,11 +354,11 @@ class LibglocalLexerGenerator{
 			yield from $this->readWhitespace($reader, " \t\r\n");
 			yield new Token(Token::EQUALS, $reader->readExpected("=")); // =
 			yield from $this->readWhitespace($reader, " \t\r\n");
-			yield from $this->argValue($reader); // value
+			yield from $this->attributeValue($reader); // value
 		}
 	}
 
-	protected function argValue(StringReader $reader) : Generator{
+	protected function attributeValue(StringReader $reader) : Generator{
 		if(($number = $reader->matchRead('-?[0-9]+(\\.[0-9]+)?')) !== null){
 			yield new Token(Token::NUMBER, $number);
 			return;
@@ -375,7 +380,7 @@ class LibglocalLexerGenerator{
 	}
 
 	protected function span(StringReader $reader) : Generator{
-		yield new Token(Token::SPAN_START, $reader->read(2));
+		yield new Token(Token::SPAN_START, $reader->readExpected("%{"));
 		yield from $this->readWhitespace($reader);
 		yield from $this->readIdentifier($reader, true, true, Token::SPAN_NAME);
 		yield from $this->readWhitespace($reader);
@@ -409,22 +414,7 @@ class LibglocalLexerGenerator{
 			}
 
 			if($reader->startsWith(':')){
-				$reader->advance(1);
-				switch(mb_strtolower($identifier)){
-					case "public":
-						yield new Token(Token::FLAG_PUBLIC, $identifier . ':');
-						continue 2;
-					case "lib":
-						yield new Token(Token::FLAG_LIB, $identifier . ':');
-						continue 2;
-					case "local":
-						yield new Token(Token::FLAG_LOCAL, $identifier . ':');
-						continue 2;
-					case "list":
-						yield new Token(Token::FLAG_LIST, $identifier . ':');
-						continue 2;
-				}
-				yield new Token(Token::FLAG_UNKNOWN, $identifier . ':');
+				yield new Token($this->classifyToken($identifier), $identifier . $reader->readExpected(":"));
 				continue;
 			}
 
@@ -434,5 +424,19 @@ class LibglocalLexerGenerator{
 			}
 			return true;
 		}
+	}
+
+	protected function classifyToken(string $token) : int{
+		switch(mb_strtolower($token)){
+			case "public":
+				return Token::FLAG_PUBLIC;
+			case "lib":
+				return Token::FLAG_LIB;
+			case "local":
+				return Token::FLAG_LOCAL;
+			case "list":
+				return Token::FLAG_LIST;
+		}
+		return Token::FLAG_UNKNOWN;
 	}
 }

@@ -20,29 +20,20 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast\Modifier;
+namespace SOFe\Libglocal\Parser\Ast\Literal;
 
 use SOFe\Libglocal\Parser\Ast\AstNode;
-use SOFe\Libglocal\Parser\Ast\Literal\StaticLiteralElement;
-use SOFe\Libglocal\Parser\Token;
+use SOFe\Libglocal\Parser\Ast\Literal\Component\ArgRefComponentElement;
+use SOFe\Libglocal\Parser\Ast\Literal\Component\LiteralStringComponentElement;
+use SOFe\Libglocal\Parser\Ast\Literal\Component\MessageRefComponentElement;
+use SOFe\Libglocal\Parser\Ast\Literal\Component\SpanComponentElement;
 
-class DocModifier extends AstNode{
-	/** @var StaticLiteralElement|null */
-	protected $value;
-
-	protected function accept() : bool{
-		return $this->acceptToken(Token::MOD_DOC) !== null;
-	}
-
-	protected function complete() : void{
-		$this->value = $this->acceptAnyChildren(StaticLiteralElement::class);
+class LiteralElement extends AbstractLiteralElement{
+	protected function acceptComponent() : ?AstNode{
+		return $this->acceptAnyChildren(LiteralStringComponentElement::class, ArgRefComponentElement::class, MessageRefComponentElement::class, SpanComponentElement::class);
 	}
 
 	protected static function getName() : string{
-		return "<doc>";
-	}
-
-	public function jsonSerialize() : ?StaticLiteralElement{
-		return $this->value;
+		return "literal";
 	}
 }

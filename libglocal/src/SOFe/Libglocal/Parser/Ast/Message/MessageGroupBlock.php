@@ -60,6 +60,15 @@ class MessageGroupBlock extends AstNode{
 	}
 
 	protected static function getName() : string{
+		return "message group";
+	}
 
+	public function jsonSerialize() : array{
+		return [
+			"flags" => $this->flags,
+			"id" => $this->id,
+			"groups" => $this->groups,
+			"messages" => $this->messages,
+		];
 	}
 }

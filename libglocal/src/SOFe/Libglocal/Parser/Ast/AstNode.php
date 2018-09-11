@@ -22,17 +22,16 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\Parser\Ast;
 
+use JsonSerializable;
 use SOFe\Libglocal\Parser\Lexer\LibglocalLexer;
 use SOFe\Libglocal\Parser\Token;
 use function array_map;
 use function count;
 use function implode;
 
-abstract class AstNode{
+abstract class AstNode implements JsonSerializable{
 	/** @var LibglocalLexer */
 	protected $lexer;
-	/** @var AstNode[] */
-	protected $children = [];
 
 	protected function __construct(LibglocalLexer $lexer){
 		$this->lexer = $lexer;
@@ -44,19 +43,15 @@ abstract class AstNode{
 
 	protected abstract function complete() : void;
 
-	protected function expectAnyChildren(string ...$classes) : AstNode{
-		$node = $this->acceptAnyChildren(...$classes);
-		if($node === null){
-			$names = implode(", ", array_map(function(string $class){
-				/** @var AstNode $class */
-				return $class::getName();
-			}, $classes));
-			throw $this->lexer->throwExpect($names);
-		}
-		return $node;
+	protected final function expectAnyChildren(string ...$classes) : AstNode{
+		return $this->readAnyChildren($classes, true);
 	}
 
-	protected function acceptAnyChildren(string ...$classes) : ?AstNode{
+	protected final function acceptAnyChildren(string ...$classes) : ?AstNode{
+		return $this->readAnyChildren($classes, false);
+	}
+
+	private function readAnyChildren(array $classes, bool $throw) : ?AstNode{
 		foreach($classes as $class){
 			if(count($classes) > 1){
 				$this->lexer->createStack();
@@ -75,36 +70,50 @@ abstract class AstNode{
 
 			if($accepted){
 				$node->complete();
-				$this->children[] = $node;
 				return $node;
 			}
 		}
 
+		if($throw){
+			$names = implode(", ", array_map(function(string $class){
+				/** @var AstNode $class */
+				return $class::getName();
+			}, $classes));
+			throw $this->lexer->throwExpect($names);
+		}
 		return null;
 	}
 
-	protected function expectToken(int $type) : Token{
-		if(($token = $this->acceptToken($type)) !== null){
-			return $token;
-		}
-		throw $this->lexer->throwExpect(Token::idToName($type));
+	protected final function expectToken(int $type) : Token{
+		return $this->readToken($type, true);
 	}
 
-	protected function acceptToken(int $type) : ?Token{
+	protected final function acceptToken(int $type) : ?Token{
+		return $this->readToken($type, false);
+	}
+
+	private function readToken(int $type, bool $throw) : ?Token{
 		$token = $this->lexer->next();
 		if($token !== null && $token->getType() === $type){
 			return $token;
 		}
-		$this->lexer->rewind($token);
+		if($throw){
+			throw $this->lexer->throwExpect(Token::idToName($type), $token);
+		}
+		if($token !== null){
+			$this->lexer->rewind($token);
+		}
 		return null;
 	}
 
-	protected function acceptTokenCategory(int $category) : ?Token{
+	protected final function acceptTokenCategory(int $category) : ?Token{
 		$token = $this->lexer->next();
 		if($token !== null && $token->getTypeCategory() === $category){
 			return $token;
 		}
-		$this->lexer->rewind($token);
+		if($token !== null){
+			$this->lexer->rewind($token);
+		}
 		return null;
 	}
 

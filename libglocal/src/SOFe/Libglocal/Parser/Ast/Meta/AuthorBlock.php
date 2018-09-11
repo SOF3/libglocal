@@ -23,19 +23,28 @@ declare(strict_types=1);
 namespace SOFe\Libglocal\Parser\Ast\Meta;
 
 use SOFe\Libglocal\Parser\Ast\AstNode;
-use SOFe\Libglocal\Parser\Ast\Literal;
+use SOFe\Libglocal\Parser\Ast\Literal\StaticLiteralElement;
 use SOFe\Libglocal\Parser\Token;
 
 class AuthorBlock extends AstNode{
+	/** @var StaticLiteralElement */
+	protected $value;
+
 	protected function accept() : bool{
 		return $this->acceptToken(Token::AUTHOR) !== null;
 	}
 
 	protected function complete() : void{
-		$this->expectAnyChildren(Literal::class);
+		$this->value = $this->expectAnyChildren(StaticLiteralElement::class);
 	}
 
 	protected static function getName() : string{
 		return "<author>";
+	}
+
+	public function jsonSerialize() : array{
+		return [
+			"value" => $this->value,
+		];
 	}
 }

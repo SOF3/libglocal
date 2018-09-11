@@ -20,18 +20,36 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast;
+namespace SOFe\Libglocal\Parser\Ast\Literal\Component;
 
-class Literal extends AstNode{
+use SOFe\Libglocal\Parser\Ast\AstNode;
+use SOFe\Libglocal\Parser\Ast\Literal\LiteralElement;
+use SOFe\Libglocal\Parser\Token;
+
+class SpanComponentElement extends AstNode implements LiteralComponentElement{
+	/** @var string */
+	protected $name;
+	/** @var LiteralElement */
+	protected $literal;
+
 	protected function accept() : bool{
-		// TODO read the first token here
+		return $this->acceptToken(Token::SPAN_START) !== null;
 	}
 
 	protected function complete() : void{
-		// TODO read the remaining tokens here
+		$this->name = $this->expectToken(Token::SPAN_NAME)->getCode();
+		$this->literal = $this->expectAnyChildren(LiteralElement::class);
+		$this->expectToken(Token::CLOSE_BRACE);
 	}
 
 	protected static function getName() : string{
-		return "literal";
+		return "span";
+	}
+
+	public function jsonSerialize() : array{
+		return [
+			"name" => $this->name,
+			"literal" => $this->literal,
+		];
 	}
 }

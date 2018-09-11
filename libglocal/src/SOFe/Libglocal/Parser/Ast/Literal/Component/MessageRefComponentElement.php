@@ -20,29 +20,41 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast\Modifier;
+namespace SOFe\Libglocal\Parser\Ast\Literal\Component;
 
 use SOFe\Libglocal\Parser\Ast\AstNode;
-use SOFe\Libglocal\Parser\Ast\Literal\StaticLiteralElement;
+use SOFe\Libglocal\Parser\Ast\Attribute\AttributeElement;
 use SOFe\Libglocal\Parser\Token;
 
-class DocModifier extends AstNode{
-	/** @var StaticLiteralElement|null */
-	protected $value;
+class MessageRefComponentElement extends AstNode implements LiteralComponentElement{
+	/** @var bool */
+	protected $dynamic;
+	/** @var string */
+	protected $name;
+	/** @var AttributeElement[] */
+	protected $attributes = [];
 
 	protected function accept() : bool{
-		return $this->acceptToken(Token::MOD_DOC) !== null;
+		return $this->acceptToken(Token::MESSAGE_REF_START) !== null;
 	}
 
 	protected function complete() : void{
-		$this->value = $this->acceptAnyChildren(StaticLiteralElement::class);
+		$this->dynamic = $this->acceptToken(Token::MOD_ARG) !== null;
+		$this->name = $this->expectToken(Token::IDENTIFIER)->getCode();
+		while($this->acceptToken(Token::CLOSE_BRACE) === null){
+			$this->attributes[] = $this->expectAnyChildren(AttributeElement::class);
+		}
 	}
 
 	protected static function getName() : string{
-		return "<doc>";
+		return "message reference";
 	}
 
-	public function jsonSerialize() : ?StaticLiteralElement{
-		return $this->value;
+	public function jsonSerialize() : array{
+		return [
+			"dynamic" => $this->dynamic,
+			"name" => $this->name,
+			"attributes" => $this->attributes,
+		];
 	}
 }

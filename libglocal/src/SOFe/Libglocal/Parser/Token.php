@@ -22,11 +22,12 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\Parser;
 
+use JsonSerializable;
 use ReflectionClass;
 use function array_search;
 use function strpos;
 
-final class Token{
+final class Token implements JsonSerializable{
 	protected const BITMASK_TOKEN_CATEGORY = 0xFF00;
 
 	public const CATEGORY_GAPS = 0x0000;
@@ -83,7 +84,7 @@ final class Token{
 
 	public const CATEGORY_SPAN = 0x0000;
 	public const SPAN_START = 0x0900;
-	public const SPAN_NAME = 0x0900;
+	public const SPAN_NAME = 0x0901;
 
 	public const CATEGORY_MATH = 0x0a00;
 	public const MATH_AT = 0x0a00;
@@ -153,5 +154,12 @@ final class Token{
 
 	public function throwUnexpected() : ParseException{
 		throw new ParseException("Unexpected {$this->getTypeName()} on line {$this->line}");
+	}
+
+	public function jsonSerialize(){
+		return [
+			"type" => $this->getTypeName(),
+			"code" => $this->code,
+		];
 	}
 }

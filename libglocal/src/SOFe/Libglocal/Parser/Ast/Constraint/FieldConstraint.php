@@ -20,19 +20,17 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast\Modifier;
+namespace SOFe\Libglocal\Parser\Ast\Constraint;
 
 use SOFe\Libglocal\Parser\Ast\BlockParentAstNode;
-use SOFe\Libglocal\Parser\Ast\Constraint\FieldConstraint;
 use SOFe\Libglocal\Parser\Ast\Literal\LiteralElement;
 use SOFe\Libglocal\Parser\Token;
 
-class ArgModifier extends BlockParentAstNode{
+class FieldConstraint extends BlockParentAstNode{
 	/** @var string */
 	protected $name;
 	/** @var Token[] */
 	protected $typeFlags = [];
-	/** @var string */
 	protected $type = "string";
 	/** @var LiteralElement|null */
 	protected $default;
@@ -59,7 +57,7 @@ class ArgModifier extends BlockParentAstNode{
 	}
 
 	protected static function getName() : string{
-		return "arg";
+		return "field";
 	}
 
 	public function jsonSerialize() : array{

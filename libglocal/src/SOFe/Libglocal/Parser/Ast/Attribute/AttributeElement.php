@@ -20,29 +20,46 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast\Modifier;
+namespace SOFe\Libglocal\Parser\Ast\Attribute;
 
 use SOFe\Libglocal\Parser\Ast\AstNode;
-use SOFe\Libglocal\Parser\Ast\Literal\StaticLiteralElement;
 use SOFe\Libglocal\Parser\Token;
 
-class DocModifier extends AstNode{
-	/** @var StaticLiteralElement|null */
+class AttributeElement extends AstNode{
+	/** @var bool */
+	protected $isMath;
+	/** @var string */
+	protected $name;
 	protected $value;
 
 	protected function accept() : bool{
-		return $this->acceptToken(Token::MOD_DOC) !== null;
+		$this->isMath = $this->acceptToken(Token::MATH_AT) !== null;
+		$name = $this->acceptToken(Token::IDENTIFIER);
+		if($name !== null){
+			$this->name = $name->getCode();
+		}
+		return $this->isMath || $name !== null;
 	}
 
 	protected function complete() : void{
-		$this->value = $this->acceptAnyChildren(StaticLiteralElement::class);
+		$this->expectToken(Token::EQUALS);
+		$this->expectAnyChildren(LiteralAttributeValueElement::class, NumberAttributeValueElement::class,
+			ArgumentAttributeValueElement::class, MessageAttributeValueElement::class);
 	}
 
 	protected static function getName() : string{
-		return "<doc>";
+		return "attribute";
 	}
 
-	public function jsonSerialize() : ?StaticLiteralElement{
-		return $this->value;
+	public function isMath() : bool{
+		return $this->isMath;
+	}
+
+	public function jsonSerialize() : array{
+		return [
+			"isMath" => $this->isMath,
+			"name" => $this->name,
+			"value" => $this->value,
+		];
 	}
 }

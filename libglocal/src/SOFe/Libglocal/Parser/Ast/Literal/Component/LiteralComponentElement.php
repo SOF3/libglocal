@@ -20,12 +20,8 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser;
+namespace SOFe\Libglocal\Parser\Ast\Literal\Component;
 
-use RuntimeException;
+interface LiteralComponentElement{
 
-class ParseException extends RuntimeException{
-	public function __construct(string $message){
-		parent::__construct($message);
-	}
 }

@@ -40,4 +40,10 @@ class RequireBlock extends AstNode{
 	protected static function getName() : string{
 		return "<require>";
 	}
+
+	public function jsonSerialize() : array{
+		return [
+			"target" => $this->target,
+		];
+	}
 }

@@ -20,12 +20,17 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser;
+namespace SOFe\Libglocal\Parser\Ast\Literal;
 
-use RuntimeException;
+use SOFe\Libglocal\Parser\Ast\AstNode;
+use SOFe\Libglocal\Parser\Ast\Literal\Component\LiteralStringComponentElement;
 
-class ParseException extends RuntimeException{
-	public function __construct(string $message){
-		parent::__construct($message);
+class StaticLiteralElement extends AbstractLiteralElement{
+	protected function acceptComponent() : ?AstNode{
+		return $this->acceptAnyChildren(LiteralStringComponentElement::class);
+	}
+
+	protected static function getName() : string{
+		return "static literal";
 	}
 }

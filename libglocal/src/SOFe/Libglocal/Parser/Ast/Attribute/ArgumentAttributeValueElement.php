@@ -20,29 +20,35 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast\Modifier;
+namespace SOFe\Libglocal\Parser\Ast\Attribute;
 
 use SOFe\Libglocal\Parser\Ast\AstNode;
-use SOFe\Libglocal\Parser\Ast\Literal\StaticLiteralElement;
 use SOFe\Libglocal\Parser\Token;
 
-class DocModifier extends AstNode{
-	/** @var StaticLiteralElement|null */
-	protected $value;
+class ArgumentAttributeValueElement extends AstNode implements AttributeValueElement{
+	/** @var string */
+	protected $argName;
 
 	protected function accept() : bool{
-		return $this->acceptToken(Token::MOD_DOC) !== null;
+		$token = $this->acceptToken(Token::IDENTIFIER);
+		if($token === null){
+			return false;
+		}
+		$this->argName = $token->getCode();
+		return true;
 	}
 
 	protected function complete() : void{
-		$this->value = $this->acceptAnyChildren(StaticLiteralElement::class);
+		// only one token
 	}
 
 	protected static function getName() : string{
-		return "<doc>";
+		return "argument attribute value";
 	}
 
-	public function jsonSerialize() : ?StaticLiteralElement{
-		return $this->value;
+	public function jsonSerialize() : array{
+		return [
+			"argName" => $this->argName,
+		];
 	}
 }

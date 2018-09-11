@@ -20,12 +20,8 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser;
+namespace SOFe\Libglocal\Parser\Ast\Attribute;
 
-use RuntimeException;
+interface AttributeValueElement{
 
-class ParseException extends RuntimeException{
-	public function __construct(string $message){
-		parent::__construct($message);
-	}
 }

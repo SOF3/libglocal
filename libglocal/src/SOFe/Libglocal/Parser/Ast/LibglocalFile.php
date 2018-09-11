@@ -86,4 +86,14 @@ class LibglocalFile extends AstNode{
 	protected static function getName() : string{
 		return "libglocal lang";
 	}
+
+	public function jsonSerialize() : array{
+		return [
+			"lang" => $this->lang,
+			"authors" => $this->authors,
+			"version" => $this->version,
+			"requires" => $this->requires,
+			"messages" => $this->messages,
+		];
+	}
 }

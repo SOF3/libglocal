@@ -20,29 +20,35 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast\Modifier;
+namespace SOFe\Libglocal\Parser\Ast\Literal\Component;
 
 use SOFe\Libglocal\Parser\Ast\AstNode;
-use SOFe\Libglocal\Parser\Ast\Literal\StaticLiteralElement;
 use SOFe\Libglocal\Parser\Token;
 
-class DocModifier extends AstNode{
-	/** @var StaticLiteralElement|null */
-	protected $value;
+class LiteralStringComponentElement extends AstNode implements LiteralComponentElement{
+	/** @var Token */
+	protected $token;
 
 	protected function accept() : bool{
-		return $this->acceptToken(Token::MOD_DOC) !== null;
+		return ($this->token = $this->acceptToken(Token::LITERAL)) !== null ||
+			($this->token = $this->acceptToken(Token::ESCAPE)) !== null ||
+			($this->token = $this->acceptToken(Token::CONT_NEWLINE)) !== null ||
+			($this->token = $this->acceptToken(Token::CONT_SPACE)) !== null ||
+			($this->token = $this->acceptToken(Token::CONT_CONCAT)) !== null;
+
 	}
 
 	protected function complete() : void{
-		$this->value = $this->acceptAnyChildren(StaticLiteralElement::class);
+		// we only read one token.
 	}
 
 	protected static function getName() : string{
-		return "<doc>";
+		return "literal component";
 	}
 
-	public function jsonSerialize() : ?StaticLiteralElement{
-		return $this->value;
+	public function jsonSerialize() : array{
+		return [
+			"token" => $this->token,
+		];
 	}
 }

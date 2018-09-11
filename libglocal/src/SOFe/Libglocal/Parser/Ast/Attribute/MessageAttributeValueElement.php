@@ -20,12 +20,30 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser;
+namespace SOFe\Libglocal\Parser\Ast\Attribute;
 
-use RuntimeException;
+use SOFe\Libglocal\Parser\Ast\AstNode;
+use SOFe\Libglocal\Parser\Token;
 
-class ParseException extends RuntimeException{
-	public function __construct(string $message){
-		parent::__construct($message);
+class MessageAttributeValueElement extends AstNode implements AttributeValueElement{
+	/** @var string */
+	protected $target;
+
+	protected function accept() : bool{
+		return $this->acceptToken(Token::MESSAGE_REF_SIMPLE) !== null;
+	}
+
+	protected function complete() : void{
+		$this->target = $this->expectToken(Token::IDENTIFIER)->getCode();
+	}
+
+	protected static function getName() : string{
+		return "message attribute value";
+	}
+
+	public function jsonSerialize() : array{
+		return [
+			"target" => $this->target,
+		];
 	}
 }

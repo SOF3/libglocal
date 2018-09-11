@@ -23,7 +23,7 @@ declare(strict_types=1);
 namespace SOFe\Libglocal\Parser\Ast\Meta;
 
 use SOFe\Libglocal\Parser\Ast\AstNode;
-use SOFe\Libglocal\Parser\Ast\Literal;
+use SOFe\Libglocal\Parser\Ast\Literal\StaticLiteralElement;
 use SOFe\Libglocal\Parser\Token;
 
 class LangBlock extends AstNode{
@@ -31,26 +31,37 @@ class LangBlock extends AstNode{
 	protected $base;
 	/** @var string */
 	protected $id;
-	/** @var Literal */
+	/** @var StaticLiteralElement */
 	protected $name;
 
 	protected function accept() : bool{
 		if($this->acceptToken(Token::BASE_LANG)){
 			$this->base = true;
-		}elseif($this->acceptToken(Token::LANG)){
-			$this->base = false;
-		}else{
-			throw $this->lexer->throwExpect("\"base lang\" or \"lang\"");
+			return true;
 		}
-		return true;
+
+		if($this->acceptToken(Token::LANG)){
+			$this->base = false;
+			return true;
+		}
+
+		return false;
 	}
 
 	protected function complete() : void{
 		$this->id = $this->expectToken(Token::IDENTIFIER)->getCode();
-		$this->name = $this->expectAnyChildren(Literal::class);
+		$this->name = $this->expectAnyChildren(StaticLiteralElement::class);
 	}
 
 	protected static function getName() : string{
 		return "<lang>";
+	}
+
+	public function jsonSerialize() : array{
+		return [
+			"base" => $this->base,
+			"id" => $this->id,
+			"name" => $this->name,
+		];
 	}
 }

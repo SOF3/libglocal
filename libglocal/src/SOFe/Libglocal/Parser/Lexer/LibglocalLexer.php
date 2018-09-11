@@ -89,6 +89,18 @@ class LibglocalLexer{
 		return false;
 	}
 
+//	public function getLine() : int{
+//		if(!empty($this->future)){
+//			return $this->future[0]->getLine();
+//		}
+//		$next = $this->nextTokenSkipping();
+//		if($next === null){
+//			return -1;
+//		}
+//		$this->future[] = $next;
+//		return $next->getLine();
+//	}
+
 	public function next() : ?Token{
 		if(empty($this->future)){
 			$token = $this->nextTokenSkipping();
@@ -104,6 +116,10 @@ class LibglocalLexer{
 
 	public function rewind(Token $token) : void{
 		array_unshift($this->future, $token);
+		if(!empty($this->bufferStack)){
+			$last = array_pop($this->bufferStack[count($this->bufferStack) - 1]);
+			assert($last === $token);
+		}
 	}
 
 	protected function nextTokenSkipping() : ?Token{
@@ -147,12 +163,20 @@ class LibglocalLexer{
 		return $ret;
 	}
 
-	public function throwExpect(string $expect) : ParseException{
-		if($this->eof()){
+	public function throwExpect(string $expect, Token $token = null) : ParseException{
+		$token = $token ?? $this->next();
+		if($token === null){
 			throw new ParseException("Expecting $expect, end of line reached");
 		}
-		$next = $this->next();
-		assert($next !== null);
-		throw $next->throwExpect($expect);
+		assert($token !== null);
+		throw $token->throwExpect($expect);
+	}
+
+	public function __debugInfo(){
+		return [
+			"first" => $this->first,
+			"bufferStack" => $this->bufferStack,
+			"future" => $this->future,
+		];
 	}
 }

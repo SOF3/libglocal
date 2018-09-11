@@ -40,4 +40,10 @@ class VersionBlock extends AstNode{
 	protected static function getName() : string{
 		return "<version>";
 	}
+
+	public function jsonSerialize() : array{
+		return [
+			"value" => $this->value,
+		];
+	}
 }

@@ -22,18 +22,20 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\Parser\Ast\Message;
 
-use SOFe\Libglocal\Parser\Ast\Literal;
+use SOFe\Libglocal\Parser\Ast\BlockParentAstNode;
+use SOFe\Libglocal\Parser\Ast\Literal\LiteralElement;
 use SOFe\Libglocal\Parser\Ast\Modifier\ArgModifier;
 use SOFe\Libglocal\Parser\Ast\Modifier\DocModifier;
 use SOFe\Libglocal\Parser\Ast\Modifier\VersionModifier;
-use SOFe\Libglocal\Parser\Ast\BlockParentAstNode;
 use SOFe\Libglocal\Parser\ParseException;
 use SOFe\Libglocal\Parser\Token;
 
 class MessageBlock extends BlockParentAstNode{
+	/** @var Token[] */
+	protected $flags;
 	/** @var string */
 	protected $id;
-	/** @var Literal */
+	/** @var LiteralElement */
 	protected $literal;
 
 	/** @var ArgModifier[] */
@@ -44,8 +46,11 @@ class MessageBlock extends BlockParentAstNode{
 	protected $version = null;
 
 	protected function initial() : void{
+		while(($flag = $this->acceptTokenCategory(Token::CATEGORY_FLAGS)) !== null){
+			$this->flags[] = $flag;
+		}
 		$this->id = $this->expectToken(Token::IDENTIFIER)->getCode();
-		$this->literal = $this->expectAnyChildren(Literal::class);
+		$this->literal = $this->expectAnyChildren(LiteralElement::class);
 	}
 
 	protected function acceptChild() : void{
@@ -64,5 +69,25 @@ class MessageBlock extends BlockParentAstNode{
 
 	protected static function getName() : string{
 		return "<message>";
+	}
+
+	public function jsonSerialize() : array{
+		$ret = [
+			"id" => $this->id,
+			"literal" => $this->literal,
+		];
+		if(!empty($this->flags)){
+			$ret["flags"] = $this->flags;
+		}
+		if(!empty($this->args)){
+			$ret["args"] = $this->args;
+		}
+		if(!empty($this->docs)){
+			$ret["docs"] = $this->docs;
+		}
+		if($this->version !== null){
+			$ret["version"] = $this->version;
+		}
+		return $ret;
 	}
 }

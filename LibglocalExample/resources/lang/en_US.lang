@@ -135,5 +135,5 @@ messages LibglocalExample
 	spans
 		styles %{info This is an info message.} %{success This is a success message.} %{notice This is a notice message.}
 			| %{warn This is a warning message.} %{error This is an error message.}
-		highlight You can %{hl1 highlight %{hl2 certain %{hl3 certain %{hl4 words}} in a} %{hl3 sentence}}.
+		highlight You can %{hl1 highlight} %{hl2 certain %{hl3 certain %{hl4 words}} in a %{hl3 sentence}}.
 		decoration Or %{b bold, %{i italic, %{u underline and %{s strikethrough}}}} them.

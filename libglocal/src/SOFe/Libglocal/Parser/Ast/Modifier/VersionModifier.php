@@ -40,4 +40,10 @@ class VersionModifier extends AstNode{
 	protected static function getName() : string{
 		return "<version>";
 	}
+
+	public function jsonSerialize() : array{
+		return [
+			"target" => $this->target,
+		];
+	}
 }

@@ -54,4 +54,12 @@ class MessagesBlock extends BlockParentAstNode{
 	protected static function getName() : string{
 		return "<messages>";
 	}
+
+	public function jsonSerialize() : array{
+		return [
+			"module" => $this->module,
+			"groups" => $this->groups,
+			"messages" => $this->messages,
+		];
+	}
 }
