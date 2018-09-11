@@ -78,6 +78,7 @@ final class Token{
 	public const MESSAGE_REF_START = 0x0800;
 	public const NUMBER = 0x0801;
 	public const OPEN_BRACE = 0x0802;
+	public const MESSAGE_REF_SIMPLE = 0x0803;
 
 	public const CATEGORY_SPAN = 0x0000;
 	public const SPAN_START = 0x0900;

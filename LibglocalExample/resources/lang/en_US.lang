@@ -68,13 +68,12 @@ messages LibglocalExample
 			$float float -3.140
 			$bool bool false
 
+		quantity ${apples @one={apple} @={apples}} reads "3 apples" when
+
 		lists The "list:" flag can be applied in front of the type to turn it into a list type.
-			| The elements will be displayed with a delimiter between every two elements, e.g. ${items}.
+			| The elements will be displayed with a delimiter between every two elements, e.g. ${items delim=#stdlib.list.delimiter}.
 			| List types cannot have defaults.
 			$items list:string
-				// stdlib.list.delimiter is the default list delimiter. It is not necessary to declare the default delimiter.
-				// This is just an example.
-				#delim stdlib.list.delimiter
 		objects Arguments may be objects. Their properties can be accessed like this: ${object.name}.
 				| If the object property is a list, the property is retrieved per list element like this: ${object.structs.leaf}.
 				| The delimiter for list fields should be defined under the field.
@@ -83,7 +82,6 @@ messages LibglocalExample
 				$name string
 					$age float
 					$structs list:object
-						#delim stdlib.list.delimiter
 						$ leaf string
 
 	message-references

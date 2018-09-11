@@ -310,6 +310,10 @@ class LibglocalLexerGenerator{
 			yield new Token(Token::CLOSE_BRACE, $reader->readExpected("}"));
 			return;
 		}
+		if($reader->startsWith("#")){
+			yield new Token(Token::MESSAGE_REF_SIMPLE, $reader->readExpected("#"));
+			yield from $this->readWhitespace($reader);
+		}
 		$hasIdentifier = yield from $this->readIdentifier($reader, false, false);
 		if(!$hasIdentifier){
 			throw $reader->throw("Expected identifier, number or {literal}");

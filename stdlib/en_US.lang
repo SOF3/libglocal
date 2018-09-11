@@ -2,14 +2,26 @@
 
 base lang en_US English (US)
 author SOFe
-version 0.2.0
+version 0.3.0
+
+@one =1
 
 messages stdlib
-	ordinal ${ord}
-		$ord quantity
+	local:ordinal ${ord @one={${1}st} @two={${1}nd} @three={${1}rd} @={${1}th}}
+		$ord int
+			@one %10=1 %100<>11
+			@two %10=2 %100<>12
+			@three %10=3 %100<>13
 		* Converts an integer into its ordinal expression in this locale.
-		~0.2.0
+		~0.3.0
+	float:
+		lib:pinf ∞
+		lib:ninf -∞
+		lib:nan N/A
+	bool
+		lib:true yes
+		lib:false no
 	list
-		delimiter ,\s
+		lib:delimiter ,\s
 			* The normal list delimiter symbol.
-			~0.2.0
+			~0.3.0

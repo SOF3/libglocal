@@ -108,7 +108,27 @@ L_AUTHOR_NAME ::= T_IDENTIFIER
 `AUTHOR_NAME` can be a string of any characters except control characters.
 
 ### 3.4. `require`
-`require` (`B_META_REQUIRE` is an optional meta block that indicates the dependencies required by
+`require` (`B_META_REQUIRE`) is an optional meta block that indicates the dependencies required by this module.
+
+### 3.5. Math rules
+Math rules start with a `@`. They define predicate functions for testing numbers.
+
+```bnf
+B_MATH_RULE ::= "@" T_IDENTIFIER {L_MATH_PREDICATE}+
+L_MATH_PREDICATE ::= [ "%" T_NUMBER ] T_MATH_COMPARATOR T_NUMBER
+```
+
+`L_MATH_PREDICATE`s are joined with the **logical AND**, i.e. the argument should satisfy all `L_MATH_PREDICATE`s.
+
+`T_MATH_COMPARATOR` is one of the following:
+- `=`: equals
+- `<>`: not equals
+- `<`: less than
+- `<=`: less than or equal to
+- `>`: greater than
+- `>=`: greater than or equal to
+
+If the `"%" T_NUMBER` section is present, the argument is reduced to the lowest non-negative equivalent at mod `T_NUMBER`. In other words, the remainder of the argument divided by `T_NUMBER` is used to compare instead. Unlike the modulus behaviour in many programming languages, the `%` here always produces a non-negative result even if any of the operands are negative.
 
 ## 4. Messages
 The `messages` block (`L_MESSAGES`) contains all messages declared by the file. Under the `messages` block, the following parent-child block relations are allowed:
@@ -184,20 +204,21 @@ If an unescaped `\` character does not match any of these sequences, a syntax er
 An argument reference is replaced by its value when resolved. It has this syntax:
 
 ```bnf
-L_ARG_REF ::= "${" T_IDENTIFIER "}"
+L_ARG_REF ::= "${" T_IDENTIFIER [","] L_ARG_ATTRIBUTES "}"
+L_ARG_ATTRIBUTES ::= (["@"] T_IDENTIFIER "=" [","])*
 ```
 
-The `T_IDENTIFIER` is the reference to the argument. If the argument is an object, the `.`s in the identifier will follow the path into the object fields just like the object field resolution syntax in C, Java, etc. If the argument is a list of object, a list of list of objects, etc., the conversion is performed per object and the list structure is preserved.
+`L_ARG_ATTRIBUTES` provides a set of attributes to change the behaviour of the argument depending on the argument type. See the "Argument types" section for details.
 
 #### 4.3.3. Message reference
 A message reference is replaced by resolving the referenced message. It has this syntax:
 
 ```bnf
-L_MESSAGE_REF ::= "#{" ["$"] T_IDENTIFIER L_MESSAGE_ARG_LIST "}"
+L_MESSAGE_REF ::= "#{" ["$"] T_IDENTIFIER [","] L_MESSAGE_ARG_LIST "}"
 L_MESSAGE_ARG_LIST ::= (T_IDENTIFIER "=" L_ARG_VALUE [","])*
 ```
 
-Message references can be constant or dynamic. Without the `$`, the first `T_IDENTIFIER` is the constant name of another message. With the `$`, it is the name of an argument that dynamically points to a message. `.`s in the name are resolved as object fields by the same rule as mentioned above. The final resolved data type must be a string.
+Message references can be constant or dynamic. Without the `$`, the first `T_IDENTIFIER` is the constant name of another message. If the identifier starts with `.`, the message name is relative to the parent group of the current message; each additional leading `.` approaches the higher-level group just like `../` in a filesystem. With the `$`, it is the name of an argument that dynamically points to a message. `.`s in the name are resolved as object fields by the same rule as mentioned above. The final resolved data type must be a string.
 
 The recurrences in `L_MESSAGE_ARG_LIST` are arguments to be passed to the message, where the `T_IDENTIFIER` is the argument name and the `L_ARG_VALUE` is the argument value. The argument value may be a string literal, a number or an argument reference.
 
@@ -210,7 +231,10 @@ For strings literals, they must be quoted in `{}` braces. They are parsed with t
 Just like a message literal, if the value is empty, it must contain a `\0`.
 
 ##### 4.3.3.3. Argument reference
-Arguments from the current message can be referenced by putting the name of the argument directly. `.`s in the name are resolved as object fields by the same rule as mentioned above.
+Arguments from the current message can be referenced by putting the name of the argument directly. `.`s in the name are resolved as object fields by the same rule as mentioned above. 
+
+##### 4.3.3.4. Inner message reference
+If the value should be a message that does not require any 
 
 #### 4.3.4. Span
 A span is a part of the message that gets decorated. Libglocal will calculate the appropriate color/format codes such that the message displays correctly. It has this syntax:
@@ -249,7 +273,141 @@ Due to the limited number of readable colors supported by clients, `hl3` and `hl
 In addition to the module name, messages in the same file can also be sub-grouped. A message group is declared by a block that contains only the message group name and has no text. The IDs of the messages inside the group will be prepended with the group ID, which is, recursively, the group name prepended with its parent group ID, or the module name if it is directly under `messages`.
 
 ### 4.5. Argument modifiers
+Argument modifiers are allowed in overrides/implementations, only if they are used to declare math rules (or math rules for object fields). Argument types are not allowed in the argument modifiers of overrides/implementations, even though the type is not the default (`string`).
 
 ### 4.6. Doc modifiers
 
 ### 4.7. Version modifiers
+
+## 5. Argument types
+This section explains the argument types allowed.
+
+### 5.1. `string`
+String is the default data type.
+
+#### 5.1.1. Input PHP values
+PHP strings are used as-is. Objects that implement `SOFe\Libglocal\Stringable` or have a stringable mapping in configuration are converted to the `express()` value. Other values are not accepted.
+
+#### 5.1.2. Constraints
+`enum`/`pattern` can be declared multiple times for the same argument. If any `enum` or `pattern` constraints are declared, the accepted string value must be equal to one of the `enum` constraints or match one of the `pattern` regular expressions. The value is a literal, so the regex still needs to be escaped using literal rules. The pattern should be Perl-compatible. See https://php.net/pcre for documentation.
+
+#### 5.1.3 Attributes
+`case`: `lower`, `upper` or `ucfirst`, converting string case. If not set, string case would not be converted.
+
+### 5.2. `int`/`float`
+Int refers to the `int` PHP type, and float refers to the `float` PHP type.
+
+#### 5.2.1. Input PHP values
+Both `int` and `float` argument types accept PHP ints. The `float` argument type also accepts PHP floats. All other values are not accepted.
+
+#### 5.2.2. Math rules
+Math rules can be declared per int/float argument, in a similar structure with constraints. They are only visible to this argument in this message in this file, i.e. they are not visible to overriding messages and implementations in other languages. Unlike constraints, they can be declared in implementations, and they can 
+
+In addition, if math rules are declared for the argument, the global math rules are ignored. Only the rules in this argument are used to classify the number.
+
+If the rule name is empty, values matching the rule are classified into the "fallback rule", just as the numbers that do not match any rules.
+
+#### 5.2.3. Constraints
+Lines starting with `@@` are "restriction math rules". Unlike the math rules mentioned above, restriction math rules are real constraints used to restrict the argument value.
+
+#### 5.2.3. Attributes
+Although arithmetic operations might be useful, they are currently not being added into libglocal for the sake of simplicity. Since libglocal is designed to be a translations library, it would be unreasonable to express the same message with different values. If there are indeed such needs, developers should consider introducing an extra int/float parameter.
+
+`INF`, `-INF` and `NAN` will fail all restriction math rules.
+
+##### 5.2.3.1. Math rule replacement
+`@{math rule}`: If the math rule named `{math rule}` is satisfied, the argument will be replaced with the string value of this attribute. A single `@` without the math rule name is the "fallback rule", which is used when none of the other math rules are matched. with the special argument `${1}` as the argument (the original name can still be used). Consider this example from libglocal stdlib, for ordinal numbers in English:
+
+```
+ordinal ${ord @one={${1}st} @two={${1}nd} @three={${1}rd} @={${1}th}}
+	$ord int
+		@one %10=1 %100<>11
+		@two %10=2 %100<>12
+		@three %10=3 %100<>13
+```
+
+A more complex example for ordinal numbers in Georgian:
+
+```
+ordinal ${ord @one={${1}-ლი} @many={მე-${1}} @={${1}-ე}
+	$ord int
+		@one %10=1
+		@many =0
+		@ %100=0
+		@many %100>=2 %100<=20
+		@many %20=0
+```
+
+A more common example would be to use it for quantities. For example, to express the number of players online:
+
+```
+online There are ${players @one={${1} player} @={${1} players}} online.
+	$players int
+```
+
+Here, the global en_US rule `@one =1` declared in stdlib is used to match the integer.
+
+Another possible usage is to generalize numbers, saying "There are many players online" or "There are few players online" if there are more than 30 players:
+
+```
+online There are ${players @many={many} @={few}} players online.
+	$players int
+		@many >30
+```
+
+##### 5.2.3.2. Float precision
+If the `precision` attribute is present, the float is rounded to the nearest multiple of `10^(-n)`, where `n` is the value of the attribute. Alternatively, if the `sig` attribute, the float is displayed in `n` significant figures.
+
+The `lpad` and `rpad` attributes would fill zeroes on the left and right of the decimal point to meet the length as specified by the attribute value. It would not perform truncation.
+
+All of the above operations do not express the number in scientific notation.
+
+The `INF`, `-INF` and `NAN` float values are expressed using the `stdlib.float.pinf`, `stdlib.float.ninf` and `stdlib.float.nan` messages. The expression can be changed using the `pinf`, `ninf` and `nan` attributes.
+
+### 5.3. `bool`
+Bool is the true/false type.
+
+#### 5.3.1. Input PHP values
+Only PHP values of the `bool` data type are accepted. Other values are unacceptable.
+
+#### 5.3.2. Attributes
+Although logical operators might be useful, they are currently not being added into libglocal for the sake of simplicity. Since libglocal is designed to be a translations library, it would be unreasonable to express the same message in multiple ways. If there are indeed such needs, developers should consider introducing an extra bool parameter.
+
+The boolean value is expressed using the `stdlib.bool.true` and `stdlib.bool.false` messages respectively. To change the expression, the attributes `true` and `false` can be used instead, where the value should a string to be used. It is also possible to use this syntax, although not beautifully, for conditional messages: 
+
+```
+usage You ${is-op true={are} false={are not}} op. You may use /kill to suicide. ${is-op true={You may use /kill <player> to kill a player.} false={}}
+	$is-op bool
+```
+
+### 5.4. `object`
+Objects are complex arguments with a fixed structure.
+
+#### 5.4.1. Input PHP values
+Arrays and objects are accepted. For arrays and `ArrayAccess` objects, their values are accessed using the `$value[$field]` syntax. For other objects, their values are accessed using `$value->{$field}` (so they must be public or implement `__get()`). Other values are unacceptable.
+
+Note that `isset()` calls are used before accessing the value. Therefore, `ArrayAccess` objects must ensure the proper functioning of both `offsetExists` and `offsetGet`, while objects implementing `__get()` must also have a valid `__isset()` function.
+
+#### 5.4.2. Constraints
+Object arguments must have at least one field constraint. The syntax of a field constraint is the same as the syntax of an argument modifier.
+
+#### 5.4.3. Expression
+Objects cannot be displayed directly. To use objects in arguments, the field reference operator `.` must be used just like `->` in PHP. For example, to access the field `bar` of an object argument `foo`, the syntax should be `${foo.bar}`.
+
+### 5.5. `list:`
+A list is a linear, ordered collection of values.
+
+#### 5.5.1. Input PHP values
+If an array is passed, its `array_values()` will be used. (Warning: if an array `[1 => "a", 0 => "b"]` is passed, it would be used as `["a", "b"]` rather than `["b", "a"]`, because `array_values()` ignores the keys and only cares about the array entry order.
+
+Objects that implement Iterator are also acceptable. `Iterator->rewind()` is always called beforehand.
+
+Other values are unacceptable.
+
+#### 5.5.2. Constraints
+`min` and `max` restrict the range of the size of the list.
+
+#### 5.5.3. Attributes
+The `delim` attribute can be used to indicate the separator between two elements of the list. The default value is a reference to the message `stdlib.list.delimiter`.
+
+The `map` attribute can be used to indicate the format used in each element of the list. The mapped value can be accessed using the special parameter `${1}`. The key in the list can be accessed using the special argument `${0}`, although it is not recommended. (This may be deprecated in the future if there is to be an addition of a `mapping` type)
