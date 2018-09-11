@@ -37,7 +37,7 @@ class MessageAttributeValueElement extends AstNode implements AttributeValueElem
 		$this->target = $this->expectToken(Token::IDENTIFIER)->getCode();
 	}
 
-	protected static function getName() : string{
+	protected static function getNodeName() : string{
 		return "message attribute value";
 	}
 

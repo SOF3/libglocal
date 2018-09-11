@@ -42,7 +42,7 @@ class ArgumentAttributeValueElement extends AstNode implements AttributeValueEle
 		// only one token
 	}
 
-	protected static function getName() : string{
+	protected static function getNodeName() : string{
 		return "argument attribute value";
 	}
 

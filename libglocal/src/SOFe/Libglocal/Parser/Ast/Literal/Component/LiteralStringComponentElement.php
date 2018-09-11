@@ -22,7 +22,9 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\Parser\Ast\Literal\Component;
 
+use AssertionError;
 use SOFe\Libglocal\Parser\Ast\AstNode;
+use SOFe\Libglocal\Parser\ParseException;
 use SOFe\Libglocal\Parser\Token;
 
 class LiteralStringComponentElement extends AstNode implements LiteralComponentElement{
@@ -42,7 +44,7 @@ class LiteralStringComponentElement extends AstNode implements LiteralComponentE
 		// we only read one token.
 	}
 
-	protected static function getName() : string{
+	protected static function getNodeName() : string{
 		return "literal component";
 	}
 
@@ -50,5 +52,37 @@ class LiteralStringComponentElement extends AstNode implements LiteralComponentE
 		return [
 			"token" => $this->token,
 		];
+	}
+
+	public function toString() : string{
+		switch($this->token->getType()){
+			case Token::LITERAL:
+				return $this->token->getCode();
+			case Token::ESCAPE:
+				switch($this->token->getCode(){1}){
+					case "0":
+						return " ";
+					case "n":
+						return "\n";
+					case "r":
+						return "\r";
+					case "s":
+						return " ";
+					case "#":
+					case "\$":
+					case "%":
+					case "}":
+					case "\\":
+						return $this->token->getCode(){1};
+				}
+				throw new ParseException("Invalid escape");
+			case Token::CONT_NEWLINE:
+				return "\n";
+			case Token::CONT_SPACE:
+				return " ";
+			case Token::CONT_CONCAT:
+				return "";
+		}
+		throw new AssertionError("Unexpected control flow");
 	}
 }

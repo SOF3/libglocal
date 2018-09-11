@@ -46,7 +46,7 @@ class MessageRefComponentElement extends AstNode implements LiteralComponentElem
 		}
 	}
 
-	protected static function getName() : string{
+	protected static function getNodeName() : string{
 		return "message reference";
 	}
 

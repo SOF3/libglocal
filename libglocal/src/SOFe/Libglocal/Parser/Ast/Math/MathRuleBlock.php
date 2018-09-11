@@ -25,12 +25,12 @@ namespace SOFe\Libglocal\Parser\Ast\Math;
 use SOFe\Libglocal\Parser\Ast\AstNode;
 use SOFe\Libglocal\Parser\Token;
 
-class MathRule extends AstNode{
+class MathRuleBlock extends AstNode{
 	/** @var bool */
 	protected $restriction;
 	/** @var string|null */
 	protected $name = null;
-	/** @var ArithmeticPredicate[] */
+	/** @var MathPredicateElement[] */
 	protected $predicates = [];
 
 	protected function accept() : bool{
@@ -39,19 +39,19 @@ class MathRule extends AstNode{
 
 	protected function complete() : void{
 		$this->restriction = $this->acceptToken(Token::MATH_AT) !== null;
-		if(!$this->restriction === null){
+		if(!$this->restriction){
 			$name = $this->acceptToken(Token::IDENTIFIER);
 			if($name !== null){
 				$this->name = $name->getCode();
 			}
 		}
 
-		while(($predicate = $this->acceptAnyChildren(ArithmeticPredicate::class)) !== null){
+		while(($predicate = $this->acceptAnyChildren(MathPredicateElement::class)) !== null){
 			$this->predicates[] = $predicate;
 		}
 	}
 
-	protected static function getName() : string{
+	protected static function getNodeName() : string{
 		return "<math rule>";
 	}
 
@@ -61,5 +61,21 @@ class MathRule extends AstNode{
 			"name" => $this->name,
 			"predicates" => $this->predicates,
 		];
+	}
+
+
+	public function isRestriction() : bool{
+		return $this->restriction;
+	}
+
+	public function getName() : ?string{
+		return $this->name;
+	}
+
+	/**
+	 * @return MathPredicateElement[]
+	 */
+	public function getPredicates() : array{
+		return $this->predicates;
 	}
 }

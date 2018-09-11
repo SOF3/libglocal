@@ -58,7 +58,7 @@ class ArgModifier extends BlockParentAstNode{
 		$this->fields[] = $this->expectAnyChildren(FieldConstraint::class);
 	}
 
-	protected static function getName() : string{
+	protected static function getNodeName() : string{
 		return "arg";
 	}
 
@@ -72,5 +72,32 @@ class ArgModifier extends BlockParentAstNode{
 			"default" => $this->default,
 			"fields" => $this->fields,
 		];
+	}
+
+
+	public function getName() : string{
+		return $this->name;
+	}
+
+	public function getType() : string{
+		return $this->type;
+	}
+
+	/**
+	 * @return Token[]
+	 */
+	public function getTypeFlags() : array{
+		return $this->typeFlags;
+	}
+
+	public function getDefault() : ?LiteralElement{
+		return $this->default;
+	}
+
+	/**
+	 * @return FieldConstraint[]
+	 */
+	public function getFields() : array{
+		return $this->fields;
 	}
 }

@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\Parser\Ast\Literal;
 
+use function assert;
 use SOFe\Libglocal\Parser\Ast\AstNode;
 use SOFe\Libglocal\Parser\Ast\Literal\Component\LiteralStringComponentElement;
 
@@ -30,7 +31,16 @@ class StaticLiteralElement extends AbstractLiteralElement{
 		return $this->acceptAnyChildren(LiteralStringComponentElement::class);
 	}
 
-	protected static function getName() : string{
+	protected static function getNodeName() : string{
 		return "static literal";
+	}
+
+	public function toString() : string{
+		$output = "";
+		foreach($this->components as $component){
+			assert($component instanceof LiteralStringComponentElement);
+			$output .= $component->toString();
+		}
+		return $output;
 	}
 }

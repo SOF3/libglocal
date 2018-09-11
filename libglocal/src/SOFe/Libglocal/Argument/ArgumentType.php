@@ -20,32 +20,27 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast\Attribute;
+namespace SOFe\Libglocal\Argument;
 
-use SOFe\Libglocal\Parser\Ast\AstNode;
+use pocketmine\command\CommandSender;
+use SOFe\Libglocal\Argument\Attribute\ArgumentAttribute;
+use SOFe\Libglocal\FormattedString;
+use SOFe\Libglocal\Parser\Ast\Constraint\ConstraintBlock;
 use SOFe\Libglocal\Parser\Ast\Literal\LiteralElement;
-use SOFe\Libglocal\Parser\Token;
 
-class LiteralAttributeValueElement extends AstNode implements AttributeValueElement{
-	/** @var LiteralElement */
-	protected $literal;
+interface ArgumentType{
+	public function getType() : string;
 
-	protected function accept() : bool{
-		return $this->acceptToken(Token::OPEN_BRACE) !== null;
-	}
+	public function setDefault(LiteralElement $default) : void;
 
-	protected function complete() : void{
-		$this->literal = $this->expectAnyChildren(LiteralElement::class);
-		$this->expectToken(Token::CLOSE_BRACE);
-	}
+	public function applyConstraint(ConstraintBlock $constraint) : void;
 
-	protected static function getNodeName() : string{
-		return "literal attribute value";
-	}
-
-	public function jsonSerialize() : array{
-		return [
-			"literal" => $this->literal,
-		];
-	}
+	/**
+	 * @param mixed               $value
+	 * @param CommandSender       $context
+	 * @param ArgumentAttribute[] $attributes
+	 *
+	 * @return FormattedString
+	 */
+	public function toString($value, CommandSender $context, array $attributes) : FormattedString;
 }

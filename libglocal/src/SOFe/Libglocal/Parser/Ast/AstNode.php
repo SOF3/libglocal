@@ -77,7 +77,7 @@ abstract class AstNode implements JsonSerializable{
 		if($throw){
 			$names = implode(", ", array_map(function(string $class){
 				/** @var AstNode $class */
-				return $class::getName();
+				return $class::getNodeName();
 			}, $classes));
 			throw $this->lexer->throwExpect($names);
 		}
@@ -117,9 +117,9 @@ abstract class AstNode implements JsonSerializable{
 		return null;
 	}
 
-	protected static abstract function getName() : string;
+	protected static abstract function getNodeName() : string;
 
 	public function __toString() : string{
-		return static::getName();
+		return static::getNodeName();
 	}
 }

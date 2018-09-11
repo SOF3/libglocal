@@ -42,7 +42,7 @@ class SpanComponentElement extends AstNode implements LiteralComponentElement{
 		$this->expectToken(Token::CLOSE_BRACE);
 	}
 
-	protected static function getName() : string{
+	protected static function getNodeName() : string{
 		return "span";
 	}
 

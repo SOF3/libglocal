@@ -37,7 +37,7 @@ class VersionModifier extends AstNode{
 		$this->expectToken(Token::IDENTIFIER)->getCode();
 	}
 
-	protected static function getName() : string{
+	protected static function getNodeName() : string{
 		return "<version>";
 	}
 
@@ -45,5 +45,10 @@ class VersionModifier extends AstNode{
 		return [
 			"target" => $this->target,
 		];
+	}
+
+
+	public function getTarget() : string{
+		return $this->target;
 	}
 }

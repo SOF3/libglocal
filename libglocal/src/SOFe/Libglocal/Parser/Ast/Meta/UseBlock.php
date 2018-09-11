@@ -43,7 +43,7 @@ class UseBlock extends AstNode{
 		}
 	}
 
-	protected static function getName() : string{
+	protected static function getNodeName() : string{
 		return "<use>";
 	}
 
@@ -52,5 +52,14 @@ class UseBlock extends AstNode{
 			"target" => $this->target,
 			"alias" => $this->alias,
 		];
+	}
+
+
+	public function getTarget() : string{
+		return $this->target;
+	}
+
+	public function getAlias() : ?string{
+		return $this->alias;
 	}
 }

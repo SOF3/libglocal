@@ -25,13 +25,13 @@ namespace SOFe\Libglocal\Parser\Ast\Message;
 use SOFe\Libglocal\Parser\Ast\BlockParentAstNode;
 use SOFe\Libglocal\Parser\Token;
 
-class MessagesBlock extends BlockParentAstNode{
+class MessagesBlock extends BlockParentAstNode implements MessageParentBlock{
 	/** @var string */
 	protected $module;
 
-	/** @var MessageGroupBlock */
+	/** @var MessageGroupBlock[] */
 	protected $groups = [];
-	/** @var MessageBlock */
+	/** @var MessageBlock[] */
 	protected $messages = [];
 
 	protected function accept() : bool{
@@ -51,7 +51,7 @@ class MessagesBlock extends BlockParentAstNode{
 		}
 	}
 
-	protected static function getName() : string{
+	protected static function getNodeName() : string{
 		return "<messages>";
 	}
 
@@ -61,5 +61,24 @@ class MessagesBlock extends BlockParentAstNode{
 			"groups" => $this->groups,
 			"messages" => $this->messages,
 		];
+	}
+
+
+	public function getModule() : string{
+		return $this->module;
+	}
+
+	/**
+	 * @return MessageGroupBlock[]
+	 */
+	public function getGroups() : array{
+		return $this->groups;
+	}
+
+	/**
+	 * @return MessageBlock[]
+	 */
+	public function getMessages() : array{
+		return $this->messages;
 	}
 }

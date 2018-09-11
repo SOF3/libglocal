@@ -20,35 +20,12 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast\Meta;
+namespace SOFe\Libglocal\Argument;
 
-use SOFe\Libglocal\Parser\Ast\AstNode;
-use SOFe\Libglocal\Parser\Token;
-
-class RequireBlock extends AstNode{
+class Argument{
 	/** @var string */
-	protected $target;
+	protected $id;
 
-	protected function accept() : bool{
-		return $this->acceptToken(Token::REQUIRE) !== null;
-	}
-
-	protected function complete() : void{
-		$this->target = $this->expectToken(Token::IDENTIFIER)->getCode();
-	}
-
-	protected static function getNodeName() : string{
-		return "<require>";
-	}
-
-	public function jsonSerialize() : array{
-		return [
-			"target" => $this->target,
-		];
-	}
-
-
-	public function getTarget() : string{
-		return $this->target;
-	}
+	/** @var ArgumentType */
+	protected $type;
 }

@@ -53,7 +53,7 @@ class LangBlock extends AstNode{
 		$this->name = $this->expectAnyChildren(StaticLiteralElement::class);
 	}
 
-	protected static function getName() : string{
+	protected static function getNodeName() : string{
 		return "<lang>";
 	}
 
@@ -63,5 +63,18 @@ class LangBlock extends AstNode{
 			"id" => $this->id,
 			"name" => $this->name,
 		];
+	}
+
+
+	public function isBase() : bool{
+		return $this->base;
+	}
+
+	public function getId() : string{
+		return $this->id;
+	}
+
+	public function getName() : StaticLiteralElement{
+		return $this->name;
 	}
 }

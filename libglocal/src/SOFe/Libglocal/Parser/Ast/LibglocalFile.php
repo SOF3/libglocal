@@ -23,10 +23,12 @@ declare(strict_types=1);
 namespace SOFe\Libglocal\Parser\Ast;
 
 use AssertionError;
+use SOFe\Libglocal\Parser\Ast\Math\MathRuleBlock;
 use SOFe\Libglocal\Parser\Ast\Message\MessagesBlock;
 use SOFe\Libglocal\Parser\Ast\Meta\AuthorBlock;
 use SOFe\Libglocal\Parser\Ast\Meta\LangBlock;
 use SOFe\Libglocal\Parser\Ast\Meta\RequireBlock;
+use SOFe\Libglocal\Parser\Ast\Meta\UseBlock;
 use SOFe\Libglocal\Parser\Ast\Meta\VersionBlock;
 use SOFe\Libglocal\Parser\Lexer\LibglocalLexer;
 use SOFe\Libglocal\Parser\ParseException;
@@ -40,10 +42,12 @@ class LibglocalFile extends AstNode{
 	protected $version = null;
 	/** @var RequireBlock[] */
 	protected $requires = [];
+	/** @var UseBlock[] */
+	protected $uses = [];
+	/** @var MathRuleBlock[] */
+	protected $mathRules = [];
 	/** @var MessagesBlock */
 	protected $messages;
-
-	// TODO add support for math rules
 
 	public function __construct(LibglocalLexer $lexer){
 		parent::__construct($lexer);
@@ -52,7 +56,7 @@ class LibglocalFile extends AstNode{
 
 	protected function complete() : void{
 		while(true){
-			$child = $this->expectAnyChildren(LangBlock::class, AuthorBlock::class, VersionBlock::class, RequireBlock::class, MessagesBlock::class);
+			$child = $this->expectAnyChildren(LangBlock::class, AuthorBlock::class, VersionBlock::class, RequireBlock::class, UseBlock::class, MathRuleBlock::class, MessagesBlock::class);
 			if($child instanceof LangBlock){
 				if($this->lang !== null){
 					throw new ParseException("<lang> can only be declared once");
@@ -67,6 +71,10 @@ class LibglocalFile extends AstNode{
 				$this->version = $child;
 			}elseif($child instanceof RequireBlock){
 				$this->requires[] = $child;
+			}elseif($child instanceof UseBlock){
+				$this->uses[] = $child;
+			}elseif($child instanceof MathRuleBlock){
+				$this->mathRules[] = $child;
 			}elseif($child instanceof MessagesBlock){
 				$this->messages[] = $child;
 				break;
@@ -83,7 +91,7 @@ class LibglocalFile extends AstNode{
 		}
 	}
 
-	protected static function getName() : string{
+	protected static function getNodeName() : string{
 		return "libglocal lang";
 	}
 
@@ -95,5 +103,46 @@ class LibglocalFile extends AstNode{
 			"requires" => $this->requires,
 			"messages" => $this->messages,
 		];
+	}
+
+
+	public function getLang() : LangBlock{
+		return $this->lang;
+	}
+
+	/**
+	 * @return AuthorBlock[]
+	 */
+	public function getAuthors() : array{
+		return $this->authors;
+	}
+
+	public function getVersion() : ?VersionBlock{
+		return $this->version;
+	}
+
+	/**
+	 * @return RequireBlock[]
+	 */
+	public function getRequires() : array{
+		return $this->requires;
+	}
+
+	/**
+	 * @return UseBlock[]
+	 */
+	public function getUses() : array{
+		return $this->uses;
+	}
+
+	/**
+	 * @return MathRuleBlock[]
+	 */
+	public function getMathRules() : array{
+		return $this->mathRules;
+	}
+
+	public function getMessages() : MessagesBlock{
+		return $this->messages;
 	}
 }

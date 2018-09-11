@@ -25,7 +25,7 @@ namespace SOFe\Libglocal\Parser\Ast\Math;
 use SOFe\Libglocal\Parser\Ast\AstNode;
 use SOFe\Libglocal\Parser\Token;
 
-class ArithmeticPredicate extends AstNode{
+class MathPredicateElement extends AstNode{
 	/** @var int|float|null */
 	protected $mod = null;
 	/** @var Token */
@@ -55,7 +55,7 @@ class ArithmeticPredicate extends AstNode{
 		$this->operand = $this->expectToken(Token::NUMBER)->getCodeAsIntFloat();
 	}
 
-	protected static function getName() : string{
+	protected static function getNodeName() : string{
 		return "arithmetic predicate";
 	}
 
@@ -65,5 +65,18 @@ class ArithmeticPredicate extends AstNode{
 			"comparator" => $this->comparator,
 			"operand" => $this->operand,
 		];
+	}
+
+
+	public function getMod(){
+		return $this->mod;
+	}
+
+	public function getComparator() : int{
+		return $this->comparator->getType();
+	}
+
+	public function getOperand(){
+		return $this->operand;
 	}
 }

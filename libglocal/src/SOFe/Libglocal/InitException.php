@@ -20,35 +20,13 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast\Meta;
+namespace SOFe\Libglocal;
 
-use SOFe\Libglocal\Parser\Ast\AstNode;
-use SOFe\Libglocal\Parser\Token;
+use RuntimeException;
+use Throwable;
 
-class RequireBlock extends AstNode{
-	/** @var string */
-	protected $target;
-
-	protected function accept() : bool{
-		return $this->acceptToken(Token::REQUIRE) !== null;
-	}
-
-	protected function complete() : void{
-		$this->target = $this->expectToken(Token::IDENTIFIER)->getCode();
-	}
-
-	protected static function getNodeName() : string{
-		return "<require>";
-	}
-
-	public function jsonSerialize() : array{
-		return [
-			"target" => $this->target,
-		];
-	}
-
-
-	public function getTarget() : string{
-		return $this->target;
+class InitException extends RuntimeException{
+	public function __construct(string $message, ?Throwable $previous = null){
+		parent::__construct($message, 0, $previous);
 	}
 }

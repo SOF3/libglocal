@@ -38,7 +38,7 @@ class AuthorBlock extends AstNode{
 		$this->value = $this->expectAnyChildren(StaticLiteralElement::class);
 	}
 
-	protected static function getName() : string{
+	protected static function getNodeName() : string{
 		return "<author>";
 	}
 
@@ -46,5 +46,10 @@ class AuthorBlock extends AstNode{
 		return [
 			"value" => $this->value,
 		];
+	}
+
+
+	public function getValue() : StaticLiteralElement{
+		return $this->value;
 	}
 }

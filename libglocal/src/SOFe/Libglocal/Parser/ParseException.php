@@ -22,9 +22,9 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\Parser;
 
-use RuntimeException;
+use SOFe\Libglocal\InitException;
 
-class ParseException extends RuntimeException{
+class ParseException extends InitException{
 	public function __construct(string $message){
 		parent::__construct($message);
 	}

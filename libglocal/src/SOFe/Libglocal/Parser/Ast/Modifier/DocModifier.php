@@ -38,11 +38,16 @@ class DocModifier extends AstNode{
 		$this->value = $this->acceptAnyChildren(StaticLiteralElement::class);
 	}
 
-	protected static function getName() : string{
+	protected static function getNodeName() : string{
 		return "<doc>";
 	}
 
 	public function jsonSerialize() : ?StaticLiteralElement{
+		return $this->value;
+	}
+
+
+	public function getValue() : ?StaticLiteralElement{
 		return $this->value;
 	}
 }

@@ -20,35 +20,29 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast\Meta;
+namespace SOFe\Libglocal\Math;
 
-use SOFe\Libglocal\Parser\Ast\AstNode;
-use SOFe\Libglocal\Parser\Token;
+class MathRule{
+	/** @var null|string */
+	private $result;
+	/** @var MathPredicate[] */
+	protected $predicates;
 
-class RequireBlock extends AstNode{
-	/** @var string */
-	protected $target;
-
-	protected function accept() : bool{
-		return $this->acceptToken(Token::REQUIRE) !== null;
+	public function __construct(?string $result, array $predicates){
+		$this->result = $result;
+		$this->predicates = $predicates;
 	}
 
-	protected function complete() : void{
-		$this->target = $this->expectToken(Token::IDENTIFIER)->getCode();
+	public function test($number) : bool{
+		foreach($this->predicates as $predicate){
+			if(!$predicate->test($number)){
+				return false;
+			}
+		}
+		return true;
 	}
 
-	protected static function getNodeName() : string{
-		return "<require>";
-	}
-
-	public function jsonSerialize() : array{
-		return [
-			"target" => $this->target,
-		];
-	}
-
-
-	public function getTarget() : string{
-		return $this->target;
+	public function getResult() : ?string{
+		return $this->result;
 	}
 }

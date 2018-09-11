@@ -25,16 +25,17 @@ namespace SOFe\Libglocal\Parser\Ast\Message;
 use SOFe\Libglocal\Parser\Ast\AstNode;
 use SOFe\Libglocal\Parser\Token;
 
-class MessageGroupBlock extends AstNode{
+class MessageGroupBlock extends AstNode implements MessageParentBlock{
 	/** @var Token[] */
 	protected $flags;
 	/** @var string */
 	protected $id;
 
-	/** @var MessageGroupBlock */
+	/** @var MessageGroupBlock[] */
 	protected $groups = [];
-	/** @var MessageBlock */
+	/** @var MessageBlock[] */
 	protected $messages = [];
+
 
 	protected function accept() : bool{
 		while(($token = $this->acceptToken(Token::CATEGORY_FLAGS)) !== null){
@@ -59,7 +60,7 @@ class MessageGroupBlock extends AstNode{
 		}
 	}
 
-	protected static function getName() : string{
+	protected static function getNodeName() : string{
 		return "message group";
 	}
 
@@ -70,5 +71,31 @@ class MessageGroupBlock extends AstNode{
 			"groups" => $this->groups,
 			"messages" => $this->messages,
 		];
+	}
+
+
+	/**
+	 * @return Token[]
+	 */
+	public function getFlags() : array{
+		return $this->flags;
+	}
+
+	public function getId() : string{
+		return $this->id;
+	}
+
+	/**
+	 * @return MessageGroupBlock[]
+	 */
+	public function getGroups() : array{
+		return $this->groups;
+	}
+
+	/**
+	 * @return MessageBlock[]
+	 */
+	public function getMessages() : array{
+		return $this->messages;
 	}
 }

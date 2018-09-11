@@ -45,6 +45,7 @@ class MessageBlock extends BlockParentAstNode{
 	/** @var VersionModifier|null */
 	protected $version = null;
 
+
 	protected function initial() : void{
 		while(($flag = $this->acceptTokenCategory(Token::CATEGORY_FLAGS)) !== null){
 			$this->flags[] = $flag;
@@ -67,7 +68,7 @@ class MessageBlock extends BlockParentAstNode{
 		}
 	}
 
-	protected static function getName() : string{
+	protected static function getNodeName() : string{
 		return "<message>";
 	}
 
@@ -89,5 +90,39 @@ class MessageBlock extends BlockParentAstNode{
 			$ret["version"] = $this->version;
 		}
 		return $ret;
+	}
+
+
+	/**
+	 * @return Token[]
+	 */
+	public function getFlags() : array{
+		return $this->flags;
+	}
+
+	public function getId() : string{
+		return $this->id;
+	}
+
+	public function getLiteral() : LiteralElement{
+		return $this->literal;
+	}
+
+	/**
+	 * @return ArgModifier[]
+	 */
+	public function getArgs() : array{
+		return $this->args;
+	}
+
+	/**
+	 * @return DocModifier[]
+	 */
+	public function getDocs() : array{
+		return $this->docs;
+	}
+
+	public function getVersion() : ?VersionModifier{
+		return $this->version;
 	}
 }

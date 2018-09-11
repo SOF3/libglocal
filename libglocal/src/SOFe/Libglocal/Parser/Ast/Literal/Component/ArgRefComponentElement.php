@@ -43,7 +43,7 @@ class ArgRefComponentElement extends AstNode implements LiteralComponentElement{
 		}
 	}
 
-	protected static function getName() : string{
+	protected static function getNodeName() : string{
 		return "arg reference";
 	}
 

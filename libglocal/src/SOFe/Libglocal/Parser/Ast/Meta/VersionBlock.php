@@ -37,7 +37,7 @@ class VersionBlock extends AstNode{
 		$this->value = $this->expectToken(Token::IDENTIFIER)->getCode();
 	}
 
-	protected static function getName() : string{
+	protected static function getNodeName() : string{
 		return "<version>";
 	}
 
@@ -45,5 +45,10 @@ class VersionBlock extends AstNode{
 		return [
 			"value" => $this->value,
 		];
+	}
+
+
+	public function getValue() : string{
+		return $this->value;
 	}
 }

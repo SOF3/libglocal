@@ -20,35 +20,16 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast\Meta;
+namespace SOFe\Libglocal\Parser\Ast\Message;
 
-use SOFe\Libglocal\Parser\Ast\AstNode;
-use SOFe\Libglocal\Parser\Token;
+interface MessageParentBlock{
+	/**
+	 * @return MessageGroupBlock[]
+	 */
+	public function getGroups() : array;
 
-class RequireBlock extends AstNode{
-	/** @var string */
-	protected $target;
-
-	protected function accept() : bool{
-		return $this->acceptToken(Token::REQUIRE) !== null;
-	}
-
-	protected function complete() : void{
-		$this->target = $this->expectToken(Token::IDENTIFIER)->getCode();
-	}
-
-	protected static function getNodeName() : string{
-		return "<require>";
-	}
-
-	public function jsonSerialize() : array{
-		return [
-			"target" => $this->target,
-		];
-	}
-
-
-	public function getTarget() : string{
-		return $this->target;
-	}
+	/**
+	 * @return MessageBlock[]
+	 */
+	public function getMessages() : array;
 }

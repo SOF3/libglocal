@@ -48,7 +48,7 @@ class NumberAttributeValueElement extends AstNode implements AttributeValueEleme
 		// only one token
 	}
 
-	protected static function getName() : string{
+	protected static function getNodeName() : string{
 		return "number attribute value";
 	}
 

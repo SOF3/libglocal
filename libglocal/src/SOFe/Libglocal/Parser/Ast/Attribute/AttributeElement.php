@@ -47,7 +47,7 @@ class AttributeElement extends AstNode{
 			ArgumentAttributeValueElement::class, MessageAttributeValueElement::class);
 	}
 
-	protected static function getName() : string{
+	protected static function getNodeName() : string{
 		return "attribute";
 	}
 

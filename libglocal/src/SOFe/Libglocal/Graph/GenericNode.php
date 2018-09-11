@@ -20,35 +20,29 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast\Meta;
+namespace SOFe\Libglocal\Graph;
 
-use SOFe\Libglocal\Parser\Ast\AstNode;
-use SOFe\Libglocal\Parser\Token;
+use InvalidArgumentException;
+use function is_int;
+use function is_string;
 
-class RequireBlock extends AstNode{
-	/** @var string */
-	protected $target;
+class GenericNode{
+	/** @var string|int */
+	public $identifier;
+	/** @var mixed */
+	public $value;
 
-	protected function accept() : bool{
-		return $this->acceptToken(Token::REQUIRE) !== null;
-	}
-
-	protected function complete() : void{
-		$this->target = $this->expectToken(Token::IDENTIFIER)->getCode();
-	}
-
-	protected static function getNodeName() : string{
-		return "<require>";
-	}
-
-	public function jsonSerialize() : array{
-		return [
-			"target" => $this->target,
-		];
-	}
+	/** @var GenericNode[] */
+	public $in = [];
+	/** @var GenericNode[] */
+	public $out = [];
 
 
-	public function getTarget() : string{
-		return $this->target;
+	public function __construct($identifier, $value){
+		if(!is_string($identifier) && !is_int($identifier)){
+			throw new InvalidArgumentException("Identifier must be string or int");
+		}
+		$this->identifier = $identifier;
+		$this->value = $value;
 	}
 }

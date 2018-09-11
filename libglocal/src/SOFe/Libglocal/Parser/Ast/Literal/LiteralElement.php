@@ -33,7 +33,7 @@ class LiteralElement extends AbstractLiteralElement{
 		return $this->acceptAnyChildren(LiteralStringComponentElement::class, ArgRefComponentElement::class, MessageRefComponentElement::class, SpanComponentElement::class);
 	}
 
-	protected static function getName() : string{
+	protected static function getNodeName() : string{
 		return "literal";
 	}
 }
