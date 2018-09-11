@@ -24,6 +24,7 @@ namespace SOFe\Libglocal\Parser;
 
 use JsonSerializable;
 use ReflectionClass;
+use RuntimeException;
 use function array_search;
 use function strpos;
 
@@ -49,7 +50,8 @@ final class Token implements JsonSerializable{
 	public const AUTHOR = 0x0202;
 	public const VERSION = 0x0203;
 	public const REQUIRE = 0x0204;
-	public const MESSAGES = 0x0205;
+	public const USE = 0x0205;
+	public const MESSAGES = 0x0206;
 
 	public const CATEGORY_MODIFIERS = 0x0300;
 	public const INSTRUCTION = 0x0300;
@@ -138,6 +140,14 @@ final class Token implements JsonSerializable{
 
 	public function getCode() : string{
 		return $this->code;
+	}
+
+	public function getCodeAsIntFloat() : float{
+		if($this->type !== Token::NUMBER){
+			throw new RuntimeException("Call is only permitted for NUMBER tokens");
+		}
+
+		return strpos($this->code, ".") !== false ? (float) $this->code : (int) $this->code;
 	}
 
 	public function getLine() : int{

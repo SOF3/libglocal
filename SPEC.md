@@ -108,9 +108,20 @@ L_AUTHOR_NAME ::= T_IDENTIFIER
 `AUTHOR_NAME` can be a string of any characters except control characters.
 
 ### 3.4. `require`
-`require` (`B_META_REQUIRE`) is an optional meta block that indicates the dependencies required by this module.
+`require` (`B_META_REQUIRE`) is an optional meta block that indicates the dependencies required by this module. It can be used multiple times.
 
-### 3.5. Math rules
+### 3.5. `use`
+`use` (`B_META_USE`) is an optional meta block that declares an alias for a message.
+
+```bnf
+B_META_USE ::= "use" L_TARGET [L_ALIAS]
+L_TARGET ::= T_IDENTIFIER
+L_ALIAS ::= T_IDENTIFIER
+```
+
+If `L_ALIAS` is left out, the last part of the target message ID will be used, just like class aliases in PHP `use` statements.
+
+### 3.6. Math rules
 Math rules start with a `@`. They define predicate functions for testing numbers.
 
 ```bnf

@@ -188,6 +188,10 @@ class LibglocalLexerGenerator{
 				yield new Token(Token::REQUIRE, $match);
 				return 1;
 			}
+			if(($match = $reader->matchRead('use\\b')) !== null){
+				yield new Token(Token::USE, $match);
+				return 2;
+			}
 			if(($match = $reader->matchRead('messages\\b')) !== null){
 				$this->afterMessages = true;
 				yield new Token(Token::MESSAGES, $match);
