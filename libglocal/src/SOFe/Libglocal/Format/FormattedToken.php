@@ -20,28 +20,24 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Translation;
+namespace SOFe\Libglocal\Format;
 
-use SOFe\Libglocal\Message;
-use SOFe\Libglocal\Parser\Ast\Message\MessageBlock;
-use SOFe\Libglocal\Translation\Component\ResolvedComponent;
-
-class Translation{
-	/** @var Message */
-	protected $message;
-	/** @var MessageBlock */
-	protected $definition;
+class FormattedToken{
+	/** @var Format */
+	protected $format;
 	/** @var string */
-	protected $lang;
+	protected $value;
 
-	/** @var ResolvedComponent[] */
-	protected $components = [];
+	public function __construct(Format $format, string $value){
+		$this->format = $format;
+		$this->value = $value;
+	}
 
+	public function getFormat() : Format{
+		return $this->format;
+	}
 
-	public function __construct(Message $message, MessageBlock $block, string $lang){
-		$this->message = $message;
-		$this->definition = $block;
-		$this->lang = $lang;
-
+	public function getValue() : string{
+		return $this->value;
 	}
 }

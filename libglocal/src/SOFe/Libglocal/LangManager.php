@@ -27,7 +27,7 @@ use pocketmine\plugin\Plugin;
 use SOFe\Libglocal\Graph\GenericGraph;
 use SOFe\Libglocal\Math\MathPredicate;
 use SOFe\Libglocal\Math\MathRule;
-use SOFe\Libglocal\Parser\Ast\LibglocalFile;
+use SOFe\Libglocal\Parser\Ast\AstRoot;
 use SOFe\Libglocal\Parser\Ast\Message\MessageBlock;
 use SOFe\Libglocal\Parser\Ast\Message\MessageParentBlock;
 use SOFe\Libglocal\Parser\Lexer\LibglocalLexer;
@@ -37,9 +37,9 @@ class LangManager{
 	/** @var Plugin */
 	protected $plugin;
 
-	/** @var LibglocalFile[] */
+	/** @var AstRoot[] */
 	protected $baseFiles = [];
-	/** @var LibglocalFile[] */
+	/** @var AstRoot[] */
 	protected $overrideFiles = [];
 
 	/** @var bool[] */
@@ -56,7 +56,7 @@ class LangManager{
 
 	public function loadLang(string $fileName, string $data) : void{
 		$lexer = new LibglocalLexer($fileName, $data);
-		$file = new LibglocalFile($lexer);
+		$file = new AstRoot($lexer);
 		if($file->getLang()->isBase()){
 			$this->baseFiles[] = $file;
 		}else{
@@ -95,7 +95,7 @@ class LangManager{
 		}
 	}
 
-	protected function register(LibglocalFile $file) : void{
+	protected function register(AstRoot $file) : void{
 		$this->registerMathRules($file);
 		$this->registerMessages($file);
 	}
@@ -110,7 +110,7 @@ class LangManager{
 		}
 	}
 
-	protected function registerMathRules(LibglocalFile $file) : void{
+	protected function registerMathRules(AstRoot $file) : void{
 		$lang = $file->getLang()->getId();
 
 		foreach($file->getMathRules() as $rule){
@@ -127,7 +127,7 @@ class LangManager{
 		}
 	}
 
-	protected function registerMessages(LibglocalFile $file) : void{
+	protected function registerMessages(AstRoot $file) : void{
 		/** @var MessageBlock $block */
 		foreach($this->visitMessages(null, $file->getMessages()) as $block){
 			$message = new Message($block);
@@ -143,7 +143,7 @@ class LangManager{
 		}
 	}
 
-	protected function loadTranslations(LibglocalFile $file) : void{
+	protected function loadTranslations(AstRoot $file) : void{
 		// TODO
 	}
 }

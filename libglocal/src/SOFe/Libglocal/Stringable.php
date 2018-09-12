@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal;
 
-use pocketmine\command\CommandSender;
+use SOFe\Libglocal\Format\FormattedString;
 
 interface Stringable{
-	public function toString(CommandSender $sender) : FormattedString;
+	public function toString(Context $context) : FormattedString;
 }

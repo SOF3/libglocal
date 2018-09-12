@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace SOFe\Libglocal;
 
 use SOFe\Libglocal\Argument\Argument;
-use SOFe\Libglocal\Argument\Type\ArgumentType;
 use SOFe\Libglocal\Parser\Ast\Message\MessageBlock;
 use SOFe\Libglocal\Parser\Token;
 use SOFe\Libglocal\Translation\Translation;
@@ -55,6 +54,7 @@ class Message{
 		$this->baseVersion = $block->getVersion() !== null ? $block->getVersion()->getTarget() : null;
 
 		$this->setArguments($block);
+		$this->baseTranslation = new Translation($this, $block, $block->getRoot()->getLang()->getId());
 	}
 
 	protected function setVisibility(MessageBlock $block) : void{
@@ -96,6 +96,7 @@ class Message{
 	protected function setArguments(MessageBlock $block) : void{
 		foreach($block->getArgs() as $arg){
 			$argument = new Argument($arg->getName(), Argument::createType($arg));
+			$this->arguments[$argument->getId()] = $argument;
 		}
 	}
 

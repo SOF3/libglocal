@@ -34,11 +34,14 @@ use function implode;
 abstract class AstNode implements JsonSerializable, IAstNode{
 	/** @var LibglocalLexer */
 	protected $lexer;
+	/** @var AstRoot */
+	protected $root;
 	/** @var int */
 	protected $line;
 
-	protected function __construct(LibglocalLexer $lexer, int $line){
+	protected function __construct(LibglocalLexer $lexer, AstRoot $root, int $line){
 		$this->lexer = $lexer;
+		$this->root = $root;
 		$this->line = $line;
 	}
 
@@ -63,7 +66,7 @@ abstract class AstNode implements JsonSerializable, IAstNode{
 				$this->lexer->createStack();
 			}
 			/** @var AstNode $node */
-			$node = new $class($this->lexer, $this->lexer->getLine());
+			$node = new $class($this->lexer, $this->root, $this->lexer->getLine());
 			$accepted = $node->accept();
 
 			if(count($classes) > 1){
@@ -129,6 +132,10 @@ abstract class AstNode implements JsonSerializable, IAstNode{
 
 	public function getLine() : int{
 		return $this->line;
+	}
+
+	public function getRoot() : AstRoot{
+		return $this->root;
 	}
 
 	public function throwParse(string $message) : InitException{

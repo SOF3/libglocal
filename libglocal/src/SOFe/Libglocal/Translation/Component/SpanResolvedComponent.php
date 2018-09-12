@@ -20,28 +20,24 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Translation;
+namespace SOFe\Libglocal\Translation\Component;
 
-use SOFe\Libglocal\Message;
-use SOFe\Libglocal\Parser\Ast\Message\MessageBlock;
-use SOFe\Libglocal\Translation\Component\ResolvedComponent;
+use SOFe\Libglocal\Context;
+use SOFe\Libglocal\Format\Format;
+use SOFe\Libglocal\Format\FormattedString;
+use SOFe\Libglocal\Format\ParentFormattedString;
+use function array_map;
 
-class Translation{
-	/** @var Message */
-	protected $message;
-	/** @var MessageBlock */
-	protected $definition;
-	/** @var string */
-	protected $lang;
+class SpanResolvedComponent implements ResolvedComponent{
+	/** @var Format */
+	protected $format;
 
 	/** @var ResolvedComponent[] */
-	protected $components = [];
+	protected $children = [];
 
-
-	public function __construct(Message $message, MessageBlock $block, string $lang){
-		$this->message = $message;
-		$this->definition = $block;
-		$this->lang = $lang;
-
+	public function toString(Context $context) : FormattedString{
+		return new ParentFormattedString($this->format, array_map(function(ResolvedComponent $component) use ($context): FormattedString{
+			return $component->toString($context);
+		}, $this->children));
 	}
 }

@@ -22,13 +22,11 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\Argument\Type\List_;
 
-use pocketmine\command\CommandSender;
-use SOFe\Libglocal\Argument\ArgumentAttribute;
 use SOFe\Libglocal\Argument\Type\ArgumentType;
-use SOFe\Libglocal\FormattedString;
+use SOFe\Libglocal\Context;
+use SOFe\Libglocal\Format\FormattedString;
 use SOFe\Libglocal\Parser\Ast\Attribute\AttributeValueElement;
 use SOFe\Libglocal\Parser\Ast\Constraint\ConstraintBlock;
-use SOFe\Libglocal\Parser\Ast\Literal\LiteralElement;
 
 class ListArgumentType implements ArgumentType{
 	/** @var ArgumentType */
@@ -50,14 +48,7 @@ class ListArgumentType implements ArgumentType{
 		$this->delegate->applyConstraint($constraint);
 	}
 
-	/**
-	 * @param mixed               $value
-	 * @param CommandSender       $context
-	 * @param ArgumentAttribute[] $attributes
-	 *
-	 * @return FormattedString
-	 */
-	public function toString($value, CommandSender $context, array $attributes) : FormattedString{
+	public function toString($value, Context $context, array $attributes) : FormattedString{
 
 	}
 

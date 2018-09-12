@@ -22,17 +22,15 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\Argument\Type\Object;
 
-use function mb_strpos;
-use pocketmine\command\CommandSender;
 use SOFe\Libglocal\Argument\Argument;
 use SOFe\Libglocal\Argument\ArgumentAttribute;
 use SOFe\Libglocal\Argument\Type\ArgumentType;
-use SOFe\Libglocal\FormattedString;
+use SOFe\Libglocal\Context;
+use SOFe\Libglocal\Format\FormattedString;
 use SOFe\Libglocal\Parser\Ast\Attribute\AttributeValueElement;
 use SOFe\Libglocal\Parser\Ast\Constraint\ConstraintBlock;
 use SOFe\Libglocal\Parser\Ast\Constraint\FieldConstraintBlock;
-use SOFe\Libglocal\Parser\Ast\Literal\LiteralElement;
-use function strpos;
+use function mb_strpos;
 
 class ObjectArgumentType implements ArgumentType{
 	/** @var Argument[] */
@@ -59,12 +57,12 @@ class ObjectArgumentType implements ArgumentType{
 
 	/**
 	 * @param mixed               $value
-	 * @param CommandSender       $context
+	 * @param Context             $context
 	 * @param ArgumentAttribute[] $attributes
 	 *
 	 * @return FormattedString
 	 */
-	public function toString($value, CommandSender $context, array $attributes) : FormattedString{
+	public function toString($value, Context $context, array $attributes) : FormattedString{
 
 	}
 

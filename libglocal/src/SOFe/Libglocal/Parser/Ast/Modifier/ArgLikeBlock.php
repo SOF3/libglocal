@@ -31,7 +31,6 @@ use SOFe\Libglocal\Parser\Ast\BlockParentAstNode;
 use SOFe\Libglocal\Parser\Ast\Constraint\ConstraintBlock;
 use SOFe\Libglocal\Parser\Ast\Constraint\FieldConstraintBlock;
 use SOFe\Libglocal\Parser\Ast\Constraint\GenericConstraintBlock;
-use SOFe\Libglocal\Parser\Ast\Literal\LiteralElement;
 use SOFe\Libglocal\Parser\Ast\Math\MathRuleBlock;
 use SOFe\Libglocal\Parser\Token;
 

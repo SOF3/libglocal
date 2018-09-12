@@ -29,5 +29,7 @@ interface IAstNode{
 
 	public function getLine() : int;
 
+	public function getRoot() : AstRoot;
+
 	public function throwInit(string $message) : InitException;
 }

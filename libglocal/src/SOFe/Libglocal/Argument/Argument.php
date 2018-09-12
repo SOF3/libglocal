@@ -44,6 +44,14 @@ class Argument{
 		$this->type = $type;
 	}
 
+	public function getId() : string{
+		return $this->id;
+	}
+
+	public function getType() : ArgumentType{
+		return $this->type;
+	}
+
 	public static function createType(ArgLikeBlock $arg, int $listLevels = 0) : ArgumentType{
 		$type = self::newType($arg, $listLevels);
 		if($arg->getDefault() !== null){

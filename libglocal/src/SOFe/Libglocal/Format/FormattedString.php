@@ -20,28 +20,13 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Translation;
+namespace SOFe\Libglocal\Format;
 
-use SOFe\Libglocal\Message;
-use SOFe\Libglocal\Parser\Ast\Message\MessageBlock;
-use SOFe\Libglocal\Translation\Component\ResolvedComponent;
-
-class Translation{
-	/** @var Message */
-	protected $message;
-	/** @var MessageBlock */
-	protected $definition;
-	/** @var string */
-	protected $lang;
-
-	/** @var ResolvedComponent[] */
-	protected $components = [];
-
-
-	public function __construct(Message $message, MessageBlock $block, string $lang){
-		$this->message = $message;
-		$this->definition = $block;
-		$this->lang = $lang;
-
-	}
+interface FormattedString{
+	/**
+	 * @param Format $parentFormat
+	 *
+	 * @return FormattedToken[]
+	 */
+	public function tokenize(?Format $parentFormat) : array;
 }

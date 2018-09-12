@@ -20,28 +20,17 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Translation;
+namespace SOFe\Libglocal\Translation\Component;
 
-use SOFe\Libglocal\Message;
-use SOFe\Libglocal\Parser\Ast\Message\MessageBlock;
-use SOFe\Libglocal\Translation\Component\ResolvedComponent;
+use SOFe\Libglocal\Context;
+use SOFe\Libglocal\Format\FormattedString;
+use SOFe\Libglocal\Format\LiteralFormattedString;
 
-class Translation{
-	/** @var Message */
-	protected $message;
-	/** @var MessageBlock */
-	protected $definition;
+class StaticResolvedComponent implements ResolvedComponent{
 	/** @var string */
-	protected $lang;
+	protected $literal;
 
-	/** @var ResolvedComponent[] */
-	protected $components = [];
-
-
-	public function __construct(Message $message, MessageBlock $block, string $lang){
-		$this->message = $message;
-		$this->definition = $block;
-		$this->lang = $lang;
-
+	public function toString(Context $context) : FormattedString{
+		return new LiteralFormattedString($this->literal);
 	}
 }

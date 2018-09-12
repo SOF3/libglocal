@@ -32,7 +32,7 @@ use SOFe\Libglocal\Parser\Ast\Meta\UseBlock;
 use SOFe\Libglocal\Parser\Ast\Meta\VersionBlock;
 use SOFe\Libglocal\Parser\Lexer\LibglocalLexer;
 
-class LibglocalFile extends AstNode{
+class AstRoot extends AstNode{
 	/** @var LangBlock */
 	protected $lang;
 	/** @var AuthorBlock[] */
@@ -49,7 +49,7 @@ class LibglocalFile extends AstNode{
 	protected $messages;
 
 	public function __construct(LibglocalLexer $lexer){
-		parent::__construct($lexer, 1);
+		parent::__construct($lexer, $this, 1);
 		$this->complete();
 	}
 

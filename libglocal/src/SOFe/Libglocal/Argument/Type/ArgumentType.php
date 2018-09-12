@@ -22,12 +22,11 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\Argument\Type;
 
-use pocketmine\command\CommandSender;
 use SOFe\Libglocal\Argument\ArgumentAttribute;
-use SOFe\Libglocal\FormattedString;
+use SOFe\Libglocal\Context;
+use SOFe\Libglocal\Format\FormattedString;
 use SOFe\Libglocal\Parser\Ast\Attribute\AttributeValueElement;
 use SOFe\Libglocal\Parser\Ast\Constraint\ConstraintBlock;
-use SOFe\Libglocal\Parser\Ast\Literal\LiteralElement;
 
 interface ArgumentType{
 	public function getType() : string;
@@ -38,12 +37,12 @@ interface ArgumentType{
 
 	/**
 	 * @param mixed               $value
-	 * @param CommandSender       $context
+	 * @param Context             $context
 	 * @param ArgumentAttribute[] $attributes
 	 *
 	 * @return FormattedString
 	 */
-	public function toString($value, CommandSender $context, array $attributes) : FormattedString;
+	public function toString($value, Context $context, array $attributes) : FormattedString;
 
 	public function onPostParse() : void;
 }

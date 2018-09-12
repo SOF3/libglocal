@@ -20,28 +20,27 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Translation;
+namespace SOFe\Libglocal\Format;
 
-use SOFe\Libglocal\Message;
-use SOFe\Libglocal\Parser\Ast\Message\MessageBlock;
-use SOFe\Libglocal\Translation\Component\ResolvedComponent;
+use function array_merge;
 
-class Translation{
-	/** @var Message */
-	protected $message;
-	/** @var MessageBlock */
-	protected $definition;
-	/** @var string */
-	protected $lang;
+class ParentFormattedString implements FormattedString{
+	/** @var Format */
+	protected $format;
+	/** @var FormattedString[] */
+	protected $children = [];
 
-	/** @var ResolvedComponent[] */
-	protected $components = [];
+	public function __construct(Format $format, array $children){
+		$this->format = $format;
+		$this->children = $children;
+	}
 
-
-	public function __construct(Message $message, MessageBlock $block, string $lang){
-		$this->message = $message;
-		$this->definition = $block;
-		$this->lang = $lang;
-
+	public function tokenize(?Format $parentFormat) : array{
+		$format = $parentFormat !== null ? $parentFormat->add($this->format) : $this->format;
+		$output = [[]];
+		foreach($this->children as $child){
+			$output[] = $child->tokenize($format);
+		}
+		return array_merge(...$output);
 	}
 }

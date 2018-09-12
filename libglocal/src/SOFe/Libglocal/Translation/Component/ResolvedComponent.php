@@ -20,8 +20,11 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal;
+namespace SOFe\Libglocal\Translation\Component;
 
-class FormattedString{
-	// TODO
+use SOFe\Libglocal\Context;
+use SOFe\Libglocal\Format\FormattedString;
+
+interface ResolvedComponent{
+	public function toString(Context $context) : FormattedString;
 }
