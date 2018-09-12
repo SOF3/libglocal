@@ -59,19 +59,19 @@ class LiteralStringComponentElement extends AstNode implements LiteralComponentE
 				return $this->token->getCode();
 			case Token::ESCAPE:
 				switch($this->token->getCode(){1}){
-					case "0":
+					case '0':
 						return " ";
-					case "n":
+					case 'n':
 						return "\n";
-					case "r":
+					case 'r':
 						return "\r";
-					case "s":
+					case 's':
 						return " ";
-					case "#":
-					case "\$":
-					case "%":
-					case "}":
-					case "\\":
+					case '#':
+					case '$':
+					case '%':
+					case '}':
+					case '\\':
 						return $this->token->getCode(){1};
 				}
 				$this->throwParse("Invalid escape");

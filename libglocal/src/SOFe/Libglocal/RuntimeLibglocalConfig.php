@@ -20,13 +20,8 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Translation\Component;
+namespace SOFe\Libglocal;
 
-use SOFe\Libglocal\Context;
-use SOFe\Libglocal\Format\FormattedString;
+class RuntimeLibglocalConfig implements LibglocalConfig{
 
-interface ResolvedComponent{
-	public function resolve() : void;
-
-	public function toString(Context $context) : FormattedString;
 }

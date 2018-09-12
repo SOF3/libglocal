@@ -22,9 +22,21 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\Translation;
 
+use AssertionError;
+use SOFe\Libglocal\LangManager;
 use SOFe\Libglocal\Message;
+use SOFe\Libglocal\Parser\Ast\Literal\Component\ArgRefComponentElement;
+use SOFe\Libglocal\Parser\Ast\Literal\Component\LiteralComponentElement;
+use SOFe\Libglocal\Parser\Ast\Literal\Component\LiteralStringComponentElement;
+use SOFe\Libglocal\Parser\Ast\Literal\Component\MessageRefComponentElement;
+use SOFe\Libglocal\Parser\Ast\Literal\Component\SpanComponentElement;
+use SOFe\Libglocal\Parser\Ast\Literal\LiteralElement;
 use SOFe\Libglocal\Parser\Ast\Message\MessageBlock;
+use SOFe\Libglocal\Translation\Component\ArgRefResolvedComponent;
+use SOFe\Libglocal\Translation\Component\MessageRefResolvedComponent;
 use SOFe\Libglocal\Translation\Component\ResolvedComponent;
+use SOFe\Libglocal\Translation\Component\SpanResolvedComponent;
+use SOFe\Libglocal\Translation\Component\StaticResolvedComponent;
 
 class Translation{
 	/** @var Message */
@@ -42,6 +54,41 @@ class Translation{
 		$this->message = $message;
 		$this->definition = $block;
 		$this->lang = $lang;
+		$this->components = self::createResolvedComponents($message->getManager(), $block->getLiteral());
+		foreach($block->getLiteral()->getComponents() as $component){
+			$this->components[] = self::createResolvedComponent($message->getManager(), $component);
+		}
+	}
 
+	/**
+	 * @param LangManager    $manager
+	 * @param LiteralElement $element
+	 *
+	 * @return ResolvedComponent[]
+	 */
+	public static function createResolvedComponents(LangManager $manager, LiteralElement $element) : array{
+		$components = [];
+		foreach($element->getComponents() as $component){
+			$components[] = $component;
+		}
+		return $components;
+	}
+
+	public static function createResolvedComponent(LangManager $manager, LiteralComponentElement $element) : ResolvedComponent{
+		if($element instanceof LiteralStringComponentElement){
+			return new StaticResolvedComponent($element->toString());
+		}
+		if($element instanceof SpanComponentElement){
+			return new SpanResolvedComponent($manager->getConfig()->format($element->getName()),
+				self::createResolvedComponents($manager, $element->getLiteral()));
+		}
+		if($element instanceof ArgRefComponentElement){
+			return new ArgRefResolvedComponent($element);
+		}
+		if($element instanceof MessageRefComponentElement){
+			return new MessageRefResolvedComponent($element);
+		}
+
+		throw new AssertionError("Unknown literal component type");
 	}
 }

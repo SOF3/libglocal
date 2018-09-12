@@ -30,6 +30,13 @@ class StaticResolvedComponent implements ResolvedComponent{
 	/** @var string */
 	protected $literal;
 
+	public function __construct(string $literal){
+		$this->literal = $literal;
+	}
+
+	public function resolve() : void{
+	}
+
 	public function toString(Context $context) : FormattedString{
 		return new LiteralFormattedString($this->literal);
 	}

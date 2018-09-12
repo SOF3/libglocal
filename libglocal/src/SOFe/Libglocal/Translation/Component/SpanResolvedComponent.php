@@ -35,6 +35,14 @@ class SpanResolvedComponent implements ResolvedComponent{
 	/** @var ResolvedComponent[] */
 	protected $children = [];
 
+	public function __construct(Format $format, array $children){
+		$this->format = $format;
+		$this->children = $children;
+	}
+
+	public function resolve() : void{
+	}
+
 	public function toString(Context $context) : FormattedString{
 		return new ParentFormattedString($this->format, array_map(function(ResolvedComponent $component) use ($context): FormattedString{
 			return $component->toString($context);

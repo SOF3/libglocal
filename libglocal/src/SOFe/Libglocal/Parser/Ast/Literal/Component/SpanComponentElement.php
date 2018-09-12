@@ -52,4 +52,13 @@ class SpanComponentElement extends AstNode implements LiteralComponentElement{
 			"literal" => $this->literal,
 		];
 	}
+
+
+	public function getName() : string{
+		return $this->name;
+	}
+
+	public function getLiteral() : LiteralElement{
+		return $this->literal;
+	}
 }

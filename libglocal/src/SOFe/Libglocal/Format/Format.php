@@ -33,7 +33,7 @@ class Format{
 	public $s = false;
 
 	public function add(Format $that) : Format{
-		$new = new Format();
+		$new = new Format;
 		$new->color = $that->color;
 		$new->b = $this->b || $that->b;
 		$new->i = $this->i || $that->i;

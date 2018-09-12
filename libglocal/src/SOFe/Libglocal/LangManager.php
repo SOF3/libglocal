@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace SOFe\Libglocal;
 
 use Generator;
-use pocketmine\plugin\Plugin;
 use SOFe\Libglocal\Graph\GenericGraph;
 use SOFe\Libglocal\Math\MathPredicate;
 use SOFe\Libglocal\Math\MathRule;
@@ -34,8 +33,8 @@ use SOFe\Libglocal\Parser\Lexer\LibglocalLexer;
 use function implode;
 
 class LangManager{
-	/** @var Plugin */
-	protected $plugin;
+	/** @var LibglocalConfig */
+	protected $config;
 
 	/** @var AstRoot[] */
 	protected $baseFiles = [];
@@ -53,6 +52,10 @@ class LangManager{
 	/** @var MathRule[][] */
 	protected $mathRules = [];
 
+
+	public function getConfig() : LibglocalConfig{
+		return $this->config;
+	}
 
 	public function loadLang(string $fileName, string $data) : void{
 		$lexer = new LibglocalLexer($fileName, $data);
@@ -130,7 +133,7 @@ class LangManager{
 	protected function registerMessages(AstRoot $file) : void{
 		/** @var MessageBlock $block */
 		foreach($this->visitMessages(null, $file->getMessages()) as $block){
-			$message = new Message($block);
+			$message = new Message($this, $block);
 			if($message->getVisibility() === Message::LOCAL){
 				$messages =& $this->localMessages[$file->getLang()->getId()];
 			}else{

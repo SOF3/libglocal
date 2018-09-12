@@ -56,4 +56,11 @@ abstract class AbstractLiteralElement extends AstNode{
 	}
 
 	protected abstract function acceptComponent() : ?AstNode;
+
+	/**
+	 * @return LiteralComponentElement[]
+	 */
+	public function getComponents() : array{
+		return $this->components;
+	}
 }

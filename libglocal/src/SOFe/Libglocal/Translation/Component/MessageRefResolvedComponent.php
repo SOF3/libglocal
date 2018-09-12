@@ -24,9 +24,21 @@ namespace SOFe\Libglocal\Translation\Component;
 
 use SOFe\Libglocal\Context;
 use SOFe\Libglocal\Format\FormattedString;
+use SOFe\Libglocal\Parser\Ast\Literal\Component\MessageRefComponentElement;
 
-interface ResolvedComponent{
-	public function resolve() : void;
+class MessageRefResolvedComponent implements ResolvedComponent{
+	/** @var MessageRefComponentElement */
+	protected $element;
 
-	public function toString(Context $context) : FormattedString;
+	public function __construct(MessageRefComponentElement $element){
+		$this->element = $element;
+	}
+
+	public function resolve() : void{
+		//TODO
+	}
+
+	public function toString(Context $context) : FormattedString{
+
+	}
 }

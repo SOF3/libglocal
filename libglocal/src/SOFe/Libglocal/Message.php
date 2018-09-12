@@ -33,6 +33,9 @@ class Message{
 	public const LIB = 1;
 	public const LOCAL = 2;
 
+	/** @var LangManager */
+	protected $manager;
+
 	/** @var int */
 	protected $visibility;
 	/** @var string[] */
@@ -48,7 +51,8 @@ class Message{
 	protected $translations = [];
 
 
-	public function __construct(MessageBlock $block){
+	public function __construct(LangManager $manager, MessageBlock $block){
+		$this->manager = $manager;
 		$this->setVisibility($block);
 		$this->setDocs($block);
 		$this->baseVersion = $block->getVersion() !== null ? $block->getVersion()->getTarget() : null;
@@ -100,6 +104,10 @@ class Message{
 		}
 	}
 
+
+	public function getManager() : LangManager{
+		return $this->manager;
+	}
 
 	public function getVisibility() : int{
 		return $this->visibility;
