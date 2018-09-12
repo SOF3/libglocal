@@ -20,7 +20,7 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Argument\Type\String;
+namespace SOFe\Libglocal\Argument\Type\Number;
 
 use pocketmine\command\CommandSender;
 use SOFe\Libglocal\Argument\ArgumentAttribute;
@@ -28,39 +28,26 @@ use SOFe\Libglocal\Argument\Type\ArgumentType;
 use SOFe\Libglocal\FormattedString;
 use SOFe\Libglocal\Parser\Ast\Attribute\AttributeValueElement;
 use SOFe\Libglocal\Parser\Ast\Constraint\ConstraintBlock;
-use SOFe\Libglocal\Parser\Ast\Constraint\LiteralConstraintBlock;
 use SOFe\Libglocal\Parser\Ast\Literal\LiteralElement;
 
-class StringArgumentType implements ArgumentType{
-	/** @var StringConstraint[] */
-	protected $constraints = [];
-	/** @var AttributeValueElement|null */
-	protected $default = null;
+class NumberArgumentType implements ArgumentType{
+	/** @var bool */
+	protected $float;
+
+	public function __construct(bool $float){
+		$this->float = $float;
+	}
 
 	public function getType() : string{
-		return "string";
+		return $this->float ? "float": "int";
 	}
 
 	public function setDefault(AttributeValueElement $default) : void{
-		$this->default = $default;
+
 	}
 
 	public function applyConstraint(ConstraintBlock $constraint) : void{
-		if($constraint instanceof LiteralConstraintBlock){
-			switch($constraint->getDirective()){
-				case "enum":
-					$this->constraints[] = new ExactStringConstraint($constraint->getValue()->requireStatic(), false);
-					return;
-				case "ienum":
-					$this->constraints[] = new ExactStringConstraint($constraint->getValue()->requireStatic(), true);
-					return;
-				case "pattern":
-					$this->constraints[] = new PatternStringConstraint($constraint->getValue()->requireStatic());
-					return;
-			}
-		}
-
-		$constraint->throwInit("Incompatible constraint $constraint applied on argument/field of string type");
+		$constraint->throwInit("Incompatible constraint $constraint applied on argument/field of {$this->getType()} type");
 	}
 
 	/**
@@ -71,7 +58,7 @@ class StringArgumentType implements ArgumentType{
 	 * @return FormattedString
 	 */
 	public function toString($value, CommandSender $context, array $attributes) : FormattedString{
-
+		// TODO
 	}
 
 	public function onPostParse() : void{

@@ -70,6 +70,11 @@ class LibglocalLexerGenerator{
 				return;
 			}
 
+			if($identifiers === -3){
+				yield from $this->attributeValue($reader);
+				continue;
+			}
+
 			if($identifiers === 0){
 				yield from $this->literal($reader, false);
 				if($reader->startsWith("\r\n")){
@@ -82,8 +87,13 @@ class LibglocalLexerGenerator{
 				}
 			}
 
-			if($identifiers === -1 && $reader->startsWith("=")){
+			if($identifiers < 0 && $reader->startsWith("=")){
 				yield new Token(Token::EQUALS, $reader->readExpected("="));
+				if($identifiers === -1){
+					$identifiers = 0;
+				}else{
+					$identifiers = -3;
+				}
 				continue;
 			}
 
@@ -208,9 +218,8 @@ class LibglocalLexerGenerator{
 		}
 
 		if($reader->startsWith('$')){
-			$reader->advance(1);
-			yield new Token(Token::MOD_ARG, '$');
-			return 2;
+			yield new Token(Token::MOD_ARG, $reader->readExpected('$'));
+			return -2;
 		}
 
 		if($reader->startsWith('*')){

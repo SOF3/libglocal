@@ -20,7 +20,7 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Argument\Type\String;
+namespace SOFe\Libglocal\Argument\Type\List_;
 
 use pocketmine\command\CommandSender;
 use SOFe\Libglocal\Argument\ArgumentAttribute;
@@ -28,39 +28,26 @@ use SOFe\Libglocal\Argument\Type\ArgumentType;
 use SOFe\Libglocal\FormattedString;
 use SOFe\Libglocal\Parser\Ast\Attribute\AttributeValueElement;
 use SOFe\Libglocal\Parser\Ast\Constraint\ConstraintBlock;
-use SOFe\Libglocal\Parser\Ast\Constraint\LiteralConstraintBlock;
 use SOFe\Libglocal\Parser\Ast\Literal\LiteralElement;
 
-class StringArgumentType implements ArgumentType{
-	/** @var StringConstraint[] */
-	protected $constraints = [];
-	/** @var AttributeValueElement|null */
-	protected $default = null;
+class ListArgumentType implements ArgumentType{
+	/** @var ArgumentType */
+	protected $delegate;
+
+	public function __construct(ArgumentType $delegate){
+		$this->delegate = $delegate;
+	}
 
 	public function getType() : string{
-		return "string";
+		return "list:" . $this->delegate->getType();
 	}
 
 	public function setDefault(AttributeValueElement $default) : void{
-		$this->default = $default;
+		$default->throwInit("List arguments cannot have default values and are always required arguments");
 	}
 
 	public function applyConstraint(ConstraintBlock $constraint) : void{
-		if($constraint instanceof LiteralConstraintBlock){
-			switch($constraint->getDirective()){
-				case "enum":
-					$this->constraints[] = new ExactStringConstraint($constraint->getValue()->requireStatic(), false);
-					return;
-				case "ienum":
-					$this->constraints[] = new ExactStringConstraint($constraint->getValue()->requireStatic(), true);
-					return;
-				case "pattern":
-					$this->constraints[] = new PatternStringConstraint($constraint->getValue()->requireStatic());
-					return;
-			}
-		}
-
-		$constraint->throwInit("Incompatible constraint $constraint applied on argument/field of string type");
+		$this->delegate->applyConstraint($constraint);
 	}
 
 	/**
@@ -75,6 +62,5 @@ class StringArgumentType implements ArgumentType{
 	}
 
 	public function onPostParse() : void{
-
 	}
 }

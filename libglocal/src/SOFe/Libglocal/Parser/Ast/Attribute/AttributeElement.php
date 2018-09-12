@@ -43,7 +43,7 @@ class AttributeElement extends AstNode{
 
 	protected function complete() : void{
 		$this->expectToken(Token::EQUALS);
-		$this->expectAnyChildren(LiteralAttributeValueElement::class, NumberAttributeValueElement::class,
+		$this->value = $this->expectAnyChildren(LiteralAttributeValueElement::class, NumberAttributeValueElement::class,
 			ArgumentAttributeValueElement::class, MessageAttributeValueElement::class);
 	}
 

@@ -63,10 +63,10 @@ messages LibglocalExample
 
 		defaults These scalar types can have default values.
 				| ${str}, ${integer}, ${float} and ${bool} will show "foo" "1234" "-3.14" "false" if no arguments are passed.
-			$str string foo
-			$integer int 1234
-			$float float -3.140
-			$bool bool false
+			$str string = foo
+			$integer int = 1234
+			$float float = -3.140
+			$bool bool = 0
 
 		quantity ${apples @one={apple} @={apples}} reads "3 apples" when apples = 3, "1 apple" when apple is one
 			$apples int
@@ -99,11 +99,11 @@ messages LibglocalExample
 				| Each extra . in the beginning represents "parent group", just like "/.." in a filesystem.
 
 		requires-args This message will be included with ${arg1}, ${arg2}, ${arg3}, ${arg4} and ${arg5}.
-			$arg1 string foo
-			$arg2 string bar
-			$arg3 float -3.14
-			$arg4 string qux
-			$arg5 string corge
+			$arg1 string = {foo}
+			$arg2 string = {bar}
+			$arg3 float = -3.14
+			$arg4 string = {qux}
+			$arg5 string = {corge}
 		use-args Now we can reference it like this: #{.requires-args arg1={literal string} arg2={\0} arg3=-2.76 arg4=myarg arg5={arguments  ${myarg2} and messages #{.requires-args arg1={with stacked arguments}} are also valid}}
 				| Any number of spaces, tabs, commas and line breaks are allowed between arguments, like this: #{.requires-args
 					arg1={literal}

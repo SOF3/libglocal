@@ -22,7 +22,13 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\Parser\Ast\Modifier;
 
+use SOFe\Libglocal\Parser\Ast\Attribute\ArgumentAttributeValueElement;
+use SOFe\Libglocal\Parser\Ast\Attribute\AttributeValueElement;
+use SOFe\Libglocal\Parser\Ast\Attribute\LiteralAttributeValueElement;
+use SOFe\Libglocal\Parser\Ast\Attribute\MessageAttributeValueElement;
+use SOFe\Libglocal\Parser\Ast\Attribute\NumberAttributeValueElement;
 use SOFe\Libglocal\Parser\Ast\BlockParentAstNode;
+use SOFe\Libglocal\Parser\Ast\Constraint\ConstraintBlock;
 use SOFe\Libglocal\Parser\Ast\Constraint\FieldConstraintBlock;
 use SOFe\Libglocal\Parser\Ast\Constraint\GenericConstraintBlock;
 use SOFe\Libglocal\Parser\Ast\Literal\LiteralElement;
@@ -36,10 +42,10 @@ abstract class ArgLikeBlock extends BlockParentAstNode{
 	protected $typeFlags = [];
 	/** @var string */
 	protected $type = "string";
-	/** @var LiteralElement|null */
+	/** @var AttributeValueElement|null */
 	protected $default;
-	/** @var FieldConstraintBlock[] */
-	protected $fields = [];
+	/** @var ConstraintBlock[] */
+	protected $constraints = [];
 
 	protected function accept() : bool{
 		return $this->acceptToken(Token::MOD_ARG) !== null;
@@ -52,12 +58,15 @@ abstract class ArgLikeBlock extends BlockParentAstNode{
 		}
 		if(($type = $this->acceptToken(Token::IDENTIFIER)) !== null){
 			$this->type = $type->getCode();
-			$this->default = $this->acceptAnyChildren(LiteralElement::class);
+			if($this->acceptToken(Token::EQUALS)){
+				$this->default = $this->expectAnyChildren(LiteralAttributeValueElement::class, NumberAttributeValueElement::class,
+					ArgumentAttributeValueElement::class, MessageAttributeValueElement::class);
+			}
 		}
 	}
 
 	protected function acceptChild() : void{
-		$this->fields[] = $this->expectAnyChildren(FieldConstraintBlock::class, GenericConstraintBlock::class, MathRuleBlock::class);
+		$this->constraints[] = $this->expectAnyChildren(FieldConstraintBlock::class, GenericConstraintBlock::class, MathRuleBlock::class);
 	}
 
 	public function jsonSerialize() : array{
@@ -68,7 +77,7 @@ abstract class ArgLikeBlock extends BlockParentAstNode{
 				"name" => $this->name,
 			],
 			"default" => $this->default,
-			"fields" => $this->fields,
+			"constraints" => $this->constraints,
 		];
 	}
 
@@ -88,14 +97,14 @@ abstract class ArgLikeBlock extends BlockParentAstNode{
 		return $this->typeFlags;
 	}
 
-	public function getDefault() : ?LiteralElement{
+	public function getDefault() : ?AttributeValueElement{
 		return $this->default;
 	}
 
 	/**
-	 * @return FieldConstraintBlock[]
+	 * @return ConstraintBlock[]
 	 */
-	public function getFields() : array{
-		return $this->fields;
+	public function getConstraints() : array{
+		return $this->constraints;
 	}
 }

@@ -23,6 +23,14 @@ declare(strict_types=1);
 namespace SOFe\Libglocal\Argument;
 
 use SOFe\Libglocal\Argument\Type\ArgumentType;
+use SOFe\Libglocal\Argument\Type\Bool\BoolArgumentType;
+use SOFe\Libglocal\Argument\Type\List_\ListArgumentType;
+use SOFe\Libglocal\Argument\Type\Number\NumberArgumentType;
+use SOFe\Libglocal\Argument\Type\Object\ObjectArgumentType;
+use SOFe\Libglocal\Argument\Type\String\StringArgumentType;
+use SOFe\Libglocal\Parser\Ast\Modifier\ArgLikeBlock;
+use SOFe\Libglocal\Parser\Token;
+use function assert;
 
 class Argument{
 	/** @var string */
@@ -34,5 +42,44 @@ class Argument{
 	public function __construct(string $id, ArgumentType $type){
 		$this->id = $id;
 		$this->type = $type;
+	}
+
+	public static function createType(ArgLikeBlock $arg, int $listLevels = 0) : ArgumentType{
+		$type = self::newType($arg, $listLevels);
+		if($arg->getDefault() !== null){
+			$type->setDefault($arg->getDefault());
+		}
+		foreach($arg->getConstraints() as $constraint){
+			$type->applyConstraint($constraint);
+		}
+		$type->onPostParse();
+		return $type;
+	}
+
+	private static function newType(ArgLikeBlock $arg, int $listLevels) : ArgumentType{
+		$remListLevels = $listLevels;
+		foreach($arg->getTypeFlags() as $flag){
+			if($flag->getType() === Token::FLAG_LIST){
+				if($remListLevels === 0){
+					return new ListArgumentType(self::createType($arg, $listLevels + 1));
+				}
+				$remListLevels--;
+			}
+		}
+		assert($remListLevels === 0);
+		switch($arg->getType()){
+			case "string":
+				return new StringArgumentType();
+			case "int":
+				return new NumberArgumentType(false);
+			case "float":
+				return new NumberArgumentType(true);
+			case "bool":
+				return new BoolArgumentType();
+			case "object":
+				return new ObjectArgumentType();
+		}
+
+		throw $arg->throwInit("Unknown argument type " . $arg->getType());
 	}
 }

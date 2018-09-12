@@ -23,31 +23,32 @@ declare(strict_types=1);
 namespace SOFe\Libglocal\Parser\Ast\Modifier;
 
 use SOFe\Libglocal\Parser\Ast\AstNode;
-use SOFe\Libglocal\Parser\Ast\Literal\StaticLiteralElement;
 use SOFe\Libglocal\Parser\Token;
 
-class DocModifier extends AstNode{
-	/** @var StaticLiteralElement|null */
-	protected $value;
+class VersionModifierBlock extends AstNode{
+	/** @var string */
+	protected $target;
 
 	protected function accept() : bool{
-		return $this->acceptToken(Token::MOD_DOC) !== null;
+		return $this->acceptToken(Token::MOD_VERSION) !== null;
 	}
 
 	protected function complete() : void{
-		$this->value = $this->acceptAnyChildren(StaticLiteralElement::class);
+		$this->expectToken(Token::IDENTIFIER)->getCode();
 	}
 
 	protected static function getNodeName() : string{
-		return "<doc>";
+		return "<version>";
 	}
 
-	public function jsonSerialize() : ?StaticLiteralElement{
-		return $this->value;
+	public function jsonSerialize() : array{
+		return [
+			"target" => $this->target,
+		];
 	}
 
 
-	public function getValue() : ?StaticLiteralElement{
-		return $this->value;
+	public function getTarget() : string{
+		return $this->target;
 	}
 }

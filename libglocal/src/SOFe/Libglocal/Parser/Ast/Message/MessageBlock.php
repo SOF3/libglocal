@@ -24,9 +24,9 @@ namespace SOFe\Libglocal\Parser\Ast\Message;
 
 use SOFe\Libglocal\Parser\Ast\BlockParentAstNode;
 use SOFe\Libglocal\Parser\Ast\Literal\LiteralElement;
-use SOFe\Libglocal\Parser\Ast\Modifier\ArgModifier;
-use SOFe\Libglocal\Parser\Ast\Modifier\DocModifier;
-use SOFe\Libglocal\Parser\Ast\Modifier\VersionModifier;
+use SOFe\Libglocal\Parser\Ast\Modifier\ArgModifierBlock;
+use SOFe\Libglocal\Parser\Ast\Modifier\DocModifierBlock;
+use SOFe\Libglocal\Parser\Ast\Modifier\VersionModifierBlock;
 use SOFe\Libglocal\Parser\Token;
 
 class MessageBlock extends BlockParentAstNode{
@@ -37,11 +37,11 @@ class MessageBlock extends BlockParentAstNode{
 	/** @var LiteralElement */
 	protected $literal;
 
-	/** @var ArgModifier[] */
+	/** @var ArgModifierBlock[] */
 	protected $args = [];
-	/** @var DocModifier[] */
+	/** @var DocModifierBlock[] */
 	protected $docs = [];
-	/** @var VersionModifier|null */
+	/** @var VersionModifierBlock|null */
 	protected $version = null;
 
 
@@ -54,12 +54,12 @@ class MessageBlock extends BlockParentAstNode{
 	}
 
 	protected function acceptChild() : void{
-		$child = $this->expectAnyChildren(ArgModifier::class, DocModifier::class, VersionModifier::class);
-		if($child instanceof ArgModifier){
+		$child = $this->expectAnyChildren(ArgModifierBlock::class, DocModifierBlock::class, VersionModifierBlock::class);
+		if($child instanceof ArgModifierBlock){
 			$this->args[] = $child;
-		}elseif($child instanceof DocModifier){
+		}elseif($child instanceof DocModifierBlock){
 			$this->docs[] = $child;
-		}elseif($child instanceof VersionModifier){
+		}elseif($child instanceof VersionModifierBlock){
 			if($this->version !== null){
 				$this->throwParse("<version> can only be declared once");
 			}
@@ -108,20 +108,20 @@ class MessageBlock extends BlockParentAstNode{
 	}
 
 	/**
-	 * @return ArgModifier[]
+	 * @return ArgModifierBlock[]
 	 */
 	public function getArgs() : array{
 		return $this->args;
 	}
 
 	/**
-	 * @return DocModifier[]
+	 * @return DocModifierBlock[]
 	 */
 	public function getDocs() : array{
 		return $this->docs;
 	}
 
-	public function getVersion() : ?VersionModifier{
+	public function getVersion() : ?VersionModifierBlock{
 		return $this->version;
 	}
 }

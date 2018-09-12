@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace SOFe\Libglocal;
 
 use SOFe\Libglocal\Argument\Argument;
+use SOFe\Libglocal\Argument\Type\ArgumentType;
 use SOFe\Libglocal\Parser\Ast\Message\MessageBlock;
 use SOFe\Libglocal\Parser\Token;
 use SOFe\Libglocal\Translation\Translation;
@@ -52,6 +53,8 @@ class Message{
 		$this->setVisibility($block);
 		$this->setDocs($block);
 		$this->baseVersion = $block->getVersion() !== null ? $block->getVersion()->getTarget() : null;
+
+		$this->setArguments($block);
 	}
 
 	protected function setVisibility(MessageBlock $block) : void{
@@ -88,5 +91,45 @@ class Message{
 		if(!empty($temp)){
 			$this->docs[] = implode(" ", $temp);
 		}
+	}
+
+	protected function setArguments(MessageBlock $block) : void{
+		foreach($block->getArgs() as $arg){
+			$argument = new Argument($arg->getName(), Argument::createType($arg));
+		}
+	}
+
+
+	public function getVisibility() : int{
+		return $this->visibility;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getDocs() : array{
+		return $this->docs;
+	}
+
+	public function getBaseVersion() : ?string{
+		return $this->baseVersion;
+	}
+
+	/**
+	 * @return Argument[]
+	 */
+	public function getArguments() : array{
+		return $this->arguments;
+	}
+
+	public function getBaseTranslation() : Translation{
+		return $this->baseTranslation;
+	}
+
+	/**
+	 * @return Translation[]
+	 */
+	public function getTranslations() : array{
+		return $this->translations;
 	}
 }

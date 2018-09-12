@@ -46,6 +46,8 @@ class LangManager{
 	protected $modules = [];
 	/** @var Message[] */
 	protected $messages = [];
+	/** @var Message[][] */
+	protected $localMessages = [];
 
 
 	/** @var MathRule[][] */
@@ -126,16 +128,22 @@ class LangManager{
 	}
 
 	protected function registerMessages(LibglocalFile $file) : void{
-		/** @var MessageBlock $message */
-		foreach($this->visitMessages(null, $file->getMessages()) as $message){
-			if(isset($this->messages[$message->getId()])){
-				throw $file->throwInit("Duplicate definition of message " . $message->getId());
+		/** @var MessageBlock $block */
+		foreach($this->visitMessages(null, $file->getMessages()) as $block){
+			$message = new Message($block);
+			if($message->getVisibility() === Message::LOCAL){
+				$messages =& $this->localMessages[$file->getLang()->getId()];
+			}else{
+				$messages =& $this->messages;
 			}
-			$this->messages[$message->getId()] = new Message($message);
+			if(isset($messages[$block->getId()])){
+				throw $file->throwInit("Duplicate definition of message " . $block->getId());
+			}
+			$messages[$block->getId()] = $message;
 		}
 	}
 
 	protected function loadTranslations(LibglocalFile $file) : void{
-
+		// TODO
 	}
 }

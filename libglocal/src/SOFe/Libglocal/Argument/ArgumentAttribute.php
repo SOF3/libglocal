@@ -20,10 +20,8 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast\Modifier;
+namespace SOFe\Libglocal\Argument;
 
-class ArgModifier extends ArgLikeBlock{
-	protected static function getNodeName() : string{
-		return "arg";
-	}
+class ArgumentAttribute{
+
 }

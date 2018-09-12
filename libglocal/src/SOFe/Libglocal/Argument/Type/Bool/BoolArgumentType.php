@@ -20,10 +20,10 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast\Attribute;
+namespace SOFe\Libglocal\Argument\Type\Bool;
 
-use SOFe\Libglocal\Parser\Ast\IAstNode;
+use SOFe\Libglocal\Argument\Type\ArgumentType;
 
-interface AttributeValueElement extends IAstNode{
+class BoolArgumentType implements ArgumentType{
 
 }

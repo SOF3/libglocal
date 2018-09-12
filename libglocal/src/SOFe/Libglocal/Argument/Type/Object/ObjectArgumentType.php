@@ -20,46 +20,40 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Argument\Type\String;
+namespace SOFe\Libglocal\Argument\Type\Object;
 
+use function mb_strpos;
 use pocketmine\command\CommandSender;
+use SOFe\Libglocal\Argument\Argument;
 use SOFe\Libglocal\Argument\ArgumentAttribute;
 use SOFe\Libglocal\Argument\Type\ArgumentType;
 use SOFe\Libglocal\FormattedString;
 use SOFe\Libglocal\Parser\Ast\Attribute\AttributeValueElement;
 use SOFe\Libglocal\Parser\Ast\Constraint\ConstraintBlock;
-use SOFe\Libglocal\Parser\Ast\Constraint\LiteralConstraintBlock;
+use SOFe\Libglocal\Parser\Ast\Constraint\FieldConstraintBlock;
 use SOFe\Libglocal\Parser\Ast\Literal\LiteralElement;
+use function strpos;
 
-class StringArgumentType implements ArgumentType{
-	/** @var StringConstraint[] */
-	protected $constraints = [];
-	/** @var AttributeValueElement|null */
-	protected $default = null;
+class ObjectArgumentType implements ArgumentType{
+	/** @var Argument[] */
+	protected $fields = [];
 
 	public function getType() : string{
-		return "string";
+		return "object";
 	}
 
 	public function setDefault(AttributeValueElement $default) : void{
-		$this->default = $default;
+		throw $default->throwInit("Objects cannot have default values. The default values should be placed in the fields");
 	}
 
 	public function applyConstraint(ConstraintBlock $constraint) : void{
-		if($constraint instanceof LiteralConstraintBlock){
-			switch($constraint->getDirective()){
-				case "enum":
-					$this->constraints[] = new ExactStringConstraint($constraint->getValue()->requireStatic(), false);
-					return;
-				case "ienum":
-					$this->constraints[] = new ExactStringConstraint($constraint->getValue()->requireStatic(), true);
-					return;
-				case "pattern":
-					$this->constraints[] = new PatternStringConstraint($constraint->getValue()->requireStatic());
-					return;
+		if($constraint instanceof FieldConstraintBlock){
+			if(mb_strpos($constraint->getName(), ".") !== false){
+				throw $constraint->throwParse("Object fields must not contain dots");
 			}
+			$this->fields[$constraint->getName()] = new Argument($constraint->getName(), Argument::createType($constraint));
+			return;
 		}
-
 		$constraint->throwInit("Incompatible constraint $constraint applied on argument/field of string type");
 	}
 
@@ -75,6 +69,5 @@ class StringArgumentType implements ArgumentType{
 	}
 
 	public function onPostParse() : void{
-
 	}
 }
