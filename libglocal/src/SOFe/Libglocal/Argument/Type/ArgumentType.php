@@ -20,7 +20,7 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Argument;
+namespace SOFe\Libglocal\Argument\Type;
 
 use pocketmine\command\CommandSender;
 use SOFe\Libglocal\Argument\Attribute\ArgumentAttribute;

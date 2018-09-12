@@ -20,19 +20,22 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Argument;
+namespace SOFe\Libglocal\Argument\Type\String;
 
-use SOFe\Libglocal\Argument\Type\ArgumentType;
+use function mb_strtolower;
 
-class Argument{
+class ExactStringConstraint implements StringConstraint{
+	/** @var bool */
+	protected $noCase;
 	/** @var string */
-	protected $id;
+	protected $expected;
 
-	/** @var ArgumentType */
-	protected $type;
+	public function __construct(string $expected, bool $noCase){
+		$this->noCase = $noCase;
+		$this->expected = $noCase ? mb_strtolower($expected) : $expected;
+	}
 
-	public function __construct(string $id, ArgumentType $type){
-		$this->id = $id;
-		$this->type = $type;
+	public function test(string $string) : bool{
+		return ($this->noCase ? mb_strtolower($string) : $string) === $this->expected;
 	}
 }

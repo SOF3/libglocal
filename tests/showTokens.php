@@ -25,7 +25,7 @@ use SOFe\Libglocal\Parser\Lexer\LibglocalLexer;
 require_once __DIR__ . "/autoload.php";
 
 $data = file_get_contents(__DIR__ . "/../LibglocalExample/resources/lang/en_US.lang");
-$lexer = new LibglocalLexer($data);
+$lexer = new LibglocalLexer("LibglocalExample/.../en_US.lang", $data);
 
 while(true){
 	$token = $lexer->next();

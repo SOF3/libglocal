@@ -38,6 +38,9 @@ use function strlen;
 use function substr;
 
 class LibglocalLexer{
+	/** @var string */
+	protected $fileName;
+
 	/** @var StringReader */
 	protected $reader;
 	/** @var Generator */
@@ -55,8 +58,9 @@ class LibglocalLexer{
 	/** @var Token[] */
 	protected $future = [];
 
-	public function __construct(string $data){
-		$this->reader = new StringReader($data);
+	public function __construct(string $fileName, string $data){
+		$this->fileName = $fileName;
+		$this->reader = new StringReader($fileName, $data);
 		$this->generator = (new LibglocalLexerGenerator)->lex($this->reader);
 		$this->peer = $data;
 	}
@@ -89,17 +93,17 @@ class LibglocalLexer{
 		return false;
 	}
 
-//	public function getLine() : int{
-//		if(!empty($this->future)){
-//			return $this->future[0]->getLine();
-//		}
-//		$next = $this->nextTokenSkipping();
-//		if($next === null){
-//			return -1;
-//		}
-//		$this->future[] = $next;
-//		return $next->getLine();
-//	}
+	public function getLine() : int{
+		if(!empty($this->future)){
+			return $this->future[0]->getLine();
+		}
+		$next = $this->nextTokenSkipping();
+		if($next === null){
+			return -1;
+		}
+		$this->future[] = $next;
+		return $next->getLine();
+	}
 
 	public function next() : ?Token{
 		if(empty($this->future)){
@@ -166,10 +170,14 @@ class LibglocalLexer{
 	public function throwExpect(string $expect, Token $token = null) : ParseException{
 		$token = $token ?? $this->next();
 		if($token === null){
-			throw new ParseException("Expecting $expect, end of line reached");
+			throw new ParseException("Expecting $expect, end of line reached", $this->fileName);
 		}
 		assert($token !== null);
-		throw $token->throwExpect($expect);
+		throw $token->throwExpect($expect, $this->fileName);
+	}
+
+	public function getFileName() : string{
+		return $this->fileName;
 	}
 
 	public function __debugInfo(){

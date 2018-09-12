@@ -158,12 +158,8 @@ final class Token implements JsonSerializable{
 		$this->line = $line;
 	}
 
-	public function throwExpect(string $expect) : ParseException{
-		throw new ParseException("Expecting $expect, got {$this->getTypeName()} on line {$this->line}");
-	}
-
-	public function throwUnexpected() : ParseException{
-		throw new ParseException("Unexpected {$this->getTypeName()} on line {$this->line}");
+	public function throwExpect(string $expect, string $fileName) : ParseException{
+		throw new ParseException("Expecting $expect, got {$this->getTypeName()} on line {$this->line}", $fileName);
 	}
 
 	public function jsonSerialize(){

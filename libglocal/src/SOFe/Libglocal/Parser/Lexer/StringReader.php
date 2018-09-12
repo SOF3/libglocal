@@ -34,12 +34,15 @@ use function substr;
 
 class StringReader{
 	/** @var string */
+	protected $fileName;
+	/** @var string */
 	protected $string;
 	/** @var int */
 	protected $length;
 	protected $line = 1;
 
-	public function __construct(string $string){
+	public function __construct(string $fileName, string $string){
+		$this->fileName = $fileName;
 		$this->string = $string;
 		$this->length = mb_strlen($this->string);
 	}
@@ -119,7 +122,7 @@ class StringReader{
 		}else{
 			$got = json_encode($this->string);
 		}
-		throw new LexException("$message on line {$this->line}, got $got");
+		throw new LexException("$message, got $got on line {$this->line}", $this->fileName);
 	}
 
 	public function getRemainingString() : string{

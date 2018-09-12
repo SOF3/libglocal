@@ -36,4 +36,15 @@ class LiteralElement extends AbstractLiteralElement{
 	protected static function getNodeName() : string{
 		return "literal";
 	}
+
+	public function requireStatic() : string{
+		$output = "";
+		foreach($this->components as $component){
+			if(!($component instanceof LiteralStringComponentElement)){
+				$this->throwInit("Dynamic resolution is not allowed");
+			}
+			$output .= $component->toString();
+		}
+		return $output;
+	}
 }

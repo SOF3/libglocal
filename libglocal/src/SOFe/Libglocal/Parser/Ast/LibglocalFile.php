@@ -31,7 +31,6 @@ use SOFe\Libglocal\Parser\Ast\Meta\RequireBlock;
 use SOFe\Libglocal\Parser\Ast\Meta\UseBlock;
 use SOFe\Libglocal\Parser\Ast\Meta\VersionBlock;
 use SOFe\Libglocal\Parser\Lexer\LibglocalLexer;
-use SOFe\Libglocal\Parser\ParseException;
 
 class LibglocalFile extends AstNode{
 	/** @var LangBlock */
@@ -50,7 +49,7 @@ class LibglocalFile extends AstNode{
 	protected $messages;
 
 	public function __construct(LibglocalLexer $lexer){
-		parent::__construct($lexer);
+		parent::__construct($lexer, 1);
 		$this->complete();
 	}
 
@@ -59,14 +58,14 @@ class LibglocalFile extends AstNode{
 			$child = $this->expectAnyChildren(LangBlock::class, AuthorBlock::class, VersionBlock::class, RequireBlock::class, UseBlock::class, MathRuleBlock::class, MessagesBlock::class);
 			if($child instanceof LangBlock){
 				if($this->lang !== null){
-					throw new ParseException("<lang> can only be declared once");
+					throw $this->throwParse("<lang> can only be declared once");
 				}
 				$this->lang = $child;
 			}elseif($child instanceof AuthorBlock){
 				$this->authors[] = $child;
 			}elseif($child instanceof VersionBlock){
 				if($this->version !== null){
-					throw new ParseException("<version> can only be declared once");
+					throw $this->throwParse("<version> can only be declared once");
 				}
 				$this->version = $child;
 			}elseif($child instanceof RequireBlock){
@@ -83,11 +82,11 @@ class LibglocalFile extends AstNode{
 			}
 		}
 		if(!$this->lexer->eof()){
-			throw new ParseException("<messages> must be the last block");
+			throw $this->throwParse("<messages> must be the last block");
 		}
 
 		if($this->lang === null){
-			throw new ParseException("Missing <lang>");
+			throw $this->throwParse("Missing <lang>");
 		}
 	}
 

@@ -27,7 +27,6 @@ use SOFe\Libglocal\Parser\Ast\Literal\LiteralElement;
 use SOFe\Libglocal\Parser\Ast\Modifier\ArgModifier;
 use SOFe\Libglocal\Parser\Ast\Modifier\DocModifier;
 use SOFe\Libglocal\Parser\Ast\Modifier\VersionModifier;
-use SOFe\Libglocal\Parser\ParseException;
 use SOFe\Libglocal\Parser\Token;
 
 class MessageBlock extends BlockParentAstNode{
@@ -62,7 +61,7 @@ class MessageBlock extends BlockParentAstNode{
 			$this->docs[] = $child;
 		}elseif($child instanceof VersionModifier){
 			if($this->version !== null){
-				throw new ParseException("<version> can only be declared once");
+				$this->throwParse("<version> can only be declared once");
 			}
 			$this->version = $child;
 		}

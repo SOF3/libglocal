@@ -25,7 +25,7 @@ namespace SOFe\Libglocal\Parser;
 use SOFe\Libglocal\InitException;
 
 class ParseException extends InitException{
-	public function __construct(string $message){
-		parent::__construct($message);
+	public function __construct(string $message, string $fileName){
+		parent::__construct($message, $fileName);
 	}
 }

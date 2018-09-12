@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\Parser\Ast\Constraint;
 
-interface ConstraintBlock{
+use SOFe\Libglocal\Parser\Ast\IAstNode;
 
+interface ConstraintBlock extends IAstNode{
+	public function inErrorString() : string;
 }

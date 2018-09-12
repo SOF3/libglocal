@@ -20,19 +20,19 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Argument;
+namespace SOFe\Libglocal\Argument\Type\String;
 
-use SOFe\Libglocal\Argument\Type\ArgumentType;
+use function preg_match;
 
-class Argument{
+class PatternStringConstraint implements StringConstraint{
 	/** @var string */
-	protected $id;
+	protected $pattern;
 
-	/** @var ArgumentType */
-	protected $type;
+	public function __construct(string $pattern){
+		$this->pattern = $pattern;
+	}
 
-	public function __construct(string $id, ArgumentType $type){
-		$this->id = $id;
-		$this->type = $type;
+	public function test(string $string) : bool{
+		return preg_match($this->pattern, $string) === 1;
 	}
 }

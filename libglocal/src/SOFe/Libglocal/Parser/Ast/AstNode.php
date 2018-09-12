@@ -23,18 +23,23 @@ declare(strict_types=1);
 namespace SOFe\Libglocal\Parser\Ast;
 
 use JsonSerializable;
+use SOFe\Libglocal\InitException;
 use SOFe\Libglocal\Parser\Lexer\LibglocalLexer;
+use SOFe\Libglocal\Parser\ParseException;
 use SOFe\Libglocal\Parser\Token;
 use function array_map;
 use function count;
 use function implode;
 
-abstract class AstNode implements JsonSerializable{
+abstract class AstNode implements JsonSerializable, IAstNode{
 	/** @var LibglocalLexer */
 	protected $lexer;
+	/** @var int */
+	protected $line;
 
-	protected function __construct(LibglocalLexer $lexer){
+	protected function __construct(LibglocalLexer $lexer, int $line){
 		$this->lexer = $lexer;
+		$this->line = $line;
 	}
 
 	protected function accept() : bool{
@@ -53,11 +58,12 @@ abstract class AstNode implements JsonSerializable{
 
 	private function readAnyChildren(array $classes, bool $throw) : ?AstNode{
 		foreach($classes as $class){
+			/** @noinspection DisconnectedForeachInstructionInspection */
 			if(count($classes) > 1){
 				$this->lexer->createStack();
 			}
 			/** @var AstNode $node */
-			$node = new $class($this->lexer);
+			$node = new $class($this->lexer, $this->lexer->getLine());
 			$accepted = $node->accept();
 
 			if(count($classes) > 1){
@@ -115,6 +121,22 @@ abstract class AstNode implements JsonSerializable{
 			$this->lexer->rewind($token);
 		}
 		return null;
+	}
+
+	public function getFileName() : string{
+		return $this->lexer->getFileName();
+	}
+
+	public function getLine() : int{
+		return $this->line;
+	}
+
+	public function throwParse(string $message) : InitException{
+		throw new ParseException($message . " on line " . $this->getLine(), $this->getFileName());
+	}
+
+	public function throwInit(string $message) : InitException{
+		throw new InitException($message . " on line " . $this->getLine(), $this->getFileName());
 	}
 
 	protected static abstract function getNodeName() : string;

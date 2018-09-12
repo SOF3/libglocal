@@ -23,15 +23,15 @@ declare(strict_types=1);
 namespace SOFe\Libglocal;
 
 use Generator;
-use function implode;
 use pocketmine\plugin\Plugin;
-use RuntimeException;
 use SOFe\Libglocal\Graph\GenericGraph;
 use SOFe\Libglocal\Math\MathPredicate;
 use SOFe\Libglocal\Math\MathRule;
 use SOFe\Libglocal\Parser\Ast\LibglocalFile;
+use SOFe\Libglocal\Parser\Ast\Message\MessageBlock;
 use SOFe\Libglocal\Parser\Ast\Message\MessageParentBlock;
 use SOFe\Libglocal\Parser\Lexer\LibglocalLexer;
+use function implode;
 
 class LangManager{
 	/** @var Plugin */
@@ -52,8 +52,8 @@ class LangManager{
 	protected $mathRules = [];
 
 
-	public function loadLang(string $data) : void{
-		$lexer = new LibglocalLexer($data);
+	public function loadLang(string $fileName, string $data) : void{
+		$lexer = new LibglocalLexer($fileName, $data);
 		$file = new LibglocalFile($lexer);
 		if($file->getLang()->isBase()){
 			$this->baseFiles[] = $file;
@@ -70,27 +70,50 @@ class LangManager{
 		foreach($this->baseFiles as $after){
 			foreach($after->getRequires() as $before){
 				if(!$graph->addEdge($before->getTarget(), $after->getMessages()->getModule())){
-					throw new InitException("Dependency module {$before->getTarget()} has not been loaded");
+					$after->throwInit("Dependency module {$before->getTarget()} has not been loaded, required");
 				}
 			}
 		}
 
 		$sorted = $graph->topSort($badModules);
 		if($sorted === null){
-			throw new InitException("Cyclic dependency detected among modules " . implode(", ", $badModules));
+			throw new InitException("Cyclic dependency detected among modules " . implode(", ", $badModules), null);
 		}
 
 		foreach($sorted as $file){
-			$this->register($file);
+			$this->registerMathRules($file);
+		}
+		foreach($sorted as $file){
+			$this->registerMessages($file);
+		}
+
+
+		foreach($this->overrideFiles as $file){
+			$this->loadTranslations($file);
 		}
 	}
 
 	protected function register(LibglocalFile $file) : void{
+		$this->registerMathRules($file);
+		$this->registerMessages($file);
+	}
+
+	protected function visitMessages(?string $parent, MessageParentBlock $block) : Generator{
+		$prefix = $parent !== null ? "{$parent}." : "";
+		foreach($block->getGroups() as $group){
+			yield from $this->visitMessages($prefix . $group->getId(), $group);
+		}
+		foreach($block->getMessages() as $message){
+			yield $prefix . $message->getId() => $message;
+		}
+	}
+
+	protected function registerMathRules(LibglocalFile $file) : void{
 		$lang = $file->getLang()->getId();
 
 		foreach($file->getMathRules() as $rule){
 			if($rule->isRestriction()){
-				throw new InitException("@@ math rules are not allowed at the global context");
+				$file->throwInit("@@ math rules are not allowed at the global context");
 			}
 
 
@@ -102,12 +125,17 @@ class LangManager{
 		}
 	}
 
-	protected function visitMessages(string $prefix, MessageParentBlock $block) : Generator{
-		foreach($block->getGroups() as $group){
-			yield from $this->visitMessages("$prefix.{$group->getId()}", $group);
+	protected function registerMessages(LibglocalFile $file) : void{
+		/** @var MessageBlock $message */
+		foreach($this->visitMessages(null, $file->getMessages()) as $message){
+			if(isset($this->messages[$message->getId()])){
+				throw $file->throwInit("Duplicate definition of message " . $message->getId());
+			}
+			$this->messages[$message->getId()] = new Message($message);
 		}
-		foreach($block->getMessages() as $message){
-			yield "{$prefix}.{$message->getId()}" => $message;
-		}
+	}
+
+	protected function loadTranslations(LibglocalFile $file) : void{
+
 	}
 }

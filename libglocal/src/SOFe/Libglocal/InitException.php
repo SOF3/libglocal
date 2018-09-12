@@ -26,7 +26,7 @@ use RuntimeException;
 use Throwable;
 
 class InitException extends RuntimeException{
-	public function __construct(string $message, ?Throwable $previous = null){
-		parent::__construct($message, 0, $previous);
+	public function __construct(string $message, ?string $fileName, ?Throwable $previous = null){
+		parent::__construct($message . ($fileName === null ? "" : " in $fileName"), 0, $previous);
 	}
 }

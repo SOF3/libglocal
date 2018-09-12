@@ -24,7 +24,6 @@ namespace SOFe\Libglocal\Parser\Ast\Literal\Component;
 
 use AssertionError;
 use SOFe\Libglocal\Parser\Ast\AstNode;
-use SOFe\Libglocal\Parser\ParseException;
 use SOFe\Libglocal\Parser\Token;
 
 class LiteralStringComponentElement extends AstNode implements LiteralComponentElement{
@@ -75,7 +74,7 @@ class LiteralStringComponentElement extends AstNode implements LiteralComponentE
 					case "\\":
 						return $this->token->getCode(){1};
 				}
-				throw new ParseException("Invalid escape");
+				$this->throwParse("Invalid escape");
 			case Token::CONT_NEWLINE:
 				return "\n";
 			case Token::CONT_SPACE:

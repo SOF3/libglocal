@@ -20,19 +20,8 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Argument;
+namespace SOFe\Libglocal\Argument\Type\String;
 
-use SOFe\Libglocal\Argument\Type\ArgumentType;
-
-class Argument{
-	/** @var string */
-	protected $id;
-
-	/** @var ArgumentType */
-	protected $type;
-
-	public function __construct(string $id, ArgumentType $type){
-		$this->id = $id;
-		$this->type = $type;
-	}
+interface StringConstraint{
+	public function test(string $string) : bool;
 }

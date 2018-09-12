@@ -22,82 +22,8 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\Parser\Ast\Modifier;
 
-use SOFe\Libglocal\Parser\Ast\BlockParentAstNode;
-use SOFe\Libglocal\Parser\Ast\Constraint\FieldConstraint;
-use SOFe\Libglocal\Parser\Ast\Literal\LiteralElement;
-use SOFe\Libglocal\Parser\Token;
-
-class ArgModifier extends BlockParentAstNode{
-	/** @var string */
-	protected $name;
-	/** @var Token[] */
-	protected $typeFlags = [];
-	/** @var string */
-	protected $type = "string";
-	/** @var LiteralElement|null */
-	protected $default;
-	/** @var FieldConstraint[] */
-	protected $fields = [];
-
-	protected function accept() : bool{
-		return $this->acceptToken(Token::MOD_ARG) !== null;
-	}
-
-	protected function initial() : void{
-		$this->name = $this->expectToken(Token::IDENTIFIER)->getCode();
-		while(($typeFlag = $this->acceptTokenCategory(Token::CATEGORY_FLAGS)) !== null){
-			$this->typeFlags[] = $typeFlag;
-		}
-		if(($type = $this->acceptToken(Token::IDENTIFIER)) !== null){
-			$this->type = $type->getCode();
-			$this->default = $this->acceptAnyChildren(LiteralElement::class);
-		}
-	}
-
-	protected function acceptChild() : void{
-		$this->fields[] = $this->expectAnyChildren(FieldConstraint::class);
-	}
-
+class ArgModifier extends ArgLikeBlock{
 	protected static function getNodeName() : string{
 		return "arg";
-	}
-
-	public function jsonSerialize() : array{
-		return [
-			"name" => $this->name,
-			"type" => [
-				"flags" => $this->typeFlags,
-				"name" => $this->name,
-			],
-			"default" => $this->default,
-			"fields" => $this->fields,
-		];
-	}
-
-
-	public function getName() : string{
-		return $this->name;
-	}
-
-	public function getType() : string{
-		return $this->type;
-	}
-
-	/**
-	 * @return Token[]
-	 */
-	public function getTypeFlags() : array{
-		return $this->typeFlags;
-	}
-
-	public function getDefault() : ?LiteralElement{
-		return $this->default;
-	}
-
-	/**
-	 * @return FieldConstraint[]
-	 */
-	public function getFields() : array{
-		return $this->fields;
 	}
 }

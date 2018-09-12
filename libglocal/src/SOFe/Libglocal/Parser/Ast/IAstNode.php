@@ -20,19 +20,14 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Argument;
+namespace SOFe\Libglocal\Parser\Ast;
 
-use SOFe\Libglocal\Argument\Type\ArgumentType;
+use SOFe\Libglocal\InitException;
 
-class Argument{
-	/** @var string */
-	protected $id;
+interface IAstNode{
+	public function getFileName() : string;
 
-	/** @var ArgumentType */
-	protected $type;
+	public function getLine() : int;
 
-	public function __construct(string $id, ArgumentType $type){
-		$this->id = $id;
-		$this->type = $type;
-	}
+	public function throwInit(string $message) : InitException;
 }

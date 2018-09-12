@@ -20,9 +20,12 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal;
+namespace SOFe\Libglocal\Translation;
 
 class Translation{
 	/** @var Translation|null */
-	protected $overrides;
+	protected $parent = null;
+
+
+	protected $components = [];
 }

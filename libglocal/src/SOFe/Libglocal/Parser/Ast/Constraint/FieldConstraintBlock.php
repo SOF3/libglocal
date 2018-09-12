@@ -20,27 +20,16 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast\Literal;
+namespace SOFe\Libglocal\Parser\Ast\Constraint;
 
-use SOFe\Libglocal\Parser\Ast\AstNode;
-use SOFe\Libglocal\Parser\Ast\Literal\Component\LiteralStringComponentElement;
-use function assert;
+use SOFe\Libglocal\Parser\Ast\Modifier\ArgLikeBlock;
 
-class StaticLiteralElement extends AbstractLiteralElement{
-	protected function acceptComponent() : ?AstNode{
-		return $this->acceptAnyChildren(LiteralStringComponentElement::class);
-	}
-
+class FieldConstraintBlock extends ArgLikeBlock implements ConstraintBlock{
 	protected static function getNodeName() : string{
-		return "static literal";
+		return "field";
 	}
 
-	public function toString() : string{
-		$output = "";
-		foreach($this->components as $component){
-			assert($component instanceof LiteralStringComponentElement);
-			$output .= $component->toString();
-		}
-		return $output;
+	public function inErrorString() : string{
+		return "\${$this->name}";
 	}
 }

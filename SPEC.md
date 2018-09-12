@@ -300,7 +300,7 @@ String is the default data type.
 PHP strings are used as-is. Objects that implement `SOFe\Libglocal\Stringable` or have a stringable mapping in configuration are converted to the `express()` value. Other values are not accepted.
 
 #### 5.1.2. Constraints
-`enum`/`pattern` can be declared multiple times for the same argument. If any `enum` or `pattern` constraints are declared, the accepted string value must be equal to one of the `enum` constraints or match one of the `pattern` regular expressions. The value is a literal, so the regex still needs to be escaped using literal rules. The pattern should be Perl-compatible. See https://php.net/pcre for documentation.
+`enum`/`ienum`/`pattern` can be declared multiple times for the same argument. If any `enum`/`ienum`/`pattern` constraints are declared, the accepted string value must be equal to one of the `enum` constraints, case-insensitively equal to one of the `ienum` constraints or match one of the `pattern` regular expressions. The value is a literal, so the regex still needs to be escaped using literal rules. The pattern should be Perl-compatible. See https://php.net/pcre for documentation.
 
 #### 5.1.3 Attributes
 `case`: `lower`, `upper` or `ucfirst`, converting string case. If not set, string case would not be converted.

@@ -20,13 +20,16 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast\Constraint;
+namespace SOFe\Libglocal\Parser\Ast\Modifier;
 
 use SOFe\Libglocal\Parser\Ast\BlockParentAstNode;
+use SOFe\Libglocal\Parser\Ast\Constraint\FieldConstraintBlock;
+use SOFe\Libglocal\Parser\Ast\Constraint\GenericConstraintBlock;
 use SOFe\Libglocal\Parser\Ast\Literal\LiteralElement;
+use SOFe\Libglocal\Parser\Ast\Math\MathRuleBlock;
 use SOFe\Libglocal\Parser\Token;
 
-class FieldConstraint extends BlockParentAstNode implements ConstraintBlock{
+abstract class ArgLikeBlock extends BlockParentAstNode{
 	/** @var string */
 	protected $name;
 	/** @var Token[] */
@@ -35,7 +38,7 @@ class FieldConstraint extends BlockParentAstNode implements ConstraintBlock{
 	protected $type = "string";
 	/** @var LiteralElement|null */
 	protected $default;
-	/** @var FieldConstraint[] */
+	/** @var FieldConstraintBlock[] */
 	protected $fields = [];
 
 	protected function accept() : bool{
@@ -54,11 +57,7 @@ class FieldConstraint extends BlockParentAstNode implements ConstraintBlock{
 	}
 
 	protected function acceptChild() : void{
-		$this->fields[] = $this->expectAnyChildren(FieldConstraint::class);
-	}
-
-	protected static function getNodeName() : string{
-		return "field";
+		$this->fields[] = $this->expectAnyChildren(FieldConstraintBlock::class, GenericConstraintBlock::class, MathRuleBlock::class);
 	}
 
 	public function jsonSerialize() : array{
@@ -78,6 +77,10 @@ class FieldConstraint extends BlockParentAstNode implements ConstraintBlock{
 		return $this->name;
 	}
 
+	public function getType() : string{
+		return $this->type;
+	}
+
 	/**
 	 * @return Token[]
 	 */
@@ -85,16 +88,12 @@ class FieldConstraint extends BlockParentAstNode implements ConstraintBlock{
 		return $this->typeFlags;
 	}
 
-	public function getType() : string{
-		return $this->type;
-	}
-
 	public function getDefault() : ?LiteralElement{
 		return $this->default;
 	}
 
 	/**
-	 * @return FieldConstraint[]
+	 * @return FieldConstraintBlock[]
 	 */
 	public function getFields() : array{
 		return $this->fields;
