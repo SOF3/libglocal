@@ -24,6 +24,7 @@ namespace SOFe\Libglocal\Translation\Component;
 
 use SOFe\Libglocal\Context;
 use SOFe\Libglocal\Format\FormattedString;
+use SOFe\Libglocal\LangManager;
 use SOFe\Libglocal\Parser\Ast\Literal\Component\ArgRefComponentElement;
 
 class ArgRefResolvedComponent implements ResolvedComponent{
@@ -34,7 +35,7 @@ class ArgRefResolvedComponent implements ResolvedComponent{
 		$this->element = $element;
 	}
 
-	public function resolve() : void{
+	public function resolve(LangManager $manager) : void{
 		//TODO
 	}
 

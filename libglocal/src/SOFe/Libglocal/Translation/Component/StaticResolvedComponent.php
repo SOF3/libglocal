@@ -25,6 +25,7 @@ namespace SOFe\Libglocal\Translation\Component;
 use SOFe\Libglocal\Context;
 use SOFe\Libglocal\Format\FormattedString;
 use SOFe\Libglocal\Format\LiteralFormattedString;
+use SOFe\Libglocal\LangManager;
 
 class StaticResolvedComponent implements ResolvedComponent{
 	/** @var string */
@@ -34,7 +35,7 @@ class StaticResolvedComponent implements ResolvedComponent{
 		$this->literal = $literal;
 	}
 
-	public function resolve() : void{
+	public function resolve(LangManager $manager) : void{
 	}
 
 	public function toString(Context $context) : FormattedString{

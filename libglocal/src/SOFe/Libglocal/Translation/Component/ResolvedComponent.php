@@ -24,9 +24,10 @@ namespace SOFe\Libglocal\Translation\Component;
 
 use SOFe\Libglocal\Context;
 use SOFe\Libglocal\Format\FormattedString;
+use SOFe\Libglocal\LangManager;
 
 interface ResolvedComponent{
-	public function resolve() : void;
+	public function resolve(LangManager $manager) : void;
 
 	public function toString(Context $context) : FormattedString;
 }

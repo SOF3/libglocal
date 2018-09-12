@@ -34,9 +34,13 @@ class GenericGraph{
 	/** @var bool */
 	protected $invalid = false;
 
-	public function addNode($identifier, $value) : void{
+	public function addNode($identifier, $value) : bool{
+		if(isset($this->nodes[$identifier])){
+			return false;
+		}
 		$node = new GenericNode($identifier, $value);
-		$this->nodes[$node->identifier] = $node;
+		$this->nodes[$identifier] = $node;
+		return true;
 	}
 
 	public function addEdge($before, $after) : bool{

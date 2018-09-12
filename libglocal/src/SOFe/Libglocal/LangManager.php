@@ -70,12 +70,14 @@ class LangManager{
 	public function init() : void{
 		$graph = new GenericGraph();
 		foreach($this->baseFiles as $file){
-			$graph->addNode($file->getMessages()->getModule(), $file);
+			if(!$graph->addNode($module = $file->getMessages()->getModule(), $file)){
+				throw $file->getMessages()->throwInit("Duplicate definition of module $module. There can only be one base file for each module.");
+			}
 		}
 		foreach($this->baseFiles as $after){
 			foreach($after->getRequires() as $before){
 				if(!$graph->addEdge($before->getTarget(), $after->getMessages()->getModule())){
-					$after->throwInit("Dependency module {$before->getTarget()} has not been loaded, required");
+					throw $before->throwInit("Dependency module {$before->getTarget()} has not been loaded, required");
 				}
 			}
 		}
@@ -90,6 +92,9 @@ class LangManager{
 		}
 		foreach($sorted as $file){
 			$this->registerMessages($file);
+		}
+		foreach($this->messages as $message){
+			$message->getBaseTranslation()->resolve();
 		}
 
 
@@ -118,7 +123,7 @@ class LangManager{
 
 		foreach($file->getMathRules() as $rule){
 			if($rule->isRestriction()){
-				$file->throwInit("@@ math rules are not allowed at the global context");
+				$rule->throwInit("@@ math rules are not allowed at the global context");
 			}
 
 
@@ -132,21 +137,53 @@ class LangManager{
 
 	protected function registerMessages(AstRoot $file) : void{
 		/** @var MessageBlock $block */
-		foreach($this->visitMessages(null, $file->getMessages()) as $block){
-			$message = new Message($this, $block);
+		foreach($this->visitMessages(null, $file->getMessages()) as $id => $block){
+			$message = new Message($this, $id, $block);
 			if($message->getVisibility() === Message::LOCAL){
-				$messages =& $this->localMessages[$file->getLang()->getId()];
+				$this->registerLocalMessage($file->getLang()->getId(), $id, $block, $message);
 			}else{
-				$messages =& $this->messages;
+				$this->registerGlobalMessage($id, $block, $message);
 			}
-			if(isset($messages[$block->getId()])){
-				throw $file->throwInit("Duplicate definition of message " . $block->getId());
-			}
-			$messages[$block->getId()] = $message;
 		}
 	}
 
+	protected function registerLocalMessage(string $lang, string $id, MessageBlock $block, Message $message) : void{
+		if(isset($this->messages[$id])){
+			throw $block->throwInit("Definition of local message $id masks global message of the same name");
+		}
+		if(isset($this->localMessages[$lang][$id])){
+			throw $block->throwInit("Duplicate definition of local message $id. Only the base definition of local messages should be qualified with \"local:\".");
+		}
+		$this->localMessages[$lang][$id] = $message;
+	}
+
+	protected function registerGlobalMessage(string $id, MessageBlock $block, Message $message) : void{
+		if(isset($this->messages[$id])){
+			throw $block->throwInit("Duplicate definition of global message $id");
+		}
+
+		foreach($this->localMessages as $lang => $messages){
+			if(isset($messages[$id])){
+				throw $block->throwInit("Definition of global message $id will be masked by local message $id in $lang");
+			}
+		}
+
+		$this->messages[$id] = $message;
+	}
+
 	protected function loadTranslations(AstRoot $file) : void{
-		// TODO
+		$lang = $file->getLang()->getId();
+		/** @var MessageBlock $block */
+		foreach($this->visitMessages(null, $file->getMessages()) as $id => $block){
+			if(Message::detectVisibility($block) === Message::LOCAL){
+				$this->registerLocalMessage($lang, $id, $block, new Message($this, $id, $block));
+			}else{
+				$message = $this->localMessages[$lang][$id] ?? $this->messages[$id] ?? null;
+				if($message===null){
+					throw $block->throwInit("Undefined message $id. Non-local declarations in non-base files must override a message.");
+				}
+				// TODO put translation
+			}
+		}
 	}
 }

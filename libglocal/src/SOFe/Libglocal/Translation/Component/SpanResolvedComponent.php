@@ -27,6 +27,7 @@ use SOFe\Libglocal\Format\Format;
 use SOFe\Libglocal\Format\FormattedString;
 use SOFe\Libglocal\Format\ParentFormattedString;
 use function array_map;
+use SOFe\Libglocal\LangManager;
 
 class SpanResolvedComponent implements ResolvedComponent{
 	/** @var Format */
@@ -40,7 +41,7 @@ class SpanResolvedComponent implements ResolvedComponent{
 		$this->children = $children;
 	}
 
-	public function resolve() : void{
+	public function resolve(LangManager $manager) : void{
 	}
 
 	public function toString(Context $context) : FormattedString{

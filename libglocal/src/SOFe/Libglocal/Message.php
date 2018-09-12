@@ -35,6 +35,8 @@ class Message{
 
 	/** @var LangManager */
 	protected $manager;
+/** @var string */
+	protected $id;
 
 	/** @var int */
 	protected $visibility;
@@ -51,8 +53,9 @@ class Message{
 	protected $translations = [];
 
 
-	public function __construct(LangManager $manager, MessageBlock $block){
+	public function __construct(LangManager $manager, string $id, MessageBlock $block){
 		$this->manager = $manager;
+		$this->id = $id;
 		$this->setVisibility($block);
 		$this->setDocs($block);
 		$this->baseVersion = $block->getVersion() !== null ? $block->getVersion()->getTarget() : null;
@@ -62,22 +65,23 @@ class Message{
 	}
 
 	protected function setVisibility(MessageBlock $block) : void{
+		$this->visibility=self::detectVisibility($block);
+	}
+
+	public static function detectVisibility(MessageBlock $block) : int{
 		foreach($block->getFlags() as $flag){
 			switch($flag->getType()){
 				case Token::FLAG_LIB:
-					$this->visibility = self::LIB;
-					break;
+					return self::LIB;
 				case Token::FLAG_LOCAL:
-					$this->visibility = self::LOCAL;
-					break;
+					return self::LOCAL;
 				case Token::FLAG_PUBLIC:
-					$this->visibility = self::PUBLIC;
-					break;
+					return self::PUBLIC;
 				default:
 					$block->throwInit("Invalid flag on message: {$flag->getCode()}");
 			}
 		}
-		$this->visibility = $this->visibility ?? self::PUBLIC;
+		return self::PUBLIC;
 	}
 
 	protected function setDocs(MessageBlock $block) : void{

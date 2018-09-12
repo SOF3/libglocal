@@ -55,8 +55,11 @@ class Translation{
 		$this->definition = $block;
 		$this->lang = $lang;
 		$this->components = self::createResolvedComponents($message->getManager(), $block->getLiteral());
-		foreach($block->getLiteral()->getComponents() as $component){
-			$this->components[] = self::createResolvedComponent($message->getManager(), $component);
+	}
+
+	public function resolve() : void{
+		foreach($this->components as $component){
+			$component->resolve($this->message->getManager());
 		}
 	}
 
@@ -69,7 +72,7 @@ class Translation{
 	public static function createResolvedComponents(LangManager $manager, LiteralElement $element) : array{
 		$components = [];
 		foreach($element->getComponents() as $component){
-			$components[] = $component;
+			$components[] = self::createResolvedComponent($manager, $component);
 		}
 		return $components;
 	}
