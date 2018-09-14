@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\Argument;
 
+use function mb_strpos;
 use SOFe\Libglocal\Argument\Type\ArgumentType;
 use SOFe\Libglocal\Argument\Type\Bool\BoolArgumentType;
 use SOFe\Libglocal\Argument\Type\List_\ListArgumentType;
@@ -69,7 +70,7 @@ class Argument{
 		foreach($arg->getTypeFlags() as $flag){
 			if($flag->getType() === Token::FLAG_LIST){
 				if($remListLevels === 0){
-					return new ListArgumentType(self::createType($arg, $listLevels + 1));
+					return new ListArgumentType($arg, self::createType($arg, $listLevels + 1));
 				}
 				$remListLevels--;
 			}
@@ -77,15 +78,15 @@ class Argument{
 		assert($remListLevels === 0);
 		switch($arg->getType()){
 			case "string":
-				return new StringArgumentType();
+				return new StringArgumentType($arg);
 			case "int":
-				return new NumberArgumentType(false);
+				return new NumberArgumentType($arg, false);
 			case "float":
-				return new NumberArgumentType(true);
+				return new NumberArgumentType($arg, true);
 			case "bool":
-				return new BoolArgumentType();
+				return new BoolArgumentType($arg);
 			case "object":
-				return new ObjectArgumentType();
+				return new ObjectArgumentType($arg);
 		}
 
 		throw $arg->throwInit("Unknown argument type " . $arg->getType());

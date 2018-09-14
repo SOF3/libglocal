@@ -22,18 +22,22 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\Argument\Type\Number;
 
-use SOFe\Libglocal\Argument\ArgumentAttribute;
 use SOFe\Libglocal\Argument\Type\ArgumentType;
-use SOFe\Libglocal\Context;
-use SOFe\Libglocal\Format\FormattedString;
+use SOFe\Libglocal\Parser\Ast\AstNode;
 use SOFe\Libglocal\Parser\Ast\Attribute\AttributeValueElement;
 use SOFe\Libglocal\Parser\Ast\Constraint\ConstraintBlock;
+use SOFe\Libglocal\Parser\Ast\Constraint\LiteralConstraintBlock;
 
-class NumberArgumentType implements ArgumentType{
+class NumberArgumentType extends ArgumentType{
 	/** @var bool */
 	protected $float;
+	/** @var float|null */
+	protected $min = null;
+	/** @var float|null */
+	protected $max = null;
 
-	public function __construct(bool $float){
+	public function __construct(AstNode $node, bool $float){
+		parent::__construct($node);
 		$this->float = $float;
 	}
 
@@ -45,22 +49,24 @@ class NumberArgumentType implements ArgumentType{
 
 	}
 
-	public function applyConstraint(ConstraintBlock $constraint) : void{
-		$constraint->throwInit("Incompatible constraint $constraint applied on argument/field of {$this->getType()} type");
-	}
+	protected function applyConstraintImpl(ConstraintBlock $constraint) : bool{
+		if($this->min === null && $constraint instanceof LiteralConstraintBlock && $constraint->getDirective() === "max"){
+			$min = $constraint->getValue()->requireStatic();
+			if(!is_numeric($min)){
+				throw $constraint->throwInit("min constraint should be a float");
+			}
+			$this->min = (float) $min;
+			return true;
+		}
+		if($this->max === null && $constraint instanceof LiteralConstraintBlock && $constraint->getDirective() === "max"){
+			$max = $constraint->getValue()->requireStatic();
+			if(!is_numeric($max)){
+				throw $constraint->throwInit("max constraint should be a float");
+			}
+			$this->max = (float) $max;
+			return true;
+		}
 
-	/**
-	 * @param mixed               $value
-	 * @param Context             $context
-	 * @param ArgumentAttribute[] $attributes
-	 *
-	 * @return FormattedString
-	 */
-	public function toString($value, Context $context, array $attributes) : FormattedString{
-		// TODO
-	}
-
-	public function onPostParse() : void{
-
+		return false;
 	}
 }

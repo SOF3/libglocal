@@ -22,21 +22,46 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\Translation\Component;
 
+use SOFe\Libglocal\Argument\Argument;
+use SOFe\Libglocal\Argument\Attribute\ArgumentAttribute;
 use SOFe\Libglocal\Context;
 use SOFe\Libglocal\Format\FormattedString;
 use SOFe\Libglocal\LangManager;
+use SOFe\Libglocal\Message;
 use SOFe\Libglocal\Parser\Ast\Literal\Component\ArgRefComponentElement;
+use SOFe\Libglocal\Translation\Translation;
+use function explode;
 
 class ArgRefResolvedComponent implements ResolvedComponent{
+	/** @var Translation */
+	protected $translation;
+	/** @var Message */
+	protected $message;
 	/** @var ArgRefComponentElement */
 	protected $element;
+	/** @var Argument */
+	protected $arg;
+	/** @var string[] */
+	protected $argPath = [];
+	/** @var ArgumentAttribute[] */
+	protected $attributes = [];
 
-	public function __construct(ArgRefComponentElement $element){
+	public function __construct(Translation $translation, ArgRefComponentElement $element){
+		$this->translation = $translation;
+		$this->message = $translation->getMessage();
 		$this->element = $element;
 	}
 
 	public function resolve(LangManager $manager) : void{
-		//TODO
+		$name = $this->element->getName();
+		$argsArray = $this->message->getArguments();
+
+		$paths = explode(".", $name);
+		if(!isset($argsArray[$paths[0]])){
+			$this->element->throwInit("Undefined argument {$paths[0]}");
+		}
+		$this->arg = $argsArray[$paths[0]];
+
 	}
 
 	public function toString(Context $context) : FormattedString{

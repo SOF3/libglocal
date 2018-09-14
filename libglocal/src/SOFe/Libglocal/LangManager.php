@@ -179,7 +179,7 @@ class LangManager{
 				$this->registerLocalMessage($lang, $id, $block, new Message($this, $id, $block));
 			}else{
 				$message = $this->localMessages[$lang][$id] ?? $this->messages[$id] ?? null;
-				if($message===null){
+				if($message === null){
 					throw $block->throwInit("Undefined message $id. Non-local declarations in non-base files must override a message.");
 				}
 				// TODO put translation

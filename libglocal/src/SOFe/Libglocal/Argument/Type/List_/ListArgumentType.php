@@ -25,14 +25,23 @@ namespace SOFe\Libglocal\Argument\Type\List_;
 use SOFe\Libglocal\Argument\Type\ArgumentType;
 use SOFe\Libglocal\Context;
 use SOFe\Libglocal\Format\FormattedString;
+use SOFe\Libglocal\Parser\Ast\AstNode;
 use SOFe\Libglocal\Parser\Ast\Attribute\AttributeValueElement;
 use SOFe\Libglocal\Parser\Ast\Constraint\ConstraintBlock;
+use SOFe\Libglocal\Parser\Ast\Constraint\LiteralConstraintBlock;
+use function is_numeric;
 
-class ListArgumentType implements ArgumentType{
+class ListArgumentType extends ArgumentType{
 	/** @var ArgumentType */
 	protected $delegate;
 
-	public function __construct(ArgumentType $delegate){
+	/** @var int|null */
+	protected $min = null;
+	/** @var int|null */
+	protected $max = null;
+
+	public function __construct(AstNode $node, ArgumentType $delegate){
+		parent::__construct($node);
 		$this->delegate = $delegate;
 	}
 
@@ -44,8 +53,25 @@ class ListArgumentType implements ArgumentType{
 		$default->throwInit("List arguments cannot have default values and are always required arguments");
 	}
 
-	public function applyConstraint(ConstraintBlock $constraint) : void{
-		$this->delegate->applyConstraint($constraint);
+	protected function applyConstraintImpl(ConstraintBlock $constraint) : bool{
+		if($this->min === null && $constraint instanceof LiteralConstraintBlock && $constraint->getDirective() === "max"){
+			$min = $constraint->getValue()->requireStatic();
+			if(!is_numeric($min)){
+				throw $constraint->throwInit("min constraint should be an integer");
+			}
+			$this->min = (int) $min;
+			return true;
+		}
+		if($this->max === null && $constraint instanceof LiteralConstraintBlock && $constraint->getDirective() === "max"){
+			$max = $constraint->getValue()->requireStatic();
+			if(!is_numeric($max)){
+				throw $constraint->throwInit("max constraint should be an integer");
+			}
+			$this->max = (int) $max;
+			return true;
+		}
+
+		return $this->delegate->applyConstraintImpl($constraint);
 	}
 
 	public function toString($value, Context $context, array $attributes) : FormattedString{
@@ -53,5 +79,14 @@ class ListArgumentType implements ArgumentType{
 	}
 
 	public function onPostParse() : void{
+		$this->delegate->onPostParse();
+	}
+
+	public function testFieldPath(array $fieldPath) : void{
+		$this->delegate->testFieldPath($fieldPath);
+	}
+
+	public function getDelegate() : ArgumentType{
+		return $this->delegate;
 	}
 }

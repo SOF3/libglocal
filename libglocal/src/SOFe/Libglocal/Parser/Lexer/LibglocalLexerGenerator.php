@@ -38,8 +38,6 @@ class LibglocalLexerGenerator{
 	protected $afterMessages = false;
 	protected $indentStack = [];
 
-	// TODO add support for math rules
-
 	public function lex(StringReader $reader) : Generator{
 		while(!$reader->eof()){
 			yield from $this->lexLine($reader);

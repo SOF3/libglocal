@@ -23,16 +23,13 @@ declare(strict_types=1);
 namespace SOFe\Libglocal\Argument\Type\Object;
 
 use SOFe\Libglocal\Argument\Argument;
-use SOFe\Libglocal\Argument\ArgumentAttribute;
 use SOFe\Libglocal\Argument\Type\ArgumentType;
-use SOFe\Libglocal\Context;
-use SOFe\Libglocal\Format\FormattedString;
 use SOFe\Libglocal\Parser\Ast\Attribute\AttributeValueElement;
 use SOFe\Libglocal\Parser\Ast\Constraint\ConstraintBlock;
 use SOFe\Libglocal\Parser\Ast\Constraint\FieldConstraintBlock;
 use function mb_strpos;
 
-class ObjectArgumentType implements ArgumentType{
+class ObjectArgumentType extends ArgumentType{
 	/** @var Argument[] */
 	protected $fields = [];
 
@@ -44,28 +41,31 @@ class ObjectArgumentType implements ArgumentType{
 		throw $default->throwInit("Objects cannot have default values. The default values should be placed in the fields");
 	}
 
-	public function applyConstraint(ConstraintBlock $constraint) : void{
+	protected function applyConstraintImpl(ConstraintBlock $constraint) : bool{
 		if($constraint instanceof FieldConstraintBlock){
 			if(mb_strpos($constraint->getName(), ".") !== false){
 				throw $constraint->throwParse("Object fields must not contain dots");
 			}
 			$this->fields[$constraint->getName()] = new Argument($constraint->getName(), Argument::createType($constraint));
-			return;
+			return true;
 		}
-		$constraint->throwInit("Incompatible constraint $constraint applied on argument/field of string type");
+		throw $constraint->throwInit("Incompatible constraint $constraint applied on argument/field of string type");
 	}
 
-	/**
-	 * @param mixed               $value
-	 * @param Context             $context
-	 * @param ArgumentAttribute[] $attributes
-	 *
-	 * @return FormattedString
-	 */
-	public function toString($value, Context $context, array $attributes) : FormattedString{
+	public function testFieldPath(array $fieldPath) : void{
 
 	}
 
 	public function onPostParse() : void{
+		if(empty($this->fields)){
+			$this->node->throwInit("Object argument must have at least one field");
+		}
+	}
+
+	/**
+	 * @return Argument[]
+	 */
+	public function getFields() : array{
+		return $this->fields;
 	}
 }

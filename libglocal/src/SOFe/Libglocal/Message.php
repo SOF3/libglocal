@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal;
 
+use function mb_strpos;
 use SOFe\Libglocal\Argument\Argument;
 use SOFe\Libglocal\Parser\Ast\Message\MessageBlock;
 use SOFe\Libglocal\Parser\Token;
@@ -35,7 +36,7 @@ class Message{
 
 	/** @var LangManager */
 	protected $manager;
-/** @var string */
+	/** @var string */
 	protected $id;
 
 	/** @var int */
@@ -65,7 +66,7 @@ class Message{
 	}
 
 	protected function setVisibility(MessageBlock $block) : void{
-		$this->visibility=self::detectVisibility($block);
+		$this->visibility = self::detectVisibility($block);
 	}
 
 	public static function detectVisibility(MessageBlock $block) : int{
@@ -103,6 +104,9 @@ class Message{
 
 	protected function setArguments(MessageBlock $block) : void{
 		foreach($block->getArgs() as $arg){
+			if(mb_strpos($arg->getName(), ".") !== false){
+				throw $arg->throwInit("Argument names must not have dots");
+			}
 			$argument = new Argument($arg->getName(), Argument::createType($arg));
 			$this->arguments[$argument->getId()] = $argument;
 		}

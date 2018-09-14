@@ -24,6 +24,6 @@ namespace SOFe\Libglocal\Argument\Type\Bool;
 
 use SOFe\Libglocal\Argument\Type\ArgumentType;
 
-class BoolArgumentType implements ArgumentType{
+class BoolArgumentType extends ArgumentType{
 
 }

@@ -20,8 +20,8 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Argument;
+namespace SOFe\Libglocal\Argument\Attribute;
 
-class ArgumentAttribute{
+abstract class ArgumentAttribute{
 
 }

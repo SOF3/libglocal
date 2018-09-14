@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\Argument\Type\String;
 
-use SOFe\Libglocal\Argument\ArgumentAttribute;
+use SOFe\Libglocal\Argument\Attribute\ArgumentAttribute;
 use SOFe\Libglocal\Argument\Type\ArgumentType;
 use SOFe\Libglocal\Context;
 use SOFe\Libglocal\Format\FormattedString;
@@ -30,7 +30,7 @@ use SOFe\Libglocal\Parser\Ast\Attribute\AttributeValueElement;
 use SOFe\Libglocal\Parser\Ast\Constraint\ConstraintBlock;
 use SOFe\Libglocal\Parser\Ast\Constraint\LiteralConstraintBlock;
 
-class StringArgumentType implements ArgumentType{
+class StringArgumentType extends ArgumentType{
 	/** @var StringConstraint[] */
 	protected $constraints = [];
 	/** @var AttributeValueElement|null */
@@ -44,22 +44,22 @@ class StringArgumentType implements ArgumentType{
 		$this->default = $default;
 	}
 
-	public function applyConstraint(ConstraintBlock $constraint) : void{
+	protected function applyConstraintImpl(ConstraintBlock $constraint) : bool{
 		if($constraint instanceof LiteralConstraintBlock){
 			switch($constraint->getDirective()){
 				case "enum":
 					$this->constraints[] = new ExactStringConstraint($constraint->getValue()->requireStatic(), false);
-					return;
+					return true;
 				case "ienum":
 					$this->constraints[] = new ExactStringConstraint($constraint->getValue()->requireStatic(), true);
-					return;
+					return true;
 				case "pattern":
 					$this->constraints[] = new PatternStringConstraint($constraint->getValue()->requireStatic());
-					return;
+					return true;
 			}
 		}
 
-		$constraint->throwInit("Incompatible constraint $constraint applied on argument/field of string type");
+		return false;
 	}
 
 	/**
@@ -70,10 +70,6 @@ class StringArgumentType implements ArgumentType{
 	 * @return FormattedString
 	 */
 	public function toString($value, Context $context, array $attributes) : FormattedString{
-
-	}
-
-	public function onPostParse() : void{
 
 	}
 }

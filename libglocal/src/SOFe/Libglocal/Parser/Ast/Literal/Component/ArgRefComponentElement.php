@@ -53,4 +53,16 @@ class ArgRefComponentElement extends AstNode implements LiteralComponentElement{
 			"attributes" => $this->attributes,
 		];
 	}
+
+
+	public function getName() : string{
+		return $this->name;
+	}
+
+	/**
+	 * @return AttributeElement[]
+	 */
+	public function getAttributes() : array{
+		return $this->attributes;
+	}
 }

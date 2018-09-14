@@ -22,18 +22,31 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\Argument\Type;
 
-use SOFe\Libglocal\Argument\ArgumentAttribute;
+use SOFe\Libglocal\Argument\Attribute\ArgumentAttribute;
 use SOFe\Libglocal\Context;
 use SOFe\Libglocal\Format\FormattedString;
+use SOFe\Libglocal\Parser\Ast\AstNode;
 use SOFe\Libglocal\Parser\Ast\Attribute\AttributeValueElement;
 use SOFe\Libglocal\Parser\Ast\Constraint\ConstraintBlock;
 
-interface ArgumentType{
-	public function getType() : string;
+abstract class ArgumentType{
+	protected $node;
 
-	public function setDefault(AttributeValueElement $default) : void;
+	public function __construct(AstNode $node){
+		$this->node = $node;
+	}
 
-	public function applyConstraint(ConstraintBlock $constraint) : void;
+	public abstract function getType() : string;
+
+	public abstract function setDefault(AttributeValueElement $default) : void;
+
+	public function applyConstraint(ConstraintBlock $constraint) : void{
+		if(!$this->applyConstraintImpl($constraint)){
+			throw $constraint->throwInit("Incompatible constraint $constraint applied on argument/field of string type");
+		}
+	}
+
+	protected abstract function applyConstraintImpl(ConstraintBlock $constraint) : bool;
 
 	/**
 	 * @param mixed               $value
@@ -42,7 +55,15 @@ interface ArgumentType{
 	 *
 	 * @return FormattedString
 	 */
-	public function toString($value, Context $context, array $attributes) : FormattedString;
+	public abstract function toString($value, Context $context, array $attributes) : FormattedString;
 
-	public function onPostParse() : void;
+	public function onPostParse() : void{
+	}
+
+	/**
+	 * @param string[] $fieldPath
+	 */
+	public function testFieldPath(array $fieldPath) : void{
+		$this->node->throwInit("Argument of type " . $this->getType() . " does not have any fields. The . notation is not allowed.");
+	}
 }

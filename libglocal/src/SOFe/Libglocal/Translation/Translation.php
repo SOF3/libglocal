@@ -54,7 +54,7 @@ class Translation{
 		$this->message = $message;
 		$this->definition = $block;
 		$this->lang = $lang;
-		$this->components = self::createResolvedComponents($message->getManager(), $block->getLiteral());
+		$this->components = $this->createResolvedComponents($message->getManager(), $block->getLiteral());
 	}
 
 	public function resolve() : void{
@@ -69,29 +69,33 @@ class Translation{
 	 *
 	 * @return ResolvedComponent[]
 	 */
-	public static function createResolvedComponents(LangManager $manager, LiteralElement $element) : array{
+	public function createResolvedComponents(LangManager $manager, LiteralElement $element) : array{
 		$components = [];
 		foreach($element->getComponents() as $component){
-			$components[] = self::createResolvedComponent($manager, $component);
+			$components[] = $this->createResolvedComponent($manager, $component);
 		}
 		return $components;
 	}
 
-	public static function createResolvedComponent(LangManager $manager, LiteralComponentElement $element) : ResolvedComponent{
+	public function createResolvedComponent(LangManager $manager, LiteralComponentElement $element) : ResolvedComponent{
 		if($element instanceof LiteralStringComponentElement){
 			return new StaticResolvedComponent($element->toString());
 		}
 		if($element instanceof SpanComponentElement){
 			return new SpanResolvedComponent($manager->getConfig()->format($element->getName()),
-				self::createResolvedComponents($manager, $element->getLiteral()));
+				$this->createResolvedComponents($manager, $element->getLiteral()));
 		}
 		if($element instanceof ArgRefComponentElement){
-			return new ArgRefResolvedComponent($element);
+			return new ArgRefResolvedComponent($this, $element);
 		}
 		if($element instanceof MessageRefComponentElement){
 			return new MessageRefResolvedComponent($element);
 		}
 
 		throw new AssertionError("Unknown literal component type");
+	}
+
+	public function getMessage() : Message{
+		return $this->message;
 	}
 }

@@ -26,8 +26,8 @@ use SOFe\Libglocal\Context;
 use SOFe\Libglocal\Format\Format;
 use SOFe\Libglocal\Format\FormattedString;
 use SOFe\Libglocal\Format\ParentFormattedString;
-use function array_map;
 use SOFe\Libglocal\LangManager;
+use function array_map;
 
 class SpanResolvedComponent implements ResolvedComponent{
 	/** @var Format */
