@@ -55,6 +55,14 @@ class AttributeElement extends AstNode{
 		return $this->isMath;
 	}
 
+	public function getName() : string{
+		return $this->name;
+	}
+
+	public function getValue(){
+		return $this->value;
+	}
+
 	public function jsonSerialize() : array{
 		return [
 			"isMath" => $this->isMath,

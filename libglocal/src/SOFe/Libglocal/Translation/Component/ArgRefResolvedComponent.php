@@ -30,6 +30,7 @@ use SOFe\Libglocal\LangManager;
 use SOFe\Libglocal\Message;
 use SOFe\Libglocal\Parser\Ast\Literal\Component\ArgRefComponentElement;
 use SOFe\Libglocal\Translation\Translation;
+use function array_slice;
 use function explode;
 
 class ArgRefResolvedComponent implements ResolvedComponent{
@@ -43,6 +44,8 @@ class ArgRefResolvedComponent implements ResolvedComponent{
 	protected $arg;
 	/** @var string[] */
 	protected $argPath = [];
+	/** @var ResolvedComponentGroup[] */
+	protected $mathSwitches = [];
 	/** @var ArgumentAttribute[] */
 	protected $attributes = [];
 
@@ -61,7 +64,15 @@ class ArgRefResolvedComponent implements ResolvedComponent{
 			$this->element->throwInit("Undefined argument {$paths[0]}");
 		}
 		$this->arg = $argsArray[$paths[0]];
+		$this->argPath = array_slice($paths, 1);
 
+		foreach($this->element->getAttributes() as $attribute){
+			if($attribute->isMath()){
+//				$this->mathSwitches[$attribute->getName()] = ;
+			}else{
+				$this->attributes[] = ArgumentAttribute::fromAst($attribute);
+			}
+		}
 	}
 
 	public function toString(Context $context) : FormattedString{

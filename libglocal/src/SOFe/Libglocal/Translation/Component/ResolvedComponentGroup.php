@@ -20,17 +20,16 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Argument\Attribute;
+namespace SOFe\Libglocal\Translation\Component;
 
-use SOFe\Libglocal\Parser\Ast\Attribute\AttributeElement;
-use function assert;
+class ResolvedComponentGroup{
+	/** @var ResolvedComponent[] */
+	protected $components = [];
 
-abstract class ArgumentAttribute{
-	public static function fromAst(AttributeElement $element) : ArgumentAttribute{
-		assert(!$element->isMath());
-
-		switch($element->getName()){
-
-		}
+	/**
+	 * @return ResolvedComponent[]
+	 */
+	public function getComponents() : array{
+		return $this->components;
 	}
 }

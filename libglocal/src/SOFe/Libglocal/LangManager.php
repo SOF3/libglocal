@@ -30,6 +30,7 @@ use SOFe\Libglocal\Parser\Ast\AstRoot;
 use SOFe\Libglocal\Parser\Ast\Message\MessageBlock;
 use SOFe\Libglocal\Parser\Ast\Message\MessageParentBlock;
 use SOFe\Libglocal\Parser\Lexer\LibglocalLexer;
+use SOFe\Libglocal\Translation\Translation;
 use function implode;
 
 class LangManager{
@@ -94,9 +95,8 @@ class LangManager{
 			$this->registerMessages($file);
 		}
 		foreach($this->messages as $message){
-			$message->getBaseTranslation()->resolve();
+			$message->resolveBase();
 		}
-
 
 		foreach($this->overrideFiles as $file){
 			$this->loadTranslations($file);
@@ -173,16 +173,28 @@ class LangManager{
 
 	protected function loadTranslations(AstRoot $file) : void{
 		$lang = $file->getLang()->getId();
+		$localMessages = [];
 		/** @var MessageBlock $block */
 		foreach($this->visitMessages(null, $file->getMessages()) as $id => $block){
 			if(Message::detectVisibility($block) === Message::LOCAL){
-				$this->registerLocalMessage($lang, $id, $block, new Message($this, $id, $block));
-			}else{
+				$message = new Message($this, $id, $block);
+				$this->registerLocalMessage($lang, $id, $block, $message);
+				$localMessages[] = $message;
+			}
+		}
+		foreach($localMessages as $message){
+			$message->resolveBase();
+		}
+		foreach($this->visitMessages(null, $file->getMessages()) as $id => $block){
+			if(Message::detectVisibility($block) !== Message::LOCAL){
 				$message = $this->localMessages[$lang][$id] ?? $this->messages[$id] ?? null;
 				if($message === null){
 					throw $block->throwInit("Undefined message $id. Non-local declarations in non-base files must override a message.");
 				}
-				// TODO put translation
+
+				$translation = new Translation($message, $block, $lang);
+				$message->putTranslation($translation);
+				$translation->resolve();
 			}
 		}
 	}

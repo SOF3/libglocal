@@ -24,6 +24,7 @@ namespace SOFe\Libglocal\Translation;
 
 use AssertionError;
 use SOFe\Libglocal\LangManager;
+use SOFe\Libglocal\Math\MathRule;
 use SOFe\Libglocal\Message;
 use SOFe\Libglocal\Parser\Ast\Literal\Component\ArgRefComponentElement;
 use SOFe\Libglocal\Parser\Ast\Literal\Component\LiteralComponentElement;
@@ -49,12 +50,21 @@ class Translation{
 	/** @var ResolvedComponent[] */
 	protected $components = [];
 
+	/** @var MathRule[] */
+	protected $mathRules = [];
+
 
 	public function __construct(Message $message, MessageBlock $block, string $lang){
 		$this->message = $message;
 		$this->definition = $block;
 		$this->lang = $lang;
-		$this->components = $this->createResolvedComponents($message->getManager(), $block->getLiteral());
+		$this->components = self::createResolvedComponents($this, $message->getManager(), $block->getLiteral());
+
+		foreach($block->getArgs() as $arg){
+			if($arg->isExplicitType()){
+				$arg->throwInit("Overriding messages must not declare argument type");
+			}
+		}
 	}
 
 	public function resolve() : void{
@@ -64,29 +74,30 @@ class Translation{
 	}
 
 	/**
+	 * @param Translation    $translation
 	 * @param LangManager    $manager
 	 * @param LiteralElement $element
 	 *
 	 * @return ResolvedComponent[]
 	 */
-	public function createResolvedComponents(LangManager $manager, LiteralElement $element) : array{
+	public static function createResolvedComponents(Translation $translation, LangManager $manager, LiteralElement $element) : array{
 		$components = [];
 		foreach($element->getComponents() as $component){
-			$components[] = $this->createResolvedComponent($manager, $component);
+			$components[] = self::createResolvedComponent($translation, $manager, $component);
 		}
 		return $components;
 	}
 
-	public function createResolvedComponent(LangManager $manager, LiteralComponentElement $element) : ResolvedComponent{
+	public static function createResolvedComponent(Translation $translation, LangManager $manager, LiteralComponentElement $element) : ResolvedComponent{
 		if($element instanceof LiteralStringComponentElement){
 			return new StaticResolvedComponent($element->toString());
 		}
 		if($element instanceof SpanComponentElement){
 			return new SpanResolvedComponent($manager->getConfig()->format($element->getName()),
-				$this->createResolvedComponents($manager, $element->getLiteral()));
+				self::createResolvedComponents($translation, $manager, $element->getLiteral()));
 		}
 		if($element instanceof ArgRefComponentElement){
-			return new ArgRefResolvedComponent($this, $element);
+			return new ArgRefResolvedComponent($translation, $element);
 		}
 		if($element instanceof MessageRefComponentElement){
 			return new MessageRefResolvedComponent($element);
@@ -97,5 +108,20 @@ class Translation{
 
 	public function getMessage() : Message{
 		return $this->message;
+	}
+
+	public function getDefinition() : MessageBlock{
+		return $this->definition;
+	}
+
+	public function getLang() : string{
+		return $this->lang;
+	}
+
+	/**
+	 * @return ResolvedComponent[]
+	 */
+	public function getComponents() : array{
+		return $this->components;
 	}
 }

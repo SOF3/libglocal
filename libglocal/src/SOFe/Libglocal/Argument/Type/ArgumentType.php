@@ -60,6 +60,9 @@ abstract class ArgumentType{
 	public function onPostParse() : void{
 	}
 
+	public function resolve() : void{
+	}
+
 	/**
 	 * @param string[] $fieldPath
 	 */

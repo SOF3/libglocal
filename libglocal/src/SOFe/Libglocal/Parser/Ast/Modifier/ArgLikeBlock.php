@@ -41,6 +41,8 @@ abstract class ArgLikeBlock extends BlockParentAstNode{
 	protected $typeFlags = [];
 	/** @var string */
 	protected $type = "string";
+	/** @var bool  */
+	protected $explicitType = false;
 	/** @var AttributeValueElement|null */
 	protected $default;
 	/** @var ConstraintBlock[] */
@@ -56,11 +58,12 @@ abstract class ArgLikeBlock extends BlockParentAstNode{
 			$this->typeFlags[] = $typeFlag;
 		}
 		if(($type = $this->acceptToken(Token::IDENTIFIER)) !== null){
+			$this->explicitType = true;
 			$this->type = $type->getCode();
-			if($this->acceptToken(Token::EQUALS)){
-				$this->default = $this->expectAnyChildren(LiteralAttributeValueElement::class, NumberAttributeValueElement::class,
-					ArgumentAttributeValueElement::class, MessageAttributeValueElement::class);
-			}
+		}
+		if($this->acceptToken(Token::EQUALS)){
+			$this->default = $this->expectAnyChildren(LiteralAttributeValueElement::class, NumberAttributeValueElement::class,
+				ArgumentAttributeValueElement::class, MessageAttributeValueElement::class);
 		}
 	}
 
@@ -87,6 +90,10 @@ abstract class ArgLikeBlock extends BlockParentAstNode{
 
 	public function getType() : string{
 		return $this->type;
+	}
+
+	public function isExplicitType() : bool{
+		return $this->explicitType;
 	}
 
 	/**

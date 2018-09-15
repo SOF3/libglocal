@@ -112,6 +112,18 @@ class Message{
 		}
 	}
 
+	public function putTranslation(Translation $translation) :void{
+		$this->translations[$translation->getLang()] = $translation; // warning: might override some value
+	}
+
+	public function resolveBase() : void{
+		foreach($this->arguments as $argument){
+			$argument->getType()->resolve();
+		}
+
+		$this->baseTranslation->resolve();
+	}
+
 
 	public function getManager() : LangManager{
 		return $this->manager;
