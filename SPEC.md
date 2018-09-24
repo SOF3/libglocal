@@ -47,7 +47,7 @@ T_INDENT ::= { " " | "\t" }
 L_COMMAND ::= T_IDENTIFIER
 ```
 
-Blocks can be nested by indentation according to these two basic rules:
+Blocks can be nested by indentation according to these three basic rules:
 - If a line's indent starts with the previous line's indent and has a longer indent, the line is a child of the block representing by the previous line.
 - If two lines have the identical indent, and the indents of all lines between them (except empty lines and comment lines) are identical to or start with their indent, they are sibling blocks belonging to the same parent.
 - If a line's indent does not start with the previous line but cannot be matched as the sibling of any previous lines, it is an indentation syntax error.

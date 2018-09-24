@@ -43,8 +43,7 @@ class LibglocalLexerGenerator{
 			yield from $this->lexLine($reader);
 			yield new Token(Token::CHECKSUM, "");
 		}
-		/** @noinspection PhpUnusedLocalVariableInspection */
-		foreach($this->indentStack as $_){
+		foreach($this->indentStack as $_ => $_){
 			yield new Token(Token::INDENT_DECREASE, "");
 		}
 	}
@@ -55,49 +54,11 @@ class LibglocalLexerGenerator{
 			return;
 		}
 
-		$identifiers = yield from $this->command($reader);
+		yield from $this->lineBody($reader);
 
-		while(true){
-			yield from $this->readWhitespace($reader);
-			$lf = $reader->readAny("\r\n", false);
-			if(!empty($lf)){
-				yield new Token(Token::WHITESPACE, $lf);
-				return;
-			}
-			if($reader->eof()){
-				return;
-			}
-
-			if($identifiers === -3){
-				yield from $this->attributeValue($reader);
-				continue;
-			}
-
-			if($identifiers === 0){
-				yield from $this->literal($reader, false);
-				if($reader->startsWith("\r\n")){
-					yield new Token(Token::WHITESPACE, $reader->readExpected("\r\n"));
-					return;
-				}
-				if($reader->startsWith("\n")){
-					yield new Token(Token::WHITESPACE, $reader->readExpected("\n"));
-					return;
-				}
-			}
-
-			if($identifiers < 0 && $reader->startsWith("=")){
-				yield new Token(Token::EQUALS, $reader->readExpected("="));
-				if($identifiers === -1){
-					$identifiers = 0;
-				}else{
-					$identifiers = -3;
-				}
-				continue;
-			}
-
-			yield from $this->readIdentifier($reader, true);
-			if($identifiers > 0){
-				$identifiers--;
+		foreach(["\r\n", "\n"] as $newline){
+			if($reader->startsWith($newline)){
+				yield new Token(Token::WHITESPACE, $reader->readExpected($newline));
 			}
 		}
 	}
@@ -169,71 +130,59 @@ class LibglocalLexerGenerator{
 		return true;
 	}
 
-	protected function command(StringReader $reader) : Generator{
+	protected function lineBody(StringReader $reader) : Generator{
 		if($reader->startsWith("@")){
 			yield from $this->readMathRule($reader);
-			return 0;
+			return;
 		}
 
-		if(!$this->afterMessages){
-			if(($match = $reader->matchRead('base[ \\t]+lang\\b')) !== null){
-				yield new Token(Token::BASE_LANG, $match);
-				return 1;
-			}
-			if(($match = $reader->matchRead('lang\\b')) !== null){
-				yield new Token(Token::LANG, $match);
-				return 1;
-			}
-			if(($match = $reader->matchRead('author\\b')) !== null){
-				yield new Token(Token::AUTHOR, $match);
-				return 0;
-			}
-			if(($match = $reader->matchRead('version\\b')) !== null){
-				yield new Token(Token::VERSION, $match);
-				return 1;
-			}
-			if(($match = $reader->matchRead('require\\b')) !== null){
-				yield new Token(Token::REQUIRE, $match);
-				return 1;
-			}
-			if(($match = $reader->matchRead('use\\b')) !== null){
-				yield new Token(Token::USE, $match);
-				return 2;
-			}
-			if(($match = $reader->matchRead('messages\\b')) !== null){
-				$this->afterMessages = true;
-				yield new Token(Token::MESSAGES, $match);
-				return 1;
+		$nextFirst = true;
+		$isArgLine = false;
+		while(true){
+			$isFirst = $nextFirst;
+			$nextFirst = false;
+			if($reader->startsWith("\n") || $reader->startsWith("\r\n") || $reader->eof()){
+				return;
 			}
 
-			throw $reader->throw("Unknown command");
+			if($reader->startsWith("=")){
+				yield new Token(Token::EQUALS, $reader->readExpected("="));
+				yield from $this->readWhitespace($reader);
+
+				if($isArgLine){
+					yield from $this->attributeValue($reader);
+					return;
+				}
+				break;
+			}
+
+			if($isFirst){
+				if($reader->startsWith("*")){
+					yield new Token(Token::MOD_DOC, $reader->readExpected("*"));
+					yield from $this->readWhitespace($reader);
+					break;
+				}
+
+				if($reader->startsWith('~')){
+					yield new Token(Token::MOD_VERSION, $reader->readExpected('~'));
+					yield from $this->readWhitespace($reader);
+					continue;
+				}
+
+				if($reader->startsWith('$')){
+					yield new Token(Token::MOD_ARG, $reader->readExpected('$'));
+					yield from $this->readWhitespace($reader);
+					$isArgLine = true;
+					continue;
+				}
+			}
+
+
+			yield from $this->readIdentifier($reader, true, false);
+			yield from $this->readWhitespace($reader);
 		}
 
-		if($reader->startsWith('#')){
-			$reader->advance(1);
-			yield new Token(Token::INSTRUCTION, '#');
-			return -1;
-		}
-
-		if($reader->startsWith('$')){
-			yield new Token(Token::MOD_ARG, $reader->readExpected('$'));
-			return -2;
-		}
-
-		if($reader->startsWith('*')){
-			yield new Token(Token::MOD_DOC, '*');
-			$reader->advance(1);
-			return 0;
-		}
-
-		if($reader->startsWith('~')){
-			yield new Token(Token::MOD_VERSION, '~');
-			$reader->advance(1);
-			return 1;
-		}
-
-		yield from $this->readIdentifier($reader, true);
-		return 0;
+		yield from $this->literal($reader, false);
 	}
 
 	protected function readMathRule(StringReader $reader) : Generator{
@@ -311,12 +260,14 @@ class LibglocalLexerGenerator{
 			}
 
 			if($reader->startsWith('#{')){
-				yield from $this->messageRef($reader);
+				yield new Token(Token::MESSAGE_REF_START, $reader->readExpected('#{'));
+				yield from $this->ref($reader);
 				continue;
 			}
 
 			if($reader->startsWith('${')){
-				yield from $this->argRef($reader);
+				yield new Token(Token::ARG_REF_START, $reader->readExpected('${'));
+				yield from $this->ref($reader);
 
 				continue;
 			}
@@ -326,19 +277,7 @@ class LibglocalLexerGenerator{
 		}
 	}
 
-	protected function argRef(StringReader $reader) : Generator{
-		yield new Token(Token::ARG_REF_START, $reader->read(2));
-		yield from $this->readWhitespace($reader);
-		yield from $this->readIdentifier($reader, true, false);
-
-		yield from $this->attributeList($reader);
-
-		yield new Token(Token::CLOSE_BRACE, $reader->readExpected("}"));
-		yield new Token(Token::CHECKSUM, "");
-	}
-
-	protected function messageRef(StringReader $reader) : Generator{
-		yield new Token(Token::MESSAGE_REF_START, $reader->readExpected('#{'));
+	protected function ref(StringReader $reader) : Generator{
 		yield from $this->readWhitespace($reader, " \t\r\n");
 		if($reader->startsWith('$')){
 			yield new Token(Token::MOD_ARG, $reader->readExpected('$'));

@@ -44,17 +44,7 @@ final class Token implements JsonSerializable{
 	public const CONT_SPACE = 0x0104;
 	public const CONT_CONCAT = 0x0105;
 
-	public const CATEGORY_KEYWORDS = 0x0200;
-	public const BASE_LANG = 0x0200;
-	public const LANG = 0x0201;
-	public const AUTHOR = 0x0202;
-	public const VERSION = 0x0203;
-	public const REQUIRE = 0x0204;
-	public const USE = 0x0205;
-	public const MESSAGES = 0x0206;
-
 	public const CATEGORY_MODIFIERS = 0x0300;
-	public const INSTRUCTION = 0x0300;
 	public const MOD_ARG = 0x0301;
 	public const MOD_DOC = 0x0302;
 	public const MOD_VERSION = 0x0303;

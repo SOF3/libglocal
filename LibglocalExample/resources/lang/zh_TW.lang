@@ -1,18 +1,12 @@
-lang zh_TW 繁體中文
-author SOFe
-version 2.0
+lang zh_TW= 繁體中文
+author= SOFe
+version 1.0
+module LibglocalExample
 
-messages LibglocalExample
-  libglocal
-    list-delimiter 、
-  commands
-    friends
-      add
-        success 增加了朋友%{u ${name}} // 現在還有人用專名號嗎？
-        error
-          his-full %{error 不能增加%{u ${name}} %{hl1 (階級︰${rank})}。原因︰他的朋友清單已滿。}
-          mine-full %{error 不能增加%{u ${name}}。原因︰你已有${friends-count}個朋友。}
-            $friends-count
-                //default: 個
-      ordinalTest %{warn ${times}次測試}
-      list %{info 你的朋友清單︰${friends}}
+group
+	child= Messages can be grouped. The ID of this message is "LibglocalExample.group.child".
+	subgroup
+		child= Groups can be stacked. The ID of this message is "LibglocalExample.group.subgroup.child".
+group
+	another= It is valid to redeclare a group, as long as the messages inside do not have duplicate IDs. The ID of this message is "LibglocalExample.group.another".
+group.compact= It is also valid to write the dots directly like this.

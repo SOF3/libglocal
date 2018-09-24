@@ -30,7 +30,6 @@ use SOFe\Libglocal\Parser\Ast\Attribute\NumberAttributeValueElement;
 use SOFe\Libglocal\Parser\Ast\BlockParentAstNode;
 use SOFe\Libglocal\Parser\Ast\Constraint\ConstraintBlock;
 use SOFe\Libglocal\Parser\Ast\Constraint\FieldConstraintBlock;
-use SOFe\Libglocal\Parser\Ast\Constraint\GenericConstraintBlock;
 use SOFe\Libglocal\Parser\Ast\Math\MathRuleBlock;
 use SOFe\Libglocal\Parser\Token;
 
@@ -41,7 +40,7 @@ abstract class ArgLikeBlock extends BlockParentAstNode{
 	protected $typeFlags = [];
 	/** @var string */
 	protected $type = "string";
-	/** @var bool  */
+	/** @var bool */
 	protected $explicitType = false;
 	/** @var AttributeValueElement|null */
 	protected $default;
@@ -68,7 +67,7 @@ abstract class ArgLikeBlock extends BlockParentAstNode{
 	}
 
 	protected function acceptChild() : void{
-		$this->constraints[] = $this->expectAnyChildren(FieldConstraintBlock::class, GenericConstraintBlock::class, MathRuleBlock::class);
+		$this->constraints[] = $this->expectAnyChildren(FieldConstraintBlock::class, MathRuleBlock::class);
 	}
 
 	public function jsonSerialize() : array{

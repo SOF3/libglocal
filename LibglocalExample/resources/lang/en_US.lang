@@ -4,136 +4,137 @@
 // Comments should only be written for developer use. Translators will not see comments through translators' editors.
 // Use the "*" doc modifier per-message to document messages.
 
-base lang en_US English (US)
+base lang en_US= English (US)
+version 2.0
 
-author SOFe
-author Iron(II) Sulphite
-version 1.0
+author= SOFe
+author= Iron(II) Sulphite
 
 // This is just an example. stdlib is automatically loaded all the time, so it is pointless to check stdlib dependency.
 require stdlib
 
-messages LibglocalExample
-	basic This is a simple message. The ID is "LibglocalExample.basic".
+module LibglocalExample
 
-	group
-		child Messages can be grouped. The ID of this message is "LibglocalExample.group.child".
-		subgroup
-			child Groups can be stacked. The ID of this message is "LibglocalExample.group.subgroup.child".
-	group
-		another It is valid to redeclare a group, as long as the messages inside do not have duplicate IDs. The ID of this message is "LibglocalExample.group.another".
-	group.compact It is also valid to write the dots directly like this.
+basic= This is a simple message. The ID is "LibglocalExample.basic".
 
-	escape
-		must These characters must be escaped: \} \\
-		brace These normally don't need to be escaped: # $ % But if followed by {, they must be escaped as \#{ \#{ \%{
-		white "\n" "\s" "\0" These are translated into newline, space and nothing.
-		because \sTo have leading/trailing spaces, \\s must be used. It can also be replaced by a literal space before/after a \\0 like this \0
-		otherwise Libglocal will trim the spaces away. In addition, empty messages must contain a \\0, otherwise libglocal will parse them as message groups rather than empty messages.
+group
+	child= Messages can be grouped. The ID of this message is "LibglocalExample.group.child".
+	subgroup=
+		child= Groups can be stacked. The ID of this message is "LibglocalExample.group.subgroup.child". The = behind group name is optional.
+group
+	another= It is valid to redeclare a group, as long as the messages inside do not have duplicate IDs. The ID of this message is "LibglocalExample.group.another".
+group.compact= It is also valid to write the dots directly like this.
 
-	continuation
-		space There will be a space between "because" and "the" because
-				| the | character means "continue on next line and insert a space in between".
-				| Trailing spaces on the first line and spaces in front of or behind the | character will be trimmed.
+escape
+	must= These characters must be escaped: \} \\
+	brace= These normally don't need to be escaped: # $ % But if followed by {, they must be escaped as \#{ \#{ \%{
+	white= "\n" "\s" "\0" These are translated into newline, space and nothing.
+	because= \sTo have leading/trailing spaces, \\s must be used. It can also be replaced by a literal space before/after a \\0 like this \0
+	otherwise= Libglocal will trim the spaces away. In addition, empty messages must contain a \\0, otherwise libglocal will parse them as message groups rather than empty messages.
+
+continuation
+	space= There will be a space between "because" and "the" because
+			| the | character means "continue on next line and insert a space in between".
+			| Trailing spaces on the first line and spaces in front of or behind the | character will be trimmed.
 | The indent of the next line
-					| does not matter
-	| at all.
-				| Conventionally, two indent units are used for continuation.
-		newline "because" and "the" will be on two separate lines because
-				! the ! character means "continue on next line and insert a newline in between".
-		concat "be" and "cause" will be one word be
-				\ cause the \\ character means "continue on next line and join them directly".
+				| does not matter
+| at all.
+			| Conventionally, two indent units are used for continuation.
+	newline= "because" and "the" will be on two separate lines because
+			! the ! character means "continue on next line and insert a newline in between".
+	concat= "be" and "cause" will be one word be
+			\ cause the \\ character means "continue on next line and join them directly".
 
-	doc You can document messages too. Documentation is only allowed in base lang files.
-		* This documentation will be shown to translators.
-		* The documentation can be split into multiple lines. Two lines are joined by spaces.
-		*
-		* To have actual line breaks in the docs, there should be an empty doc line in between.
+doc= You can document messages too. Documentation is only allowed in base lang files.
+	* This documentation will be shown to translators.
+	* The documentation can be split into multiple lines. Two lines are joined by spaces.
+	*
+	* To have actual line breaks in the docs, there should be an empty doc line in between.
 
-	arguments
-		simple The argument is "${argName}". No conversion. There can be space/tabs between the $ and the arg name like ${spaced}.
-			$argName
-			$ spaced
-		explicit-type The argument "${arg}" is resolved in the same way, because "string" is the default argument type.
-			$arg string
-		other-types Arguments can also be int (${integer}), float (${float}), or booleans (${bool}).
-			$integer int
-			$float float
-			$bool bool
+arguments
+	simple= The argument is "${argName}". No conversion. There can be space/tabs between the $ and the arg name like ${spaced}.
+		$argName
+		$ spaced
+	explicit-type= The argument "${arg}" is resolved in the same way, because "string" is the default argument type.
+		$arg string
+	other-types= Arguments can also be int (${integer}), float (${float}), or booleans (${bool}).
+		$integer int
+		$float float
+		$bool bool
 
-		defaults These scalar types can have default values.
-				| ${str}, ${integer}, ${float} and ${bool} will show "foo" "1234" "-3.14" "false" if no arguments are passed.
-			$str string = foo
-			$integer int = 1234
-			$float float = -3.140
-			$bool bool = 0
+	defaults= These scalar types can have default values.
+			| ${str}, ${integer}, ${float} and ${bool} will show "foo" "1234" "-3.14" "false" if no arguments are passed.
+		$str string = foo
+		$integer int = 1234
+		$float float = -3.140
+		$bool bool = 0
 
-		quantity ${apples @one={apple} @={apples}} reads "3 apples" when apples = 3, "1 apple" when apple is one
-			$apples int
+	quantity= ${apples @one={apple} @={apples}} reads "3 apples" when apples = 3, "1 apple" when apple is one
+		$apples int
 
-		lists The "list:" flag can be applied in front of the type to turn it into a list type.
-			| The elements will be displayed with a delimiter between every two elements, e.g. ${items delim=#stdlib.list.delimiter}.
-			| List types cannot have defaults.
-			$items list:string
-		objects Arguments may be objects. Their properties can be accessed like this: ${object.name}.
-				| If the object property is a list, the property is retrieved per list element like this: ${object.structs.leaf}.
-				| The delimiter for list fields should be defined under the field.
-				| Scalar object fields may have default values. If the object does not have list fields and all scalar fields have default values, the object itself is optional.
-			$obj object
-				$name string
-					$age float
-					$structs list:object
-						$ leaf string
+	lists= The "list:" flag can be applied in front of the type to turn it into a list type.
+		| The elements will be displayed with a delimiter between every two elements, e.g. ${items delim=#stdlib.list.delimiter}.
+		| List types cannot have defaults.
+		$items list:string
+	objects= Arguments may be objects. Their properties can be accessed like this: ${object.name}.
+			| If the object property is a list, the property is retrieved per list element like this: ${object.structs.leaf}.
+			| The delimiter for list fields should be defined under the field.
+			| Scalar object fields may have default values. If the object does not have list fields and all scalar fields have default values, the object itself is optional.
+		$obj object
+			$name string
+				$age float
+				$structs list:object
+					$ leaf string
 
-	message-references
-		ref This message will be included below.
-		simple Let's include #{LibglocalExample.message-references.ref} here!
-		relative We can include #{.ref} like this if they are in the same group.
-		grouped
-			local:child2 Set it as "local" such that it can only be used from lang files of the current language.
-			note3 Local messages can be overwritten in lang
-			lib:another option is to set it as "lib" such that it can be overridden/used in other languages by
-		nephew Access grouped messages #{.grouped.child} the same way.
-		group
-			uncle Or access a message in a grandparent group as #{..ref}.
-				| Each extra . in the beginning represents "parent group", just like "/.." in a filesystem.
+message-references
+	ref= This message will be included below.
+	simple= Let's include #{LibglocalExample.message-references.ref} here!
+	relative= We can include #{.ref} like this if they are in the same group.
+	grouped
+		local=:child2 Set it as "local" such that it can only be used from lang files of the current language.
+		note3= Local messages can be overwritten in lang
+		lib=:another option is to set it as "lib" such that it can be overridden/used in other languages by
+	nephew= Access grouped messages #{.grouped.child} the same way.
+	group
+		uncle= Or access a message in a grandparent group as #{..ref}.
+			| Each extra . in the beginning represents "parent group", just like "/.." in a filesystem.
 
-		requires-args This message will be included with ${arg1}, ${arg2}, ${arg3}, ${arg4} and ${arg5}.
-			$arg1 string = {foo}
-			$arg2 string = {bar}
-			$arg3 float = -3.14
-			$arg4 string = {qux}
-			$arg5 string = {corge}
-		use-args Now we can reference it like this: #{.requires-args arg1={literal string} arg2={\0} arg3=-2.76 arg4=myarg arg5={arguments  ${myarg2} and messages #{.requires-args arg1={with stacked arguments}} are also valid}}
-				| Any number of spaces, tabs, commas and line breaks are allowed between arguments, like this: #{.requires-args
-					arg1={literal}
-							arg2={another literal with messed up indents}, arg3=-3.14
-					arg4={if you want to go crazy} ,,,,,,   ,,,  ,,,, arg5={this is also possible}
-				,,, } Or have nothing between them: #{.requires-args}
-			$myarg
-			$myarg2
+	requires-args= This message will be included with ${arg1}, ${arg2}, ${arg3}, ${arg4} and ${arg5}.
+		$arg1 string = {foo}
+		$arg2 string = {bar}
+		$arg3 float = -3.14
+		$arg4 string = {qux}
+		$arg5 string = {corge}
+	use-args= Now we can reference it like this: #{.requires-args arg1={literal string} arg2={\0} arg3=-2.76 arg4=myarg arg5={arguments  ${myarg2} and messages #{.requires-args arg1={with stacked arguments}} are also valid}}
+			| Any number of spaces, tabs, commas and line breaks are allowed between arguments, like this: #{.requires-args
+				arg1={literal}
+						arg2={another literal with messed up indents}, arg3=-3.14
+				arg4={if you want to go crazy} ,,,,,,   ,,,  ,,,, arg5={this is also possible}
+			,,, } Or have nothing between them: #{.requires-args}
+		$myarg
+		$myarg2
 
-		requires-object This message requires an object parameter: ${object.field1}, ${object.field2}
-			$object object
-				$field1
-				$field2
-		object Object fields can be passed separately like this: #{.requires-object object.field1={foo} object.field2={bar}}
-		all All arguments can be represented as an object called . and be used in the argument name/value of the list.
-		one-to-all \${arg\} in this message contains some of the fields in requires-args, so we can pass it directly:
-				| #{.requires-args .=arg}
-			$arg
-				$field1
-				$field2
-		all-to-one All parameters of this message can be grouped into an object ".", like this: #{.requires-object object=.}
+	requires-object= This message requires an object parameter: ${object.field1}, ${object.field2}
+		$object object
 			$field1
 			$field2
-		all-to-all Or just throw all args over: #{.requires-args .=. arg3=another-name}
+	object= Object fields can be passed separately like this: #{.requires-object object.field1={foo} object.field2={bar}}
+	all= All arguments can be represented as an object called . and be used in the argument name/value of the list.
+	one-to-all= \${arg\} in this message contains some of the fields in requires-args, so we can pass it directly:
+			| #{.requires-args .=arg}
+		$arg
 			$field1
 			$field2
-			$another-name float
+	all-to-one= All parameters of this message can be grouped into an object ".", like this: #{.requires-object object=.}
+		$field1
+		$field2
+	all-to-all= Or just throw all args over: #{.requires-args .=. arg3=another-name}
+		$field1
+		$field2
+		$another-name float
 
-	spans
-		styles %{info This is an info message.} %{success This is a success message.} %{notice This is a notice message.}
-			| %{warn This is a warning message.} %{error This is an error message.}
-		highlight You can %{hl1 highlight} %{hl2 certain %{hl3 certain %{hl4 words}} in a %{hl3 sentence}}.
-		decoration Or %{b bold, %{i italic, %{u underline and %{s strikethrough}}}} them.
+spans
+	styles= %{info This is an info message.} %{success This is a success message.} %{notice This is a notice message.}
+		| %{warn This is a warning message.} %{error This is an error message.}
+	highlight= You can %{hl1 highlight} %{hl2 certain %{hl3 certain %{hl4 words}} in a %{hl3 sentence}}.
+	decoration= Or %{b bold, %{i italic, %{u underline and %{s strikethrough}}}} them.
