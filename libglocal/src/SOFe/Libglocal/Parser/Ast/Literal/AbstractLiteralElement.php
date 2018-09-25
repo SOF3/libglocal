@@ -55,7 +55,7 @@ abstract class AbstractLiteralElement extends AstNode{
 		];
 	}
 
-	protected abstract function acceptComponent() : ?AstNode;
+	abstract protected function acceptComponent() : ?AstNode;
 
 	/**
 	 * @return LiteralComponentElement[]

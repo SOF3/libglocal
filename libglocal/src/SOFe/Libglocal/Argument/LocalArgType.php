@@ -20,24 +20,12 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast;
+namespace SOFe\Libglocal\Argument;
 
-use SOFe\Libglocal\Parser\Token;
+use SOFe\Libglocal\Parser\Ast\Attribute\AttributeValueElement;
 
-abstract class BlockParentAstNode extends AstNode{
-	final protected function complete() : void{
-		$this->initial();
-		if($this->acceptToken(Token::INDENT_INCREASE)){
-			while(true){
-				if($this->acceptToken(Token::INDENT_DECREASE)){
-					break;
-				}
-				$this->acceptChild();
-			}
-		}
-	}
+abstract class LocalArgType{
+	abstract public function setDefault(AttributeValueElement $value) : void;
 
-	abstract protected function initial() : void;
-
-	abstract protected function acceptChild() : void;
+	abstract public function createRef(array $attributes) : ArgRef;
 }

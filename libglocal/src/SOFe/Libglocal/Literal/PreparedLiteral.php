@@ -20,24 +20,9 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast;
+namespace SOFe\Libglocal\Literal;
 
-use SOFe\Libglocal\Parser\Token;
-
-abstract class BlockParentAstNode extends AstNode{
-	final protected function complete() : void{
-		$this->initial();
-		if($this->acceptToken(Token::INDENT_INCREASE)){
-			while(true){
-				if($this->acceptToken(Token::INDENT_DECREASE)){
-					break;
-				}
-				$this->acceptChild();
-			}
-		}
-	}
-
-	abstract protected function initial() : void;
-
-	abstract protected function acceptChild() : void;
+class PreparedLiteral{
+	/** @var LiteralComponent[] */
+	protected $components = [];
 }

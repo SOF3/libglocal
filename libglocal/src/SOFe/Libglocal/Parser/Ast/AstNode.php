@@ -50,13 +50,13 @@ abstract class AstNode implements JsonSerializable, IAstNode{
 		return true;
 	}
 
-	protected abstract function complete() : void;
+	abstract protected function complete() : void;
 
-	protected final function expectAnyChildren(string ...$classes) : AstNode{
+	final protected function expectAnyChildren(string ...$classes) : AstNode{
 		return $this->readAnyChildren($classes, true);
 	}
 
-	protected final function acceptAnyChildren(string ...$classes) : ?AstNode{
+	final protected function acceptAnyChildren(string ...$classes) : ?AstNode{
 		return $this->readAnyChildren($classes, false);
 	}
 
@@ -94,11 +94,11 @@ abstract class AstNode implements JsonSerializable, IAstNode{
 		return null;
 	}
 
-	protected final function expectToken(int $type) : Token{
+	final protected function expectToken(int $type) : Token{
 		return $this->readToken($type, true);
 	}
 
-	protected final function acceptToken(int $type) : ?Token{
+	final protected function acceptToken(int $type) : ?Token{
 		return $this->readToken($type, false);
 	}
 
@@ -116,11 +116,11 @@ abstract class AstNode implements JsonSerializable, IAstNode{
 		return null;
 	}
 
-	protected final function expectTokenText(int $type, string $text) : Token{
+	final protected function expectTokenText(int $type, string $text) : Token{
 		return $this->readTokenText($type, $text, true);
 	}
 
-	protected final function acceptTokenText(int $type, string $text) : ?Token{
+	final protected function acceptTokenText(int $type, string $text) : ?Token{
 		return $this->readTokenText($type, $text, false);
 	}
 
@@ -138,7 +138,7 @@ abstract class AstNode implements JsonSerializable, IAstNode{
 		return null;
 	}
 
-	protected final function acceptTokenCategory(int $category) : ?Token{
+	final protected function acceptTokenCategory(int $category) : ?Token{
 		$token = $this->lexer->next();
 		if($token !== null && $token->getTypeCategory() === $category){
 			return $token;
@@ -169,7 +169,7 @@ abstract class AstNode implements JsonSerializable, IAstNode{
 		throw new InitException($message . " on line " . $this->getLine(), $this->getFileName());
 	}
 
-	protected static abstract function getNodeName() : string;
+	abstract protected static function getNodeName() : string;
 
 	public function __toString() : string{
 		return static::getNodeName();
@@ -179,5 +179,5 @@ abstract class AstNode implements JsonSerializable, IAstNode{
 		return ["nodeName" => static::getNodeName()] + $this->toJsonArray();
 	}
 
-	protected abstract function toJsonArray() : array;
+	abstract protected function toJsonArray() : array;
 }

@@ -20,24 +20,14 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast;
+namespace SOFe\Libglocal\Argument;
 
-use SOFe\Libglocal\Parser\Token;
+use SOFe\Libglocal\Parser\Ast\Constraint\ConstraintBlock;
 
-abstract class BlockParentAstNode extends AstNode{
-	final protected function complete() : void{
-		$this->initial();
-		if($this->acceptToken(Token::INDENT_INCREASE)){
-			while(true){
-				if($this->acceptToken(Token::INDENT_DECREASE)){
-					break;
-				}
-				$this->acceptChild();
-			}
-		}
+abstract class ArgType{
+	public function acceptConstraint(ConstraintBlock $block) : bool{
+		return false;
 	}
 
-	abstract protected function initial() : void;
-
-	abstract protected function acceptChild() : void;
+	abstract public function localize() : LocalArgType;
 }

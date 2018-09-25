@@ -1,0 +1,11 @@
+LangManager => MathRule[], Message[]
+Message => id, Translation[], Argument[], doc, version
+Argument => name, ArgType, doc
+ArgType => Constraint[]
+Translation => lang, MathRule[], PreparedLiteral
+Translation + ArgType => LocalArgType
+LocalArgType => defaultValue
+PreparedLiteral => LiteralComponent[]
+SpanLiteralComponent => spanId, PreparedLiteral
+ArgLiteralComponent + LocalArgType => ArgRef
+MessageLiteralComponent => *Message, map[targetArgName]*value

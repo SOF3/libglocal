@@ -42,6 +42,7 @@ while(true){
 }
 
 $end = microtime(true);
-printf("Time token: %g ms\n", ($end - $start) * 1000);
+printf("Time taken: %g ms\n", ($end - $start) * 1000);
+printf("Tokens parsed: %d\n", $number);
 printf("Time per effective token: %g ms\n", ($end - $start) * 1000 / $number);
 //}

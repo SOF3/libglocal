@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace SOFe\Libglocal;
 
 use SOFe\Libglocal\Math\MathRule;
+use SOFe\Libglocal\Message\Message;
 use SOFe\Libglocal\Parser\Ast\LibglocalFile;
 use SOFe\Libglocal\Parser\Lexer\LibglocalLexer;
 
@@ -35,6 +36,10 @@ class LangManager{
 	/** @var LibglocalFile[] */
 	protected $auxFiles = [];
 
+	/** @var Message[] */
+	protected $globalMessages = [];
+	/** @var Message[][] */
+	protected $localMessages = [];
 	/** @var MathRule[][] */
 	protected $mathRules = [];
 

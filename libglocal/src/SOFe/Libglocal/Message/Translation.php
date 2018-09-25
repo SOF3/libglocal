@@ -20,24 +20,16 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast;
+namespace SOFe\Libglocal\Message;
 
-use SOFe\Libglocal\Parser\Token;
+use SOFe\Libglocal\Literal\PreparedLiteral;
+use SOFe\Libglocal\Math\MathRule;
 
-abstract class BlockParentAstNode extends AstNode{
-	final protected function complete() : void{
-		$this->initial();
-		if($this->acceptToken(Token::INDENT_INCREASE)){
-			while(true){
-				if($this->acceptToken(Token::INDENT_DECREASE)){
-					break;
-				}
-				$this->acceptChild();
-			}
-		}
-	}
-
-	abstract protected function initial() : void;
-
-	abstract protected function acceptChild() : void;
+class Translation{
+	/** @var string */
+	protected $lang;
+	/** @var MathRule[] */
+	protected $rules;
+	/** @var PreparedLiteral */
+	protected $literal;
 }
