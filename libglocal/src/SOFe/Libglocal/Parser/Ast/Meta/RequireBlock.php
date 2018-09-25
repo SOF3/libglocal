@@ -30,7 +30,7 @@ class RequireBlock extends AstNode{
 	protected $target;
 
 	protected function accept() : bool{
-		return $this->acceptToken(Token::REQUIRE) !== null;
+		return $this->acceptTokenText(Token::IDENTIFIER, "require") !== null;
 	}
 
 	protected function complete() : void{
@@ -38,10 +38,10 @@ class RequireBlock extends AstNode{
 	}
 
 	protected static function getNodeName() : string{
-		return "<require>";
+		return "require";
 	}
 
-	public function jsonSerialize() : array{
+	public function toJsonArray() : array{
 		return [
 			"target" => $this->target,
 		];

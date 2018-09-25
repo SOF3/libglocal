@@ -47,7 +47,7 @@ class ArgRefComponentElement extends AstNode implements LiteralComponentElement{
 		return "arg reference";
 	}
 
-	public function jsonSerialize() : array{
+	public function toJsonArray() : array{
 		return [
 			"name" => $this->name,
 			"attributes" => $this->attributes,

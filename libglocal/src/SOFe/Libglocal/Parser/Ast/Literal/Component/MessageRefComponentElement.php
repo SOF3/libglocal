@@ -50,7 +50,7 @@ class MessageRefComponentElement extends AstNode implements LiteralComponentElem
 		return "message reference";
 	}
 
-	public function jsonSerialize() : array{
+	public function toJsonArray() : array{
 		return [
 			"dynamic" => $this->dynamic,
 			"name" => $this->name,

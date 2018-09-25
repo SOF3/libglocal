@@ -52,10 +52,10 @@ class MathRuleBlock extends AstNode{
 	}
 
 	protected static function getNodeName() : string{
-		return "<math rule>";
+		return "math rule";
 	}
 
-	public function jsonSerialize() : array{
+	public function toJsonArray() : array{
 		return [
 			"isRestriction" => $this->restriction,
 			"name" => $this->name,

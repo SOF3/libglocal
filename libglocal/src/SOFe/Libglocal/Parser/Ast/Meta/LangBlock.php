@@ -35,12 +35,13 @@ class LangBlock extends AstNode{
 	protected $name;
 
 	protected function accept() : bool{
-		if($this->acceptToken(Token::BASE_LANG)){
+		if($this->acceptTokenText(Token::IDENTIFIER, "base")){
+			$this->expectTokenText(Token::IDENTIFIER, "lang");
 			$this->base = true;
 			return true;
 		}
 
-		if($this->acceptToken(Token::LANG)){
+		if($this->acceptTokenText(Token::IDENTIFIER, "lang")){
 			$this->base = false;
 			return true;
 		}
@@ -50,14 +51,15 @@ class LangBlock extends AstNode{
 
 	protected function complete() : void{
 		$this->id = $this->expectToken(Token::IDENTIFIER)->getCode();
+		$this->expectToken(Token::EQUALS);
 		$this->name = $this->expectAnyChildren(StaticLiteralElement::class);
 	}
 
 	protected static function getNodeName() : string{
-		return "<lang>";
+		return "lang";
 	}
 
-	public function jsonSerialize() : array{
+	public function toJsonArray() : array{
 		return [
 			"base" => $this->base,
 			"id" => $this->id,

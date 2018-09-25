@@ -43,7 +43,7 @@ class LiteralAttributeValueElement extends AstNode implements AttributeValueElem
 		return "literal attribute value";
 	}
 
-	public function jsonSerialize() : array{
+	public function toJsonArray() : array{
 		return [
 			"literal" => $this->literal,
 		];

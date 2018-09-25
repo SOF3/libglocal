@@ -46,7 +46,7 @@ class SpanComponentElement extends AstNode implements LiteralComponentElement{
 		return "span";
 	}
 
-	public function jsonSerialize() : array{
+	public function toJsonArray() : array{
 		return [
 			"name" => $this->name,
 			"literal" => $this->literal,

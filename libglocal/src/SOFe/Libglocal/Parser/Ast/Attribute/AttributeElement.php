@@ -42,7 +42,7 @@ class AttributeElement extends AstNode{
 	}
 
 	protected function complete() : void{
-		$this->expectToken(Token::EQUALS);
+		$this->acceptToken(Token::EQUALS);
 		$this->value = $this->expectAnyChildren(LiteralAttributeValueElement::class, NumberAttributeValueElement::class,
 			ArgumentAttributeValueElement::class, MessageAttributeValueElement::class);
 	}
@@ -63,7 +63,7 @@ class AttributeElement extends AstNode{
 		return $this->value;
 	}
 
-	public function jsonSerialize() : array{
+	public function toJsonArray() : array{
 		return [
 			"isMath" => $this->isMath,
 			"name" => $this->name,

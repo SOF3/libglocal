@@ -30,7 +30,7 @@ class VersionBlock extends AstNode{
 	protected $value;
 
 	protected function accept() : bool{
-		return $this->acceptToken(Token::VERSION) !== null;
+		return $this->acceptTokenText(Token::IDENTIFIER, "version") !== null;
 	}
 
 	protected function complete() : void{
@@ -38,10 +38,10 @@ class VersionBlock extends AstNode{
 	}
 
 	protected static function getNodeName() : string{
-		return "<version>";
+		return "version";
 	}
 
-	public function jsonSerialize() : array{
+	public function toJsonArray() : array{
 		return [
 			"value" => $this->value,
 		];

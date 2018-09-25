@@ -25,5 +25,13 @@ namespace SOFe\Libglocal;
 use SOFe\Libglocal\Format\Format;
 
 interface LibglocalConfig{
-	public function format(string $id) : Format;
+	public function format(string $id, Format $context) : Format;
+
+	public function logDebug(string $message) : void;
+
+	public function logInfo(string $message) : void;
+
+	public function logNotice(string $message) : void;
+
+	public function logWarning(string $message) : void;
 }

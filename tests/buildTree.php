@@ -21,11 +21,18 @@
 declare(strict_types=1);
 
 use SOFe\Libglocal\Parser\Ast\AstRoot;
+use SOFe\Libglocal\Parser\Ast\LibglocalFile;
 use SOFe\Libglocal\Parser\Lexer\LibglocalLexer;
 
 require_once __DIR__ . "/autoload.php";
 
+for($trials = 0; $trials < 100; $trials++){
+$start = microtime(true);
 $data = file_get_contents(__DIR__ . "/../LibglocalExample/resources/lang/en_US.lang");
 $lexer = new LibglocalLexer("LibglocalExample/.../en_US.lang", $data);
-$parser = new AstRoot($lexer);
-echo yaml_emit(json_decode(json_encode($parser), true)); // fish yaml
+$parser = new LibglocalFile($lexer);
+//echo yaml_emit(json_decode(json_encode($parser), true)); // f*** yaml
+$end = microtime(true);
+printf("Time token: %g ms\n", ($end - $start) * 1000);
+//printf("Time per effective token: %g ms\n", ($end - $start) * 1000 / $number);
+}

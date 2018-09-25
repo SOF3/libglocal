@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection DisconnectedForeachInstructionInspection */
 
 /*
  * libglocal
@@ -20,9 +20,9 @@
 
 declare(strict_types=1);
 
-use SOFe\Libglocal\CLI\DummyLogger;
+use SOFe\Libglocal\Format\Format;
 use SOFe\Libglocal\LangManager;
-use SOFe\Libglocal\Message;
+use SOFe\Libglocal\LibglocalConfig;
 
 require_once __DIR__ . "/../cli-autoload.php";
 require_once __DIR__ . "/polyfill.php";
@@ -36,9 +36,29 @@ if(!is_file($file)){
 	throw new InvalidArgumentException("$file is not a file");
 }
 
-$manager = new LangManager(new DummyLogger);
-$manager->loadFile($file, fopen($file, "rb"));
-$manager->init(false);
+$manager = new LangManager(new class implements LibglocalConfig{
+	public function format(string $id, Format $context) : Format{
+		return Format::create(null);
+	}
+
+	public function logDebug(string $message) : void{
+		echo "[DEBUG] $message\n";
+	}
+
+	public function logInfo(string $message) : void{
+		echo "[INFO] $message\n";
+	}
+
+	public function logNotice(string $message) : void{
+		echo "[NOTICE] $message\n";
+	}
+
+	public function logWarning(string $message) : void{
+		echo "[WARNING] $message\n";
+	}
+});
+$manager->loadLang($file, file_get_contents($file));
+$manager->init();
 
 $EOL = PHP_EOL;
 $INDENT = "\t";

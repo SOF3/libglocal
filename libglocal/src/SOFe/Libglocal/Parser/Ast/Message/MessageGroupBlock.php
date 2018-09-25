@@ -38,13 +38,14 @@ class MessageGroupBlock extends AstNode implements MessageParentBlock{
 
 
 	protected function accept() : bool{
-		while(($token = $this->acceptToken(Token::CATEGORY_FLAGS)) !== null){
+		while(($token = $this->acceptToken(Token::FLAG)) !== null){
 			$this->flags[] = $token;
 		}
 		if(($token = $this->acceptToken(Token::IDENTIFIER)) === null){
 			return false;
 		}
 		$this->id = $token->getCode();
+		$this->acceptToken(Token::EQUALS);
 
 		return $this->acceptToken(Token::INDENT_INCREASE) !== null;
 	}
@@ -64,7 +65,7 @@ class MessageGroupBlock extends AstNode implements MessageParentBlock{
 		return "message group";
 	}
 
-	public function jsonSerialize() : array{
+	public function toJsonArray() : array{
 		return [
 			"flags" => $this->flags,
 			"id" => $this->id,

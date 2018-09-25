@@ -59,7 +59,7 @@ class MathPredicateElement extends AstNode{
 		return "arithmetic predicate";
 	}
 
-	public function jsonSerialize() : array{
+	public function toJsonArray() : array{
 		return [
 			"mod" => $this->mod,
 			"comparator" => $this->comparator,

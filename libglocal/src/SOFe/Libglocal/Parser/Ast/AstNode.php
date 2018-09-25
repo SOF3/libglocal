@@ -30,6 +30,7 @@ use SOFe\Libglocal\Parser\Token;
 use function array_map;
 use function count;
 use function implode;
+use function json_encode;
 
 abstract class AstNode implements JsonSerializable, IAstNode{
 	/** @var LibglocalLexer */
@@ -115,6 +116,28 @@ abstract class AstNode implements JsonSerializable, IAstNode{
 		return null;
 	}
 
+	protected final function expectTokenText(int $type, string $text) : Token{
+		return $this->readTokenText($type, $text, true);
+	}
+
+	protected final function acceptTokenText(int $type, string $text) : ?Token{
+		return $this->readTokenText($type, $text, false);
+	}
+
+	private function readTokenText(int $type, string $text, bool $throw) : ?Token{
+		$token = $this->lexer->next();
+		if($token !== null && $token->getType() === $type && $token->getCode() === $text){
+			return $token;
+		}
+		if($throw){
+			throw $this->lexer->throwExpect(json_encode($text), $token);
+		}
+		if($token !== null){
+			$this->lexer->rewind($token);
+		}
+		return null;
+	}
+
 	protected final function acceptTokenCategory(int $category) : ?Token{
 		$token = $this->lexer->next();
 		if($token !== null && $token->getTypeCategory() === $category){
@@ -151,4 +174,10 @@ abstract class AstNode implements JsonSerializable, IAstNode{
 	public function __toString() : string{
 		return static::getNodeName();
 	}
+
+	public function jsonSerialize(){
+		return ["nodeName" => static::getNodeName()] + $this->toJsonArray();
+	}
+
+	protected abstract function toJsonArray() : array;
 }

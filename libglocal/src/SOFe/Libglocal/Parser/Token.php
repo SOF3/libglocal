@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\Parser;
 
+use function json_encode;
 use JsonSerializable;
 use ReflectionClass;
 use RuntimeException;
@@ -49,30 +50,24 @@ final class Token implements JsonSerializable{
 	public const MOD_DOC = 0x0302;
 	public const MOD_VERSION = 0x0303;
 
-	public const CATEGORY_FLAGS = 0x0400;
-	public const FLAG_UNKNOWN = 0x0400;
-	public const FLAG_PUBLIC = 0x0401;
-	public const FLAG_LIB = 0x0402;
-	public const FLAG_LOCAL = 0x0403;
-	public const FLAG_LIST = 0x0404;
-
 	public const CATEGORY_IDENTIFIERS = 0x0500;
 	public const IDENTIFIER = 0x0500;
 	public const EQUALS = 0x0501;
+	public const FLAG = 0x0502;
 
 	public const CATEGORY_LITERAL = 0x0600;
 	public const LITERAL = 0x0600;
 	public const ESCAPE = 0x0601;
 	public const CLOSE_BRACE = 0x0602;
 
-	public const CATEGORY_ARG_REF = 0x0700;
-	public const ARG_REF_START = 0x0700;
+	public const CATEGORY_ATTRIBUTE = 0x0700;
+	public const ATTRIBUTE_SIMPLE_MESSAGE = 0x0701;
+	public const NUMBER = 0x0702;
 
-	public const CATEGORY_MESSAGE_REF = 0x0800;
-	public const MESSAGE_REF_START = 0x0800;
-	public const NUMBER = 0x0801;
-	public const OPEN_BRACE = 0x0802;
-	public const MESSAGE_REF_SIMPLE = 0x0803;
+	public const CATEGORY_REF = 0x0800;
+	public const ARG_REF_START = 0x0801;
+	public const MESSAGE_REF_START = 0x0802;
+	public const OPEN_BRACE = 0x0804;
 
 	public const CATEGORY_SPAN = 0x0000;
 	public const SPAN_START = 0x0900;
@@ -149,7 +144,7 @@ final class Token implements JsonSerializable{
 	}
 
 	public function throwExpect(string $expect, string $fileName) : ParseException{
-		throw new ParseException("Expecting $expect, got {$this->getTypeName()} on line {$this->line}", $fileName);
+		throw new ParseException("Expecting $expect, got {$this->getTypeName()} (" . json_encode($this->code) . ") on line {$this->line}", $fileName);
 	}
 
 	public function jsonSerialize(){

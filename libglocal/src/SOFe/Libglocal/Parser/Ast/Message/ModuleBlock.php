@@ -20,25 +20,32 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Translation\Component;
+namespace SOFe\Libglocal\Parser\Ast\Message;
 
-use SOFe\Libglocal\Context;
-use SOFe\Libglocal\Format\FormattedString;
-use SOFe\Libglocal\Format\LiteralFormattedString;
-use SOFe\Libglocal\LangManager;
+use SOFe\Libglocal\Parser\Ast\AstNode;
+use SOFe\Libglocal\Parser\Token;
 
-class StaticResolvedComponent implements ResolvedComponent{
+class ModuleBlock extends AstNode{
 	/** @var string */
-	protected $literal;
+	protected $module;
 
-	public function __construct(string $literal){
-		$this->literal = $literal;
+	protected function accept() : bool{
+		return $this->acceptTokenText(Token::IDENTIFIER, "module") !== null;
 	}
 
-	public function resolve(LangManager $manager) : void{
+	protected function complete() : void{
+		$this->module = $this->expectToken(Token::IDENTIFIER)->getCode();
 	}
 
-	public function toString(Context $context) : FormattedString{
-		return new LiteralFormattedString($this->literal);
+	public function getModule() : string{
+		return $this->module;
+	}
+
+	public function toJsonArray() : array{
+		return ["module" => $this->module];
+	}
+
+	protected static function getNodeName() : string{
+		return "module";
 	}
 }

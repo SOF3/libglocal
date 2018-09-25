@@ -46,7 +46,7 @@ class ArgumentAttributeValueElement extends AstNode implements AttributeValueEle
 		return "argument attribute value";
 	}
 
-	public function jsonSerialize() : array{
+	public function toJsonArray() : array{
 		return [
 			"argName" => $this->argName,
 		];

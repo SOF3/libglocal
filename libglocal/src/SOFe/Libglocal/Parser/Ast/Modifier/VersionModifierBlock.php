@@ -38,10 +38,10 @@ class VersionModifierBlock extends AstNode{
 	}
 
 	protected static function getNodeName() : string{
-		return "<version>";
+		return "version";
 	}
 
-	public function jsonSerialize() : array{
+	public function toJsonArray() : array{
 		return [
 			"target" => $this->target,
 		];

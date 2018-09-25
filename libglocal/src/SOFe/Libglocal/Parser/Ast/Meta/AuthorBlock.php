@@ -31,18 +31,19 @@ class AuthorBlock extends AstNode{
 	protected $value;
 
 	protected function accept() : bool{
-		return $this->acceptToken(Token::AUTHOR) !== null;
+		return $this->acceptTokenText(Token::IDENTIFIER, "author") !== null;
 	}
 
 	protected function complete() : void{
+		$this->expectToken(Token::EQUALS);
 		$this->value = $this->expectAnyChildren(StaticLiteralElement::class);
 	}
 
 	protected static function getNodeName() : string{
-		return "<author>";
+		return "author";
 	}
 
-	public function jsonSerialize() : array{
+	public function toJsonArray() : array{
 		return [
 			"value" => $this->value,
 		];

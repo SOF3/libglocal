@@ -57,19 +57,23 @@ arguments
 		$ spaced
 	explicit-type= The argument "${arg}" is resolved in the same way, because "string" is the default argument type.
 		$arg string
-	other-types= Arguments can also be int (${integer}), float (${float}), or booleans (${bool}).
+	other-types= Arguments can also be int (${integer}), float (${float}), or boolean (${bool}).
 		$integer int
 		$float float
 		$bool bool
 
 	defaults= These scalar types can have default values.
 			| ${str}, ${integer}, ${float} and ${bool} will show "foo" "1234" "-3.14" "false" if no arguments are passed.
-		$str string = foo
+			| An argument can also be default as another argument, e.g. ${fs} will show "foo" by default too.
+		$str string = {foo}
 		$integer int = 1234
 		$float float = -3.140
 		$bool bool = 0
+		$fs = {foo}
 
-	quantity= ${apples @one={apple} @={apples}} reads "3 apples" when apples = 3, "1 apple" when apple is one
+	quantity= ${apples @one={${1} apple} @={${1} apples}} reads "3 apples" when apples = 3, "1 apple" when apple is one
+		$apples int
+	no-equal= The = sign is optional: ${apples @one{${1} apple} @{${1} apples}}
 		$apples int
 
 	lists= The "list:" flag can be applied in front of the type to turn it into a list type.

@@ -53,14 +53,14 @@ abstract class ArgLikeBlock extends BlockParentAstNode{
 
 	protected function initial() : void{
 		$this->name = $this->expectToken(Token::IDENTIFIER)->getCode();
-		while(($typeFlag = $this->acceptTokenCategory(Token::CATEGORY_FLAGS)) !== null){
+		while(($typeFlag = $this->acceptToken(Token::FLAG)) !== null){
 			$this->typeFlags[] = $typeFlag;
 		}
 		if(($type = $this->acceptToken(Token::IDENTIFIER)) !== null){
 			$this->explicitType = true;
 			$this->type = $type->getCode();
 		}
-		if($this->acceptToken(Token::EQUALS)){
+		if($this->acceptToken(Token::EQUALS) !== null){
 			$this->default = $this->expectAnyChildren(LiteralAttributeValueElement::class, NumberAttributeValueElement::class,
 				ArgumentAttributeValueElement::class, MessageAttributeValueElement::class);
 		}
@@ -70,7 +70,7 @@ abstract class ArgLikeBlock extends BlockParentAstNode{
 		$this->constraints[] = $this->expectAnyChildren(FieldConstraintBlock::class, MathRuleBlock::class);
 	}
 
-	public function jsonSerialize() : array{
+	public function toJsonArray() : array{
 		return [
 			"name" => $this->name,
 			"type" => [

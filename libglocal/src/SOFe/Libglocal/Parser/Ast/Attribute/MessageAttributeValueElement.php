@@ -30,7 +30,7 @@ class MessageAttributeValueElement extends AstNode implements AttributeValueElem
 	protected $target;
 
 	protected function accept() : bool{
-		return $this->acceptToken(Token::MESSAGE_REF_SIMPLE) !== null;
+		return $this->acceptToken(Token::ATTRIBUTE_SIMPLE_MESSAGE) !== null;
 	}
 
 	protected function complete() : void{
@@ -41,7 +41,7 @@ class MessageAttributeValueElement extends AstNode implements AttributeValueElem
 		return "message attribute value";
 	}
 
-	public function jsonSerialize() : array{
+	public function toJsonArray() : array{
 		return [
 			"target" => $this->target,
 		];

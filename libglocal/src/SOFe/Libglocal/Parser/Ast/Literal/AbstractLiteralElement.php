@@ -49,7 +49,7 @@ abstract class AbstractLiteralElement extends AstNode{
 		return false;
 	}
 
-	public function jsonSerialize() : array{
+	public function toJsonArray() : array{
 		return [
 			"components" => $this->components,
 		];

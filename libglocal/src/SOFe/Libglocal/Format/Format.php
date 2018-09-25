@@ -32,6 +32,26 @@ class Format{
 	public $u = false;
 	public $s = false;
 
+	public static function create(
+		?string $color,
+		bool $b = false,
+		bool $i = false,
+		bool $u = false,
+		bool $s = false
+	) : Format{
+
+		$format = new Format;
+		$format->color = $color;
+		$format->b = $b;
+		$format->i = $i;
+		$format->u = $u;
+		$format->s = $s;
+		return $format;
+	}
+
+	private function __construct(){
+	}
+
 	public function add(Format $that) : Format{
 		$new = new Format;
 		$new->color = $that->color;

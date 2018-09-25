@@ -32,7 +32,7 @@ class UseBlock extends AstNode{
 	protected $alias;
 
 	protected function accept() : bool{
-		return $this->acceptToken(Token::USE) !== null;
+		return $this->acceptTokenText(Token::IDENTIFIER, "use") !== null;
 	}
 
 	protected function complete() : void{
@@ -44,10 +44,10 @@ class UseBlock extends AstNode{
 	}
 
 	protected static function getNodeName() : string{
-		return "<use>";
+		return "use";
 	}
 
-	public function jsonSerialize() : array{
+	public function toJsonArray() : array{
 		return [
 			"target" => $this->target,
 			"alias" => $this->alias,

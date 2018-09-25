@@ -45,10 +45,10 @@ class LiteralConstraintBlock extends AstNode implements ConstraintBlock{
 	}
 
 	protected static function getNodeName() : string{
-		return "<literal constraint>";
+		return "literal constraint";
 	}
 
-	public function jsonSerialize() : array{
+	public function toJsonArray() : array{
 		return [
 			"directive" => $this->directive,
 			"value" => $this->value,

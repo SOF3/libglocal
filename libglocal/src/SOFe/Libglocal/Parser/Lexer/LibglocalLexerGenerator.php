@@ -28,15 +28,13 @@ use function array_pop;
 use function assert;
 use function count;
 use function json_encode;
-use function mb_strtolower;
 use function str_replace;
 use function strpos;
 
 class LibglocalLexerGenerator{
-	protected const IDENTIFIER_REGEX = '[A-Za-z0-9_\\.\\-]+';
+	private const IDENTIFIER_REGEX = '[A-Za-z0-9_\\.\\-]+';
 
-	protected $afterMessages = false;
-	protected $indentStack = [];
+	private $indentStack = [];
 
 	public function lex(StringReader $reader) : Generator{
 		while(!$reader->eof()){
@@ -48,7 +46,7 @@ class LibglocalLexerGenerator{
 		}
 	}
 
-	protected function lexLine(StringReader $reader) : Generator{
+	private function lexLine(StringReader $reader) : Generator{
 		$ret = yield from $this->lineStart($reader);
 		if(!$ret){
 			return;
@@ -63,7 +61,7 @@ class LibglocalLexerGenerator{
 		}
 	}
 
-	protected function lineStart(StringReader $reader) : Generator{
+	private function lineStart(StringReader $reader) : Generator{
 		$lf = $reader->readAny("\r\n", false);
 		if(!empty($lf)){
 			yield new Token(Token::WHITESPACE, $lf);
@@ -130,7 +128,7 @@ class LibglocalLexerGenerator{
 		return true;
 	}
 
-	protected function lineBody(StringReader $reader) : Generator{
+	private function lineBody(StringReader $reader) : Generator{
 		if($reader->startsWith("@")){
 			yield from $this->readMathRule($reader);
 			return;
@@ -185,7 +183,7 @@ class LibglocalLexerGenerator{
 		yield from $this->literal($reader, false);
 	}
 
-	protected function readMathRule(StringReader $reader) : Generator{
+	private function readMathRule(StringReader $reader) : Generator{
 		while(!$reader->startsWith("\r\n") && !$reader->startsWith("\n")){
 			yield from $this->readWhitespace($reader, " \t,", false, Token::MATH_SEPARATOR);
 			static $tokenMap = [
@@ -193,6 +191,7 @@ class LibglocalLexerGenerator{
 				"%" => Token::MATH_MOD,
 				"=" => Token::MATH_EQ,
 				"<>" => Token::MATH_NE,
+				"!=" => Token::MATH_NE,
 				"<=" => Token::MATH_LE,
 				"<" => Token::MATH_LT,
 				">=" => Token::MATH_GE,
@@ -214,7 +213,7 @@ class LibglocalLexerGenerator{
 		}
 	}
 
-	protected function literal(StringReader $reader, bool $closeable) : Generator{
+	private function literal(StringReader $reader, bool $closeable) : Generator{
 		while(true){
 			$literal = $reader->readAny("\r\n\\#\$%}", true);
 			if(!empty($literal)){
@@ -277,7 +276,7 @@ class LibglocalLexerGenerator{
 		}
 	}
 
-	protected function ref(StringReader $reader) : Generator{
+	private function ref(StringReader $reader) : Generator{
 		yield from $this->readWhitespace($reader, " \t\r\n");
 		if($reader->startsWith('$')){
 			yield new Token(Token::MOD_ARG, $reader->readExpected('$'));
@@ -291,7 +290,7 @@ class LibglocalLexerGenerator{
 		yield new Token(Token::CHECKSUM, "");
 	}
 
-	protected function attributeList(StringReader $reader) : Generator{
+	private function attributeList(StringReader $reader) : Generator{
 		while(!$reader->startsWith("}")){
 			yield from $this->readWhitespace($reader, " \t,\r\n", true);
 			if($reader->startsWith("}")){
@@ -310,7 +309,7 @@ class LibglocalLexerGenerator{
 		}
 	}
 
-	protected function attributeValue(StringReader $reader) : Generator{
+	private function attributeValue(StringReader $reader) : Generator{
 		if(($number = $reader->matchRead('-?[0-9]+(\\.[0-9]+)?')) !== null){
 			yield new Token(Token::NUMBER, $number);
 			return;
@@ -322,7 +321,7 @@ class LibglocalLexerGenerator{
 			return;
 		}
 		if($reader->startsWith("#")){
-			yield new Token(Token::MESSAGE_REF_SIMPLE, $reader->readExpected("#"));
+			yield new Token(Token::ATTRIBUTE_SIMPLE_MESSAGE, $reader->readExpected("#"));
 			yield from $this->readWhitespace($reader);
 		}
 		$hasIdentifier = yield from $this->readIdentifier($reader, false, false);
@@ -331,7 +330,7 @@ class LibglocalLexerGenerator{
 		}
 	}
 
-	protected function span(StringReader $reader) : Generator{
+	private function span(StringReader $reader) : Generator{
 		yield new Token(Token::SPAN_START, $reader->readExpected("%{"));
 		yield from $this->readWhitespace($reader);
 		yield from $this->readIdentifier($reader, true, true, Token::SPAN_NAME);
@@ -342,7 +341,7 @@ class LibglocalLexerGenerator{
 	}
 
 
-	protected function readWhitespace(StringReader $reader, string $charset = " \t", bool $must = false, int $tokenType = Token::WHITESPACE) : Generator{
+	private function readWhitespace(StringReader $reader, string $charset = " \t", bool $must = false, int $tokenType = Token::WHITESPACE) : Generator{
 		$white = $reader->readAny($charset, false);
 		if(!empty($white)){
 			yield new Token($tokenType, $white);
@@ -355,7 +354,7 @@ class LibglocalLexerGenerator{
 		return false;
 	}
 
-	protected function readIdentifier(StringReader $reader, bool $must, bool $needWhite = true, int $identifierType = Token::IDENTIFIER) : Generator{
+	private function readIdentifier(StringReader $reader, bool $must, bool $needWhite = true, int $identifierType = Token::IDENTIFIER) : Generator{
 		while(true){
 			$identifier = $reader->matchRead(self::IDENTIFIER_REGEX);
 			if($identifier === null){
@@ -366,7 +365,7 @@ class LibglocalLexerGenerator{
 			}
 
 			if($reader->startsWith(':')){
-				yield new Token($this->classifyToken($identifier), $identifier . $reader->readExpected(":"));
+				yield new Token(Token::FLAG, $identifier . $reader->readExpected(":"));
 				continue;
 			}
 
@@ -376,19 +375,5 @@ class LibglocalLexerGenerator{
 			}
 			return true;
 		}
-	}
-
-	protected function classifyToken(string $token) : int{
-		switch(mb_strtolower($token)){
-			case "public":
-				return Token::FLAG_PUBLIC;
-			case "lib":
-				return Token::FLAG_LIB;
-			case "local":
-				return Token::FLAG_LOCAL;
-			case "list":
-				return Token::FLAG_LIST;
-		}
-		return Token::FLAG_UNKNOWN;
 	}
 }

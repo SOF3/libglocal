@@ -22,6 +22,34 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal;
 
-class RuntimeLibglocalConfig implements LibglocalConfig{
+use Logger;
+use SOFe\Libglocal\Format\Format;
 
+class RuntimeLibglocalConfig implements LibglocalConfig{
+	/** @var Logger */
+	protected $logger;
+
+	public function __construct(Logger $logger){
+		$this->logger = $logger;
+	}
+
+	public function format(string $id, Format $context) : Format{
+		return Format::create(null);
+	}
+
+	public function logDebug(string $message) : void{
+		$this->logger->debug($message);
+	}
+
+	public function logInfo(string $message) : void{
+		$this->logger->info($message);
+	}
+
+	public function logNotice(string $message) : void{
+		$this->logger->notice($message);
+	}
+
+	public function logWarning(string $message) : void{
+		$this->logger->warning($message);
+	}
 }

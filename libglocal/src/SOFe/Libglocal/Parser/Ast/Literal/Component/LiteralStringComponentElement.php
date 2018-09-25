@@ -47,7 +47,7 @@ class LiteralStringComponentElement extends AstNode implements LiteralComponentE
 		return "literal component";
 	}
 
-	public function jsonSerialize() : array{
+	public function toJsonArray() : array{
 		return [
 			"token" => $this->token,
 		];

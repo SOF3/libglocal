@@ -46,10 +46,11 @@ class MessageBlock extends BlockParentAstNode{
 
 
 	protected function initial() : void{
-		while(($flag = $this->acceptTokenCategory(Token::CATEGORY_FLAGS)) !== null){
+		while(($flag = $this->acceptToken(Token::FLAG)) !== null){
 			$this->flags[] = $flag;
 		}
 		$this->id = $this->expectToken(Token::IDENTIFIER)->getCode();
+		$this->expectToken(Token::EQUALS);
 		$this->literal = $this->expectAnyChildren(LiteralElement::class);
 	}
 
@@ -68,10 +69,10 @@ class MessageBlock extends BlockParentAstNode{
 	}
 
 	protected static function getNodeName() : string{
-		return "<message>";
+		return "message";
 	}
 
-	public function jsonSerialize() : array{
+	public function toJsonArray() : array{
 		$ret = [
 			"id" => $this->id,
 			"literal" => $this->literal,

@@ -39,11 +39,11 @@ class DocModifierBlock extends AstNode{
 	}
 
 	protected static function getNodeName() : string{
-		return "<doc>";
+		return "doc";
 	}
 
-	public function jsonSerialize() : ?StaticLiteralElement{
-		return $this->value;
+	public function toJsonArray() : array{
+		return ["value" => $this->value];
 	}
 
 

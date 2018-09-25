@@ -52,7 +52,7 @@ class NumberAttributeValueElement extends AstNode implements AttributeValueEleme
 		return "number attribute value";
 	}
 
-	public function jsonSerialize() : array{
+	public function toJsonArray() : array{
 		return [
 			"value" => $this->value,
 		];

@@ -25,14 +25,23 @@ use SOFe\Libglocal\Parser\Lexer\LibglocalLexer;
 require_once __DIR__ . "/autoload.php";
 
 $data = file_get_contents(__DIR__ . "/../LibglocalExample/resources/lang/en_US.lang");
+
+//for($trials = 0; $trials < 100; $trials++){
+$start = microtime(true);
 $lexer = new LibglocalLexer("LibglocalExample/.../en_US.lang", $data);
 
+$number = 0;
 while(true){
 	$token = $lexer->next();
 	if($token === null){
 		break;
 	}
+	++$number;
 
-	printf("Token %s: %s #%d\n", $token->getTypeName(), json_encode($token->getCode()),
-		$token->getLine());
+//	printf("Token %s: %s #%d\n", $token->getTypeName(), json_encode($token->getCode()), $token->getLine());
 }
+
+$end = microtime(true);
+printf("Time token: %g ms\n", ($end - $start) * 1000);
+printf("Time per effective token: %g ms\n", ($end - $start) * 1000 / $number);
+//}
