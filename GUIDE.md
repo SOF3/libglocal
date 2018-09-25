@@ -1,6 +1,5 @@
-Guide for developers, translators and server owners
+Guide for developers, translators and server owners to libglocal v0.4.0
 ===
-> Updated for libglocal version 0.3.0
 
 ## What is libglocal?
 Libglocal is a library for PocketMine plugins to support multi-language display. Here are some highlighted features:
@@ -145,10 +144,8 @@ nisi.in = Voluptate velit esse cillum dolore eu fugiat nulla pariatur.
 ```
 </details>
 
-## Basics
-
-### Libglocal file format
-#### Lexing rules
+## Libglocal file format
+### Lexing rules
 <details>
 <summary>Technical details</summary>
 
@@ -178,7 +175,7 @@ The generic rules for libglocal file syntax:
 - **MATH_SYMBOL**: `@` placed at the start of a line indicates that the line is a math rule. It must be followed by one or more `@`, or an _identifier_, or both, then _whitespace characters_. After that, _numbers_, modulus sign `@` and _comparator_ (one of `=` `!=` `<>` `<=` `>=` `<` `>`) and _whitespace characters_ are allowed in the line.
 </details>
 
-#### Metadata part
+### Metadata part
 The file consists of two parts. The first part is the metadata part, which can contain
 - a required `lang`/`base lang` statement
 - zero or multiple `author` statements
@@ -192,8 +189,8 @@ The `lang`/`base lang` statement indicates the language of the file. It should b
 
 > Note: Only the `author` and `lang` statements require a `=`. A convenient way to memorize: If the last parameter may contain a space, it must follow a `=`.
 
-#### Messages part
-The second part contains the messages. First it should have a line `module ModuleName`, where `ModuleName` is the name of the file's module (explained in the "Getting started" section). Then the following lines contain messages. Each message has a simple format:
+### Messages part
+The second part contains the messages. First it should have a line `module ModuleName`, where `ModuleName` is the name of the file's module (explained in the [Getting started](#getting-started) section). Then the following lines contain messages. Each message has a simple format:
 
 ```
 message-id = Message content
@@ -201,10 +198,10 @@ message-id = Message content
 
 where `message-id` is the message ID, and `Message content` is the message text.
 
-### Messages
+## Messages
 A message is something to be translated. It can be a sentence, a big passage, or just one word. Each message must be defined in and only in one base file (except `local` messages, which are defined in the first file loaded with it). Then it can be overridden in auxiliary and custom lang files. The last-loaded files will override the rest of files.
 
-### Message groups
+## Message groups
 If two messages have the same part before `.` in the ID, they are grouped together, and groups can also be grouped in parent groups. For example, the message `a.b.c` is in the group `a.b`, which is in the group `a`. Message groups can also be written in blocked format. For example, the following codes are equivalent:
 
 <details>
@@ -229,7 +226,7 @@ lorem
 
 </details>
 
-### Escape sequences
+## Escape sequences
 The characters `#$%}\` may have special meaning in libglocal. The characters `}` and `\` must be escaped by using `\}` and `\\` instead.
 
 Normally, `#`, `$` and `%` do not need to be escaped, but if they are followed by a `{`, they must be escaped by using `\#`, `\$` and `\%`  instead.
@@ -238,7 +235,7 @@ The leading and trailing spaces and tabs before and after each message (i.e. aft
 
 In addition, messages are only written on one line. To break the message into two lines, use a `\n` sequence. Alternatively, _continuation sequences_ can be used.
 
-### Continuation sequences
+## Continuation sequences
 Sometimes lines are too long and it might be useful to break them into multiple lines. This is possible using continuation sequences.
 
 There are three types of continuation sequences: space continuation (`|`), newline continuation (`!`) and concat continuation (`\`). Simply put part of the message on the second line with the continuation character (`|!\`) at the beginning of the second line. There can be any number of spaces and tabs around the continuation character, which will be ignored (without applying indent block rules). For example, the following two codes are equivalent:
@@ -261,9 +258,9 @@ lorem.ipsum = Dolor sit
 
 `|` is most useful in space-separated languages like English and Spanish, while `\` is most useful in non-space-separated languages like Chinese and Japanese. Conventionally, `!` continuations are further indented by one level, while `|` and `\` are further indented by two levels. However, this is not mandatory.
 
-### Spans
+## Spans
 
-### Arguments
+## Arguments
 Arguments must be declared in the message definition in this syntax:
 
 ```
@@ -284,59 +281,59 @@ lorem = Dolor ${sit} ${amet}.
 
 The default value of `${sit}` is "ipsum", and that of `${amet}` is equal to the value taken by `${sit}`, i.e. the value passed for `${sit}` if any, or "ipsum" if `${sit}` is not passed from the plugin (or the [message reference](#message-references) using).
 
-### Argument types
+## Argument types
 There are 4 simple types and 2 complex types: `string`, `int`, `float`, `bool`, `list`, `object`.
 
 Different argument types may accept constraints and attributes. Constraints are child blocks of the argument declaration, so they can only be used in the base lang file. Attributes are used in an [attribute list](#attribute-list) behind the argument name, so they are different in every implementation.
 
-#### `string` type
+### `string` type
 
-##### PHP value
-##### Default value
-##### Constraints
-##### Attributes
+#### PHP value
+#### Default value
+#### Constraints
+#### Attributes
 
-#### `int` type
+### `int` type
 
-##### PHP value
-##### Default value
-##### Constraints
-##### Attributes
+#### PHP value
+#### Default value
+#### Constraints
+#### Attributes
 
-#### `float` type
+### `float` type
 
-##### PHP value
-##### Default value
-##### Constraints
-##### Attributes
+#### PHP value
+#### Default value
+#### Constraints
+#### Attributes
 
-#### `bool` type
+### `bool` type
 
-##### PHP value
-##### Default value
-##### Constraints
-##### Attributes
+#### PHP value
+#### Default value
+#### Constraints
+#### Attributes
 
-#### `list` type
+### `list` type
 
-##### PHP value
-##### Default value
-##### Constraints
-##### Attributes
+#### PHP value
+#### Default value
+#### Constraints
+#### Attributes
 
-#### `object` type
+### `object` type
 
-##### PHP value
-##### Default value
-##### Constraints
-##### Attributes
+#### PHP value
+#### Default value
+#### Constraints
+#### Attributes
 
-### Attribute list
+## Attribute list
 An attribute list is a sequence of attribute names and attribute values. Each attribute has the format `name = value`, where `name` is an identifier and `value` follows the [attribute value format](#attribute-value-format). The `=` is optional and can be replaced by whitespaces, but this makes the syntax confusing and is not encouraged.
 
 The attribute name can alternative be a reference to a math rule in the format `@`+identifier, or just a bare `@`.
 
-#### Attribute value format
+### Attribute value format
 There are 4 types of attribute formats: string literal, number literal, message ref and arg ref.
 
 A string literal is simply a literal (like message values) enclosed by a pair of `{}`.
@@ -347,7 +344,7 @@ A message ref is a `#` sign followed by an identifier, which points to the messa
 
 An arg ref is simply an identifier (without a leading `$`), which points to the argument indicated in the identifier. This format does not allow using attributes on the referenced argument. To use attributes, the string literal format with an argument reference inside should be used, like this: `{${$arg attribute={value}}}`
 
-### Message references
+## Message references
 Messages can include other messages using the message reference format:
 
 ```
@@ -360,4 +357,33 @@ ut.enim = Ad minim #{lorem.ipsum sit=veniam}.
 
 In this example, the value of `ut.enim` is equivalent to `Ad minim dolor ${veniam} amet.`. `sit=veniam` means that `${veniam}` is used as the value for the argument `${sit}` in `lorem.ipsum`. This argument list is in the [attribute list format](#attribute-list).
 
-#### Message visibility
+The message ID may be fully-qualified or relative. Relative IDs start with a `.`, which means "the parent group of the current message". Each additional `.` means "the parent group of the referenced group", so `..` means the grandparent group, `...` means the great-grandparent group, vice versa. The ID may also be aliased using the `use` statements in the metadata part of the file.
+
+The message ID can also be dynamic using the `$` prefix. Consider this example:
+
+```
+lorem.ipsum = Dolor #{$sit} amet.
+  $sit
+```
+
+The argument `$sit` here should accept a fully-qualified message ID. (Relative IDs are not allowed)
+
+## Message visibility
+Some messages may want to be referenced only from other messages. This can be achieved by message visibility.
+
+There are 4 message visibilities: `public`, `lib`, `module` and `local`. This table explains the visibilities:
+
+| Visibility | Can be used from plugin | Can be used/overridden from other languages | Can be used/overridden from other modules | Can be used/overridden from the same language and module | Can be declared in non-base lang files |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| `public` | Yes | Yes | Yes | Yes | No |
+| `lib` | No | Yes | Yes | Yes | No |
+| `module` | No | Yes | No | Yes | No |
+| `local` | No | No | Yes | Yes | Yes |
+
+The visibility can be declared as a flag on the message ID of the declaration, e.g. `lib:lorem.ipsum = Dolor sit amet.`. Note that the visibility should only be declared in the definition (i.e. the base lang file for `public`, `lib` and `module`).
+
+`public:` is the default visibility and needs not be declared.
+
+## Modules
+
+## Versioning
