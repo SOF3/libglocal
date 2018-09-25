@@ -53,12 +53,12 @@ Then copy this into `en_US.lang`:
 <details><summary>Template base lang file</summary>
 
 ```libglocal
-base lang en_US English (US)
-author AuthorName
+base lang en_US = English (US)
+author= AuthorName
 version 0.1.0
 
-messages PluginName
-	my-first-message= Hello world!
+module PluginName
+my-first-message= Hello world!
 ```
 </details>
 
@@ -77,10 +77,10 @@ First, find the language code of the language you want to translate into. It sho
 Under the lang folder, create a file like this:
 
 ```libglocal
-lang zh_TW 繁體中文
-author AuthorName
+lang zh_TW = 繁體中文
+author= AuthorName
 
-messages ModuleName
+module ModuleName
 ```
 </details>
 
@@ -96,25 +96,25 @@ For example, if the generated template is like this:
 <details><summary>Original template</summary>
 
 ```libglocal
-lang en_US English (US)
+lang en_US = English (US)
 version 0.5.0
 
-messages ExamplePlugin
+module ExamplePlugin
 
-//  lorem.ipsum = Dolor sit amet, consectetur adipiscing elit.
-//    for 1.0
+//lorem.ipsum = Dolor sit amet, consectetur adipiscing elit.
+//  ~1.0
 
-//  lorem.sed = Do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+//lorem.sed = Do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 
-//  lorem.ut = enim ad minim veniam, quis nostrud exercitation ullamco laboris.
-//    for 1.0
+//lorem.ut = enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+//  ~1.0
 
-//  nisi.in = Voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-//    | Excepteur sint non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-//    for 1.0
+//nisi.in = Voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+//  | Excepteur sint non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+//  ~1.0
 
-//  nisi.ut = Aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit.
-//    for 1.0
+//nisi.ut = Aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit.
+//  ~1.0
 ```
 </details>
 
@@ -123,25 +123,25 @@ To change `Excepteur sint` to `Occaecat cupidatat`, this section becomes like th
 <details><summary>Edited file</summary>
 
 ```libglocal
-lang en_US English (US)
+lang en_US = English (US)
 version 0.5.0
 
-messages ExamplePlugin
+module ExamplePlugin
 
-//  lorem.ipsum = Dolor sit amet, consectetur adipiscing elit.
-//    for 1.0
+//lorem.ipsum = Dolor sit amet, consectetur adipiscing elit.
+//  ~1.0
 
-//  lorem.sed = Do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+//lorem.sed = Do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 
-//  lorem.ut = enim ad minim veniam, quis nostrud exercitation ullamco laboris.
-//    for 1.0
+//lorem.ut = enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+//  ~1.0
 
-  nisi.in = Voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-    | Occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-    for 1.0
+nisi.in = Voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+  | Occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+  ~1.0
 
-//  nisi.ut = Aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit.
-//    for 1.0
+//nisi.ut = Aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit.
+//  ~1.0
 ```
 </details>
 
@@ -173,8 +173,8 @@ The generic rules for libglocal file syntax:
 - **LITERAL_ESCAPE**: A **LITERAL_ESCAPE** component consists of a `\` followed by one ASCII character. (Only certain characters are allowed behind the `\`, but the restriction is not part of the lexing rules)
 - **LITERAL_CONT**: A **LITERAL_CONT** component consists of a _newline_ followed by zero or multiple _whitespace characters_, then one of `!`, `|` or `\`. The _whitespace characters_ in between are NOT parsed using **INDENT** rules.
 - **LITERAL_SPAN**: A **LITERAL_SPAN** component has the format (`%{`, _identifier_, _whitespace characters_, _literal_, `}`).
-- **LITERAL_REF**: A **LITERAL_REF** component starts with `#{`, `${` or `#{$`, followed by an _identifier_, finally a `}`. There can be a `REF_ARG_LIST` between the _identifier_ and the `}`.
-- **REF_ARG_LIST**: A recurring sequence of (*REF_ARG_NAME*, `=`, *REF_ARG*), delimited by a `}`. *REF_ARG_NAME* is an _identifier_ with an optional `@` in front of it. *REF_ARG* is either a _number_ (an unsigned or negative-signed integer or decimal number), or an _identifier_, or a pair of `{}` with a _literal_ inside.
+- **LITERAL_REF**: A **LITERAL_REF** component starts with `#{`, `${` or `#{$`, followed by an _identifier_, finally a `}`. There can be an _attribute list_ between the _identifier_ and the `}`.
+- **ATTRIBUTE_LIST**: An _attribute list_ is a recurring sequence of (_attribute name_, `=`, _attribute value_), delimited by a `}`. _Attribute name_ is an _identifier_ with an optional `@` in front of it. _Attribute value_ is either a _number_ (an unsigned or negative-signed integer or decimal number), or an _identifier_, or a pair of `{}` with a _literal_ inside.
 - **MATH_SYMBOL**: `@` placed at the start of a line indicates that the line is a math rule. It must be followed by one or more `@`, or an _identifier_, or both, then _whitespace characters_. After that, _numbers_, modulus sign `@` and _comparator_ (one of `=` `!=` `<>` `<=` `>=` `<` `>`) and _whitespace characters_ are allowed in the line.
 </details>
 
@@ -190,5 +190,174 @@ The `lang`/`base lang` statement indicates the language of the file. It should b
 
 `author` statements list the author names. All translators should be included in the author list. The format is `author = AuthorName`.
 
+> Note: Only the `author` and `lang` statements require a `=`. A convenient way to memorize: If the last parameter may contain a space, it must follow a `=`.
+
+#### Messages part
+The second part contains the messages. First it should have a line `module ModuleName`, where `ModuleName` is the name of the file's module (explained in the "Getting started" section). Then the following lines contain messages. Each message has a simple format:
+
+```
+message-id = Message content
+```
+
+where `message-id` is the message ID, and `Message content` is the message text.
+
 ### Messages
-A message is something to be translated. It can be a sentence, a few big passage, or just one word. The definition
+A message is something to be translated. It can be a sentence, a big passage, or just one word. Each message must be defined in and only in one base file (except `local` messages, which are defined in the first file loaded with it). Then it can be overridden in auxiliary and custom lang files. The last-loaded files will override the rest of files.
+
+### Message groups
+If two messages have the same part before `.` in the ID, they are grouped together, and groups can also be grouped in parent groups. For example, the message `a.b.c` is in the group `a.b`, which is in the group `a`. Message groups can also be written in blocked format. For example, the following codes are equivalent:
+
+<details>
+
+```
+lorem.ipsum = Dolor sit amet.
+lorem.ut.enim = Ad minim veniam.
+```
+
+```
+lorem
+  ipsum = Dolor sit amet.
+  ut.enim = Ad minim veniam.
+```
+
+```
+lorem
+  ipsum = Dolor sit amet.
+  ut
+    enim = Ad minim veniam.
+```
+
+</details>
+
+### Escape sequences
+The characters `#$%}\` may have special meaning in libglocal. The characters `}` and `\` must be escaped by using `\}` and `\\` instead.
+
+Normally, `#`, `$` and `%` do not need to be escaped, but if they are followed by a `{`, they must be escaped by using `\#`, `\$` and `\%`  instead.
+
+The leading and trailing spaces and tabs before and after each message (i.e. after the `=` sign or at the end of line) will be ignored. If you really want an actual space there, use `\s` to replace the space. It is also possible to use `\0`, which gets converted into nothing (not even a space), if it is placed at the beginning/end, the spaces after/before it will not get ignored.
+
+In addition, messages are only written on one line. To break the message into two lines, use a `\n` sequence. Alternatively, _continuation sequences_ can be used.
+
+### Continuation sequences
+Sometimes lines are too long and it might be useful to break them into multiple lines. This is possible using continuation sequences.
+
+There are three types of continuation sequences: space continuation (`|`), newline continuation (`!`) and concat continuation (`\`). Simply put part of the message on the second line with the continuation character (`|!\`) at the beginning of the second line. There can be any number of spaces and tabs around the continuation character, which will be ignored (without applying indent block rules). For example, the following two codes are equivalent:
+
+<details>
+
+```
+lorem.ipsum = Dolor sit amet.\nAd minim veniam.
+```
+
+```
+lorem.ipsum = Dolor sit
+    | amet.
+  ! Ad minim
+    | ven
+    \iam.
+```
+
+</details>
+
+`|` is most useful in space-separated languages like English and Spanish, while `\` is most useful in non-space-separated languages like Chinese and Japanese. Conventionally, `!` continuations are further indented by one level, while `|` and `\` are further indented by two levels. However, this is not mandatory.
+
+### Spans
+
+### Arguments
+Arguments must be declared in the message definition in this syntax:
+
+```
+lorem.ipsum = Dolor ${sit} ${amet}.
+  $sit
+  $amet
+```
+
+This snippet declares two variables `sit` and `amet` and uses them in the message.
+
+Arguments can be optional and take default values using the `= value` syntax. The value is in the _attribute value_ format. See the [Attribute format](#attribute-value-format) section for details. For example:
+
+```
+lorem = Dolor ${sit} ${amet}.
+  $sit = {ipsum}
+  $amet = sit
+```
+
+The default value of `${sit}` is "ipsum", and that of `${amet}` is equal to the value taken by `${sit}`, i.e. the value passed for `${sit}` if any, or "ipsum" if `${sit}` is not passed from the plugin (or the [message reference](#message-references) using).
+
+### Argument types
+There are 4 simple types and 2 complex types: `string`, `int`, `float`, `bool`, `list`, `object`.
+
+Different argument types may accept constraints and attributes. Constraints are child blocks of the argument declaration, so they can only be used in the base lang file. Attributes are used in an [attribute list](#attribute-list) behind the argument name, so they are different in every implementation.
+
+#### `string` type
+
+##### PHP value
+##### Default value
+##### Constraints
+##### Attributes
+
+#### `int` type
+
+##### PHP value
+##### Default value
+##### Constraints
+##### Attributes
+
+#### `float` type
+
+##### PHP value
+##### Default value
+##### Constraints
+##### Attributes
+
+#### `bool` type
+
+##### PHP value
+##### Default value
+##### Constraints
+##### Attributes
+
+#### `list` type
+
+##### PHP value
+##### Default value
+##### Constraints
+##### Attributes
+
+#### `object` type
+
+##### PHP value
+##### Default value
+##### Constraints
+##### Attributes
+
+### Attribute list
+An attribute list is a sequence of attribute names and attribute values. Each attribute has the format `name = value`, where `name` is an identifier and `value` follows the [attribute value format](#attribute-value-format). The `=` is optional and can be replaced by whitespaces, but this makes the syntax confusing and is not encouraged.
+
+The attribute name can alternative be a reference to a math rule in the format `@`+identifier, or just a bare `@`.
+
+#### Attribute value format
+There are 4 types of attribute formats: string literal, number literal, message ref and arg ref.
+
+A string literal is simply a literal (like message values) enclosed by a pair of `{}`.
+
+A number literal is an integer or a decimal number (in the format `xxx.xxx`), optionally signed negatively (positive sign is not allowed).
+
+A message ref is a `#` sign followed by an identifier, which points to the message ID indicated in the identifier. The referenced message must not take any arguments. If arguments are to be passed, the string literal format with a [message reference](#message-references) inside should be used, like this: `{#{lorem.ipsum arg1={value}}}`
+
+An arg ref is simply an identifier (without a leading `$`), which points to the argument indicated in the identifier. This format does not allow using attributes on the referenced argument. To use attributes, the string literal format with an argument reference inside should be used, like this: `{${$arg attribute={value}}}`
+
+### Message references
+Messages can include other messages using the message reference format:
+
+```
+lorem.ipsum = dolor ${sit} amet
+  $sit
+
+ut.enim = Ad minim #{lorem.ipsum sit=veniam}.
+  $veniam
+```
+
+In this example, the value of `ut.enim` is equivalent to `Ad minim dolor ${veniam} amet.`. `sit=veniam` means that `${veniam}` is used as the value for the argument `${sit}` in `lorem.ipsum`. This argument list is in the [attribute list format](#attribute-list).
+
+#### Message visibility

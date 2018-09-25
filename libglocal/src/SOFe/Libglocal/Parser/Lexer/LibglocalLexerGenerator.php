@@ -302,8 +302,10 @@ class LibglocalLexerGenerator{
 			}
 			yield from $this->readIdentifier($reader, !$isMath, false); // key
 			yield from $this->readWhitespace($reader, " \t\r\n");
-			yield new Token(Token::EQUALS, $reader->readExpected("=")); // =
-			yield from $this->readWhitespace($reader, " \t\r\n");
+			if($reader->startsWith("=")){
+				yield new Token(Token::EQUALS, $reader->readExpected("=")); // =
+				yield from $this->readWhitespace($reader, " \t\r\n");
+			}
 			yield from $this->attributeValue($reader); // value
 		}
 	}
