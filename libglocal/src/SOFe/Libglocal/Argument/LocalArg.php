@@ -20,9 +20,14 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast\Constraint;
+namespace SOFe\Libglocal\Argument;
 
-use SOFe\Libglocal\Parser\Ast\IAstNode;
+use SOFe\Libglocal\Math\MathRule;
 
-interface ConstraintBlock extends IAstNode{
+abstract class LocalArg{
+	public function addMathRule(MathRule $rule) : bool{
+		return false;
+	}
+
+	abstract public function createRef(array $attributes) : ArgRef;
 }

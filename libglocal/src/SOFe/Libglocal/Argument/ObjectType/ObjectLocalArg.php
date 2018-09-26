@@ -20,9 +20,24 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast\Constraint;
+namespace SOFe\Libglocal\Argument\ObjectType;
 
-use SOFe\Libglocal\Parser\Ast\IAstNode;
+use SOFe\Libglocal\Argument\ArgRef;
+use SOFe\Libglocal\Argument\LocalArg;
 
-interface ConstraintBlock extends IAstNode{
+class ObjectLocalArg extends LocalArg{
+	/** @var ObjectArgType */
+	protected $type;
+
+	public function __construct(ObjectArgType $type){
+		$this->type = $type;
+	}
+
+	public function getType() : ObjectArgType{
+		return $this->type;
+	}
+
+	public function createRef(array $attributes) : ArgRef{
+		return new ObjectArgRef($this, $attributes);
+	}
 }

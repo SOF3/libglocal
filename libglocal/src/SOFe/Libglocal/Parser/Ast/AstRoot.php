@@ -27,7 +27,7 @@ use SOFe\Libglocal\Parser\Lexer\LibglocalLexer;
 
 abstract class AstRoot extends AstNode implements MessageParentBlock{
 	public function __construct(LibglocalLexer $lexer){
-		parent::__construct($lexer, $this, 1);
+		parent::__construct($lexer, $this, null, 1);
 		$this->complete();
 	}
 

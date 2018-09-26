@@ -158,9 +158,10 @@ The generic rules for libglocal file syntax:
 - **INDENT_ERROR**: If a line is not the first line and cannot be identified as a _child_ of the previous line or as the _sibling_ of any lines before it, it has an indentation error.
 - **IDENTIFIER**: An _identifier_ is a consecutive string containing only one or more latin alphabets `A-Z` `a-z`, digits `0-9`, hyphens `-`, underscores `_` and dots `.`.
 - **IDENTIFIER_LIST**: A line consists of one or multiple _identifiers_, separated by _whitespace characters_.
-- **IDENTIFIER_SYMBOL**: `$` and `~` are parsed as an _identifier_ only if placed at the start of a line. They can be followed by normal _identifiers_ without _whitespace characters_ in between.
+- **IDENTIFIER_SYMBOL**: `~` is parsed as an _identifier_ only if placed at the start of a line. It can be followed by normal _identifiers_ without _whitespace characters_ in between.
 - **IDENTIFIER_FLAG**: An _identifier_ (except the last one) can be followed by a `:` character, which means the _identifier_ is a _flag_ on the _identifier_ following it. There must be no _whitespace characters_ around the colon. There may be multiple _flags_ on the same _identifier_.
 - **IDENTIFIER_DELIM**: The last _identifier_ can be followed by a `=` character. The part behind the `=`, separated by zero or more _whitespace characters_, is a _literal_.
+- **IDENTIFIER_ARG**: `$` is parsed as an _identifier_ only if placed at the start of a line, but behind the `=` of that line should be an _attribute value_ not a _literal_.
 - **LITERAL_SYMBOL**: `*` functions the same way to the lexer as a `=` if placed at the start of a line, so it can be followed by a _literal_ after zero or more _whitespace characters_.
 - **LITERAL**: A _literal_ consists of zero or multiple of the following components:
   - Simple static components: *LITERAL_SIMPLE*, *LITERAL_ESCAPE*, *LITERAL_CONT*

@@ -20,9 +20,20 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast\Constraint;
+namespace SOFe\Libglocal\Argument\NumberType;
 
-use SOFe\Libglocal\Parser\Ast\IAstNode;
+use SOFe\Libglocal\Argument\ArgType;
+use SOFe\Libglocal\Argument\LocalArg;
 
-interface ConstraintBlock extends IAstNode{
+class NumberArgType extends ArgType{
+	/** @var bool */
+	protected $float;
+
+	public function __construct(bool $float){
+		$this->float = $float;
+	}
+
+	public function localize() : LocalArg{
+		return new NumberLocalArg($this);
+	}
 }

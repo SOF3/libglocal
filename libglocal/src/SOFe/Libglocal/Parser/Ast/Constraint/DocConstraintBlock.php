@@ -23,48 +23,28 @@ declare(strict_types=1);
 namespace SOFe\Libglocal\Parser\Ast\Constraint;
 
 use SOFe\Libglocal\Parser\Ast\AstNode;
-use SOFe\Libglocal\Parser\Ast\Literal\LiteralElement;
+use SOFe\Libglocal\Parser\Ast\Literal\StaticLiteralElement;
 use SOFe\Libglocal\Parser\Token;
 
-class LiteralConstraintBlock extends AstNode implements ConstraintBlock{
-	/** @var string */
-	protected $directive;
-	/** @var LiteralElement */
+class DocConstraintBlock extends AstNode implements ConstraintBlock{
+	/** @var StaticLiteralElement|null */
 	protected $value;
 
 	protected function accept() : bool{
-		if(($token = $this->acceptToken(Token::IDENTIFIER)) === null){
-			return false;
-		}
-		$this->directive = $token;
-		return true;
+		return $this->acceptToken(Token::MOD_DOC) !== null;
 	}
 
 	protected function complete() : void{
-		$this->value = $this->expectAnyChildren(LiteralElement::class);
+		$this->value = $this->acceptAnyChildren(StaticLiteralElement::class);
 	}
 
 	protected static function getNodeName() : string{
-		return "literal constraint";
+		return "doc";
 	}
 
-	public function toJsonArray() : array{
+	protected function toJsonArray() : array{
 		return [
-			"directive" => $this->directive,
 			"value" => $this->value,
 		];
-	}
-
-	public function inErrorString() : string{
-		return "\"{$this->directive}\"";
-	}
-
-
-	public function getDirective() : string{
-		return $this->directive;
-	}
-
-	public function getValue() : LiteralElement{
-		return $this->value;
 	}
 }

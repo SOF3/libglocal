@@ -20,9 +20,13 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast\Constraint;
+namespace SOFe\Libglocal\Argument\StringType;
 
-use SOFe\Libglocal\Parser\Ast\IAstNode;
+use SOFe\Libglocal\Argument\ArgType;
+use SOFe\Libglocal\Argument\LocalArg;
 
-interface ConstraintBlock extends IAstNode{
+class StringArgType extends ArgType{
+	public function localize() : LocalArg{
+		return new StringLocalArg($this);
+	}
 }

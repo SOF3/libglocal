@@ -20,9 +20,24 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast\Constraint;
+namespace SOFe\Libglocal\Argument\BoolType;
 
-use SOFe\Libglocal\Parser\Ast\IAstNode;
+use SOFe\Libglocal\Argument\ArgRef;
+use SOFe\Libglocal\Argument\LocalArg;
 
-interface ConstraintBlock extends IAstNode{
+class BoolLocalArg extends LocalArg{
+	/** @var BoolArgType */
+	protected $type;
+
+	public function __construct(BoolArgType $type){
+		$this->type = $type;
+	}
+
+	public function getType() : BoolArgType{
+		return $this->type;
+	}
+
+	public function createRef(array $attributes) : ArgRef{
+		return new BoolArgRef($this, $attributes);
+	}
 }

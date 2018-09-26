@@ -20,12 +20,13 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Argument;
+namespace SOFe\Libglocal\Argument\BoolType;
 
-use SOFe\Libglocal\Parser\Ast\Attribute\AttributeValueElement;
+use SOFe\Libglocal\Argument\ArgType;
+use SOFe\Libglocal\Argument\LocalArg;
 
-abstract class LocalArgType{
-	abstract public function setDefault(AttributeValueElement $value) : void;
-
-	abstract public function createRef(array $attributes) : ArgRef;
+class BoolArgType extends ArgType{
+	public function localize() : LocalArg{
+		return new BoolLocalArg($this);
+	}
 }

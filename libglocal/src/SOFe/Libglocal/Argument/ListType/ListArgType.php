@@ -20,9 +20,20 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast\Constraint;
+namespace SOFe\Libglocal\Argument\ListType;
 
-use SOFe\Libglocal\Parser\Ast\IAstNode;
+use SOFe\Libglocal\Argument\ArgType;
+use SOFe\Libglocal\Argument\LocalArg;
 
-interface ConstraintBlock extends IAstNode{
+class ListArgType extends ArgType{
+	/** @var ArgType */
+	protected $each;
+
+	public function __construct(ArgType $each){
+		$this->each = $each;
+	}
+
+	public function localize() : LocalArg{
+		return new ListLocalArg($this);
+	}
 }

@@ -23,9 +23,10 @@ declare(strict_types=1);
 namespace SOFe\Libglocal\Parser\Ast\Math;
 
 use SOFe\Libglocal\Parser\Ast\AstNode;
+use SOFe\Libglocal\Parser\Ast\Constraint\ConstraintBlock;
 use SOFe\Libglocal\Parser\Token;
 
-class MathRuleBlock extends AstNode{
+class MathRuleBlock extends AstNode implements ConstraintBlock{
 	/** @var bool */
 	protected $restriction;
 	/** @var string|null */

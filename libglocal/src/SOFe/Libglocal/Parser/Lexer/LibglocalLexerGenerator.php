@@ -365,7 +365,8 @@ class LibglocalLexerGenerator{
 			}
 
 			if($reader->startsWith(':')){
-				yield new Token(Token::FLAG, $identifier . $reader->readExpected(":"));
+				yield new Token(Token::FLAG, $identifier);
+				yield new Token(Token::WHITESPACE, $reader->readExpected(":"));
 				continue;
 			}
 

@@ -20,9 +20,13 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast\Constraint;
+namespace SOFe\Libglocal\Message;
 
-use SOFe\Libglocal\Parser\Ast\IAstNode;
+class MessageVisibility{
+	public const PUBLIC = "public";
+	public const LIB = "lib";
+	public const MODULE = "module";
+	public const LOCAL = "local";
 
-interface ConstraintBlock extends IAstNode{
+	public const ALL = [self::PUBLIC, self::LIB, self::MODULE, self::LOCAL];
 }

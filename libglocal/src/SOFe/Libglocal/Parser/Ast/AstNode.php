@@ -37,12 +37,15 @@ abstract class AstNode implements JsonSerializable, IAstNode{
 	protected $lexer;
 	/** @var AstRoot */
 	protected $root;
+	/** @var null|AstNode */
+	protected $parent;
 	/** @var int */
 	protected $line;
 
-	protected function __construct(LibglocalLexer $lexer, AstRoot $root, int $line){
+	protected function __construct(LibglocalLexer $lexer, AstRoot $root, ?AstNode $parent, int $line){
 		$this->lexer = $lexer;
 		$this->root = $root;
+		$this->parent = $parent;
 		$this->line = $line;
 	}
 
@@ -67,7 +70,7 @@ abstract class AstNode implements JsonSerializable, IAstNode{
 				$this->lexer->createStack();
 			}
 			/** @var AstNode $node */
-			$node = new $class($this->lexer, $this->root, $this->lexer->getLine());
+			$node = new $class($this->lexer, $this->root, $this, $this->lexer->getLine());
 			$accepted = $node->accept();
 
 			if(count($classes) > 1){
@@ -151,6 +154,10 @@ abstract class AstNode implements JsonSerializable, IAstNode{
 
 	public function getFileName() : string{
 		return $this->lexer->getFileName();
+	}
+
+	public function getParent() : ?AstNode{
+		return $this->parent;
 	}
 
 	public function getLine() : int{

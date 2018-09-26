@@ -20,9 +20,10 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast\Constraint;
+namespace SOFe\Libglocal\Argument\StringType;
 
-use SOFe\Libglocal\Parser\Ast\IAstNode;
+use SOFe\Libglocal\Argument\ArgRef;
 
-interface ConstraintBlock extends IAstNode{
+class StringArgRef extends ArgRef{
+
 }

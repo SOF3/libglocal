@@ -22,7 +22,14 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\Literal;
 
+use SOFe\Libglocal\Parser\Ast\Literal\LiteralElement;
+
 class PreparedLiteral{
 	/** @var LiteralComponent[] */
 	protected $components = [];
+
+	public static function fromElement(LiteralElement $element) : PreparedLiteral{
+
+		// TODO implement
+	}
 }

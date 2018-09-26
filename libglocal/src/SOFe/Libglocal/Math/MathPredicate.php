@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace SOFe\Libglocal\Math;
 
 use AssertionError;
+use SOFe\Libglocal\Parser\Ast\Math\MathPredicateElement;
 use SOFe\Libglocal\Parser\Token;
 
 class MathPredicate{
@@ -33,10 +34,10 @@ class MathPredicate{
 	/** @var int|float */
 	protected $operand;
 
-	public function __construct($mod, int $operator, $operand){
-		$this->mod = $mod;
-		$this->operator = $operator;
-		$this->operand = $operand;
+	public function __construct(MathPredicateElement $element){
+		$this->mod = $element->getMod();
+		$this->operator = $element->getComparator();
+		$this->operand = $element->getOperand();
 	}
 
 	public function test($number) : bool{

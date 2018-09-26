@@ -22,15 +22,19 @@ declare(strict_types=1);
 
 namespace SOFe\Libglocal\Math;
 
+use SOFe\Libglocal\Parser\Ast\Math\MathRuleBlock;
+
 class MathRule{
 	/** @var null|string */
 	private $result;
 	/** @var MathPredicate[] */
 	protected $predicates;
 
-	public function __construct(?string $result, array $predicates){
-		$this->result = $result;
-		$this->predicates = $predicates;
+	public function __construct(MathRuleBlock $block){
+		$this->result = $block->getName();
+		foreach($block->getPredicates() as $predicate){
+			$this->predicates[] = new MathPredicate($predicate);
+		}
 	}
 
 	public function test($number) : bool{

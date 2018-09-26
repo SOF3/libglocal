@@ -20,9 +20,24 @@
 
 declare(strict_types=1);
 
-namespace SOFe\Libglocal\Parser\Ast\Constraint;
+namespace SOFe\Libglocal\Argument\NumberType;
 
-use SOFe\Libglocal\Parser\Ast\IAstNode;
+use SOFe\Libglocal\Argument\ArgRef;
+use SOFe\Libglocal\Argument\LocalArg;
 
-interface ConstraintBlock extends IAstNode{
+class NumberLocalArg extends LocalArg{
+	/** @var NumberArgType */
+	protected $type;
+
+	public function __construct(NumberArgType $type){
+		$this->type = $type;
+	}
+
+	public function getType() : NumberArgType{
+		return $this->type;
+	}
+
+	public function createRef(array $attributes) : ArgRef{
+		return new NumberArgRef($this, $attributes);
+	}
 }
