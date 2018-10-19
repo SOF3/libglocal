@@ -5,6 +5,7 @@ import com.intellij.lang.ParserDefinition
 import com.intellij.lang.ParserDefinition.SpaceRequirements
 import com.intellij.openapi.project.Project
 import com.intellij.psi.FileViewProvider
+import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IStubFileElementType
 import com.intellij.psi.tree.TokenSet
 import io.github.sof3.libglocal.intellij.LibglocalLanguage
@@ -38,7 +39,7 @@ class LibglocalParserDef : ParserDefinition {
 
 	override fun createFile(vp: FileViewProvider) = LgcFile(vp)
 
-	override fun createElement(node: ASTNode) = LgcElements.Factory.createElement(node)
+	override fun createElement(node: ASTNode): PsiElement = LgcElements.Factory.createElement(node)
 
 	override fun getStringLiteralElements() = TokenSet.create(
 		LgcElements.LITERAL_STRING,

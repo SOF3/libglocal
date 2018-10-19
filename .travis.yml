@@ -16,4 +16,4 @@ cache:
     - $HOME/intellij/.gradle/caches/
     - $HOME/intellij/.gradle/wrapper/
 before_install: chmod +x intellij/gradlew
-script: intellij/gradlew check buildPlugin
+script: intellij/gradlew buildPlugin
