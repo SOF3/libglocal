@@ -2,3 +2,4 @@
 output/
 .gradle/
 gradle.properties
+build/
