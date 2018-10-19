@@ -1,0 +1,25 @@
+<idea-plugin>
+	<id>io.github.sof3.libglocal.intellij</id>
+	<name>Libglocal .lang support</name>
+	<version>0.4.0</version>
+	<vendor email="sofe2038@gmail.com" url="https://github.com/SOF3">SOF3</vendor>
+
+	<description><![CDATA[
+		<p>Libglocal .lang support</p>
+		<h3>Features</h3>
+		<ul>
+			<li>.lang file parsing</li>
+		</ul>
+		]]></description>
+
+	<depends>com.intellij.modules.platform</depends>
+	<depends>com.intellij.modules.lang</depends>
+
+	<extensions defaultExtensionNs="com.intellij">
+		<fileTypeFactory implementation="io.github.sof3.libglocal.intellij.LibglocalFileTypeFactory"/>
+		<lang.parserDefinition implementationClass="io.github.sof3.libglocal.intellij.parser.LibglocalParserDef"/>
+	</extensions>
+
+	<actions>
+	</actions>
+</idea-plugin>

@@ -1,0 +1,178 @@
+/*
+ * libglocal
+ *
+ * Copyright 2018 SOFe
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+{
+	parserClass="io.github.sof3.libglocal.intellij.parser.LgcParser"
+	extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+	psiPackage="io.github.sof3.libglocal.intellij.psi"
+	psiImplPackage="io.github.sof3.libglocal.intellij.psi.impl"
+	psiClassPrefix="Lgc"
+	psiImplClassSuffix="Impl"
+
+	elementTypeHolderClass="io.github.sof3.libglocal.intellij.parser.LgcElements"
+	elementTypeClass="io.github.sof3.libglocal.intellij.parser.LgcElementType"
+	tokenTypeClass="io.github.sof3.libglocal.intellij.parser.LgcTokenType"
+
+	tokens=[
+		WHITESPACE="whitespace"
+		COMMENT="comment"
+		INDENT="indent"
+		INVALID_INDENT="<invalid indent>"
+		MISSING_WHITESPACE="<whitespace missing>"
+		INVALID_CLOSE_BRACE="<invalid }>"
+	]
+	generate=[
+		tokenAccessors="yes"
+	]
+
+	psiImplUtilClass="io.github.sof3.libglocal.intellij.psi.PsiUtil"
+}
+
+private file ::= (<meta block>)+ <module block> (<abstract message block>)*
+
+
+private <meta block> ::= <lang block> | <version block> | <author block> | <require block> | <use block> | <math rule block>
+
+<lang block> ::= "base"? "lang" IDENTIFIER EQUALS <static literal> <end> {
+	methods=[
+		langId="IDENTIFIER"
+		langName="literal"
+	]
+}
+
+<version block> ::= "version" IDENTIFIER <end> {
+	methods=[
+		versionName="IDENTIFIER"
+	]
+}
+
+<author block> ::= "author" EQUALS <static literal> <end> {
+	methods=[
+		authorName="literal"
+	]
+}
+
+<require block> ::= "require" IDENTIFIER <end> {
+	methods=[
+		target="IDENTIFIER"
+	]
+}
+
+<use block> ::= "use" IDENTIFIER IDENTIFIER <end> {
+	methods=[
+		target="IDENTIFIER[0]"
+		alias="IDENTIFIER[1]"
+	]
+}
+
+<math rule block> ::= MATH_AT? (MATH_AT | IDENTIFIER)? <arithmetic predicate>* <end> {
+	methods=[
+		restriction="MATH_AT[1]"
+		ruleName="IDENTIFIER"
+	]
+}
+<arithmetic predicate> ::= MATH_SEPARATOR (MATH_MOD NUMBER)? <math comparator> NUMBER {
+	methods=[
+		mod="NUMBER[0]"
+		comparator="math comparator"
+		operand="NUMBER[1]"
+	]
+}
+<math comparator> ::= MATH_EQ | MATH_NE | MATH_LE | MATH_LT | MATH_GE | MATH_GT
+
+<module block> ::= "module" IDENTIFIER <end> {
+	methods=[
+		module="IDENTIFIER"
+	]
+}
+
+private <abstract message block> ::= <message group> | <message block>
+<message group> ::= FLAG* IDENTIFIER EQUALS? <end> (INDENT_INCREASE <abstract message block> INDENT_DECREASE)? {
+	methods=[
+		groupId="IDENTIFIER"
+	]
+}
+<message block> ::= FLAG* IDENTIFIER EQUALS <literal> <end> (INDENT_INCREASE <message modifier>* INDENT_DECREASE)? {
+	methods=[
+		messageId="IDENTIFIER"
+	]
+}
+
+private <message modifier> ::= (<arg modifier> | <doc modifier> | <version modifier>)
+
+private <arg like block> ::= MOD_ARG IDENTIFIER FLAG* IDENTIFIER? (EQUALS <attribute value>)? <end> (INDENT_INCREASE <arg constraint>* INDENT_DECREASE)? {
+	methods=[
+		argName="IDENTIFIER[0]"
+		typeFlags="FLAG"
+		argType="IDENTIFIER[1]"
+		default="attribute value"
+	]
+}
+
+<arg modifier> ::= <arg like block>
+
+private <arg constraint> ::= <arg field> | <arg doc>
+<arg field> ::= <arg like block>
+<arg doc> ::= MOD_DOC <literal>? <end> {
+	methods=[
+		text="literal"
+	]
+}
+
+<doc modifier> ::= MOD_DOC <literal>? <end> {
+	methods=[
+		text="literal"
+	]
+}
+
+<version modifier> ::= MOD_VERSION IDENTIFIER <end> {
+	methods=[
+		target="IDENTIFIER"
+	]
+}
+
+<static literal> ::= <static literal component>+
+private <static literal component> ::= LITERAL_STRING | LITERAL_ESCAPE | CONT_NEWLINE | CONT_SPACE | CONT_CONCAT
+<literal> ::= <literal component>+
+private <literal component> ::= <static literal component> | <span component> | <arg ref component> | <message ref component>
+<span component> ::= SPAN_START SPAN_NAME <literal> CLOSE_BRACE
+<arg ref component> ::= ARG_REF_START IDENTIFIER <attribute>* CLOSE_BRACE {
+	methods=[
+		argName="IDENTIFIER"
+	]
+}
+<message ref component> ::= MESSAGE_REF_START MOD_ARG? IDENTIFIER <attribute>* CLOSE_BRACE {
+	methods=[
+		dynamic="MOD_ARG"
+		messageId="IDENTIFIER"
+	]
+}
+
+<attribute> ::= IDENTIFIER EQUALS <attribute value> {
+	methods=[
+		attributeName="IDENTIFIER"
+	]
+}
+<attribute value> ::= <literal attribute value> | <number attribute value> | <argument attribute value> | <message attribute value>
+<literal attribute value> ::= OPEN_BRACE <literal> CLOSE_BRACE
+<number attribute value> ::= NUMBER
+<argument attribute value> ::= IDENTIFIER
+<message attribute value> ::= ATTRIBUTE_SIMPLE_MESSAGE IDENTIFIER
+
+<end> ::= EOL | <<eof>>

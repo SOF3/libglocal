@@ -1,9 +1,15 @@
-<?php
+package io.github.sof3.libglocal.intellij.psi
+
+import com.intellij.extapi.psi.PsiFileBase
+import com.intellij.psi.FileViewProvider
+import com.intellij.psi.stubs.PsiFileStubImpl
+import io.github.sof3.libglocal.intellij.LibglocalFileType
+import io.github.sof3.libglocal.intellij.LibglocalLanguage
 
 /*
  * libglocal
  *
- * Copyright (C) 2018 SOFe
+ * Copyright 2018 SOFe
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +24,8 @@
  * limitations under the License.
  */
 
-declare(strict_types=1);
-
-namespace SOFe\Libglocal\Parser\Ast;
-
-use SOFe\Libglocal\Parser\Lexer\LibglocalLexer;
-
-abstract class AstRoot extends AstNode{
-	public function __construct(LibglocalLexer $lexer){
-		parent::__construct($lexer, $this, null, 1);
-		$this->complete();
-	}
-
-	protected static function getNodeName() : string{
-		return "file";
-	}
-
+class LgcFile(vp: FileViewProvider) : PsiFileBase(vp, LibglocalLanguage) {
+	override fun getFileType() = LibglocalFileType
 }
+
+class LgcFileStub(file: LgcFile) : PsiFileStubImpl<LgcFile>(file)

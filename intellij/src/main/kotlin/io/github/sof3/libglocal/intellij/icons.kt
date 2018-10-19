@@ -1,9 +1,11 @@
-<?php
+package io.github.sof3.libglocal.intellij
+
+import com.intellij.openapi.util.IconLoader
 
 /*
  * libglocal
  *
- * Copyright (C) 2018 SOFe
+ * Copyright 2018 SOFe
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +20,14 @@
  * limitations under the License.
  */
 
-declare(strict_types=1);
+enum class Icons(name: String) {
+	LIBGLOCAL("libglocal"),
+	ARG("arg"),
+	GROUP("group"),
+	MESSAGE("message"),
+	MODULE("module");
 
-namespace SOFe\Libglocal\Parser\Ast;
-
-use SOFe\Libglocal\Parser\Lexer\LibglocalLexer;
-
-abstract class AstRoot extends AstNode{
-	public function __construct(LibglocalLexer $lexer){
-		parent::__construct($lexer, $this, null, 1);
-		$this->complete();
-	}
-
-	protected static function getNodeName() : string{
-		return "file";
-	}
-
+	val px13 = IconLoader.getIcon("/icons/$name-13px.png")
+	val px16 = IconLoader.getIcon("/icons/$name-16px.png")
 }
+

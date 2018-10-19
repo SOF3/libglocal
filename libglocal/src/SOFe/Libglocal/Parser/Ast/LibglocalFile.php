@@ -26,6 +26,7 @@ use AssertionError;
 use SOFe\Libglocal\Parser\Ast\Math\MathRuleBlock;
 use SOFe\Libglocal\Parser\Ast\Message\MessageBlock;
 use SOFe\Libglocal\Parser\Ast\Message\MessageGroupBlock;
+use SOFe\Libglocal\Parser\Ast\Message\MessageParentBlock;
 use SOFe\Libglocal\Parser\Ast\Message\ModuleBlock;
 use SOFe\Libglocal\Parser\Ast\Meta\AuthorBlock;
 use SOFe\Libglocal\Parser\Ast\Meta\LangBlock;
@@ -33,7 +34,7 @@ use SOFe\Libglocal\Parser\Ast\Meta\RequireBlock;
 use SOFe\Libglocal\Parser\Ast\Meta\UseBlock;
 use SOFe\Libglocal\Parser\Ast\Meta\VersionBlock;
 
-class LibglocalFile extends AstRoot{
+class LibglocalFile extends AstRoot implements MessageParentBlock{
 	/** @var LangBlock */
 	protected $lang;
 	/** @var AuthorBlock[] */

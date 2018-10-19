@@ -267,7 +267,6 @@ class LibglocalLexerGenerator{
 			if($reader->startsWith('${')){
 				yield new Token(Token::ARG_REF_START, $reader->readExpected('${'));
 				yield from $this->ref($reader);
-
 				continue;
 			}
 
