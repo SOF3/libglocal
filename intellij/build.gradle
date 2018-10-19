@@ -12,6 +12,9 @@ version '0.4.0'
 
 sourceCompatibility = 1.8
 
+ideaVersion = System.getenv("IDEA_VERSION").length() > 0 ? System.getenv("IDEA_VERSION") : '183.3283.2'
+psiViewerPluginVersion = System.getenv("PSI_VIEWER_PLUGIN_VERSION").length() > 0 ? System.getenv("PSI_VIEWER_PLUGIN_VERSION") : '183.2153'
+
 repositories {
 	maven { url 'http://dl.bintray.com/kotlin/kotlin-eap' }
 	maven { url "https://jetbrains.bintray.com/intellij-third-party-dependencies" }
@@ -31,7 +34,13 @@ compileTestKotlin {
 	kotlinOptions.jvmTarget = "1.8"
 }
 intellij {
-	version '183.3283.2'
+	version = ideaVersion
+
+	plugins = [
+		'java-i18n',
+		'properties',
+		"PsiViewer:${psiViewerPluginVersion}",
+	]
 }
 patchPluginXml {
 	changeNotes """
