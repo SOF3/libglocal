@@ -1,0 +1,19 @@
+language: java
+matrix:
+  include:
+    - jdk: oraclejdk8
+      env: IDEA_VERSION="IU-2018.2.2" PHP_PLUGIN_VERSION="182.4129.45" PSI_VIEWER_PLUGIN_VERSION="182.2757.2"
+    - jdk: oraclejdk8
+      env: IDEA_VERSION="IU-2018.3" PHP_PLUGIN_VERSION="183.3795.13" PSI_VIEWER_PLUGIN_VERSION="183.2153"
+
+before_cache:
+  - rm -f  $HOME/intellij/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/intellij/.gradle/caches/*/plugin-resolution/
+  - rm -fr $HOME/intellij/.gradle/caches/*/fileHashes/fileHashes.bin
+  - rm -fr $HOME/intellij/.gradle/caches/*/fileHashes/fileHashes.lock
+cache:
+  directories:
+    - $HOME/intellij/.gradle/caches/
+    - $HOME/intellij/.gradle/wrapper/
+before_install: chmod +x intellij/gradlew
+script: intellij/gradlew check buildPlugin

@@ -27,9 +27,9 @@ public class LgcRequireBlockImpl extends ASTWrapperPsiElement implements LgcRequ
   }
 
   @Override
-  @NotNull
-  public LgcEnd getEnd() {
-    return findNotNullChildByClass(LgcEnd.class);
+  @Nullable
+  public PsiElement getEol() {
+    return findChildByType(EOL);
   }
 
   @Override

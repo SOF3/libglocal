@@ -7,13 +7,13 @@ import com.intellij.psi.PsiElement;
 
 public interface LgcArgDoc extends PsiElement {
 
-  @NotNull
-  LgcEnd getEnd();
+  @Nullable
+  LgcFullLiteral getFullLiteral();
+
+  @Nullable
+  PsiElement getEol();
 
   @NotNull
   PsiElement getModDoc();
-
-  @Nullable
-  LgcLiteral getText();
 
 }

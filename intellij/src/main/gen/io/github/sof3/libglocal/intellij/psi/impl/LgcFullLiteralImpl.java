@@ -11,14 +11,14 @@ import static io.github.sof3.libglocal.intellij.parser.LgcElements.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.github.sof3.libglocal.intellij.psi.*;
 
-public class LgcAttributeImpl extends ASTWrapperPsiElement implements LgcAttribute {
+public class LgcFullLiteralImpl extends ASTWrapperPsiElement implements LgcFullLiteral {
 
-  public LgcAttributeImpl(@NotNull ASTNode node) {
+  public LgcFullLiteralImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull LgcVisitor visitor) {
-    visitor.visitAttribute(this);
+    visitor.visitFullLiteral(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -28,20 +28,20 @@ public class LgcAttributeImpl extends ASTWrapperPsiElement implements LgcAttribu
 
   @Override
   @NotNull
-  public LgcAttributeValue getAttributeValue() {
-    return findNotNullChildByClass(LgcAttributeValue.class);
+  public List<LgcArgRefComponent> getArgRefComponentList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, LgcArgRefComponent.class);
   }
 
   @Override
   @NotNull
-  public PsiElement getEquals() {
-    return findNotNullChildByType(EQUALS);
+  public List<LgcMessageRefComponent> getMessageRefComponentList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, LgcMessageRefComponent.class);
   }
 
   @Override
   @NotNull
-  public PsiElement getAttributeName() {
-    return findNotNullChildByType(IDENTIFIER);
+  public List<LgcSpanComponent> getSpanComponentList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, LgcSpanComponent.class);
   }
 
 }

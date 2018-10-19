@@ -33,9 +33,9 @@ public class LgcMathRuleBlockImpl extends ASTWrapperPsiElement implements LgcMat
   }
 
   @Override
-  @NotNull
-  public LgcEnd getEnd() {
-    return findNotNullChildByClass(LgcEnd.class);
+  @Nullable
+  public PsiElement getEol() {
+    return findChildByType(EOL);
   }
 
   @Override

@@ -27,6 +27,12 @@ public class LgcArithmeticPredicateImpl extends ASTWrapperPsiElement implements 
   }
 
   @Override
+  @NotNull
+  public LgcMathComparator getMathComparator() {
+    return findNotNullChildByClass(LgcMathComparator.class);
+  }
+
+  @Override
   @Nullable
   public PsiElement getMathMod() {
     return findChildByType(MATH_MOD);
@@ -36,12 +42,6 @@ public class LgcArithmeticPredicateImpl extends ASTWrapperPsiElement implements 
   @NotNull
   public PsiElement getMathSeparator() {
     return findNotNullChildByType(MATH_SEPARATOR);
-  }
-
-  @Override
-  @NotNull
-  public LgcMathComparator getComparator() {
-    return findNotNullChildByClass(LgcMathComparator.class);
   }
 
 }

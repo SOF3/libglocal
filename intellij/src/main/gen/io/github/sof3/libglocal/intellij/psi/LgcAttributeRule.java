@@ -5,6 +5,15 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface LgcArgRefAttributeValue extends PsiElement {
+public interface LgcAttributeRule extends PsiElement {
+
+  @NotNull
+  LgcAttributeValue getAttributeValue();
+
+  @NotNull
+  PsiElement getEquals();
+
+  @NotNull
+  PsiElement getAttributeName();
 
 }

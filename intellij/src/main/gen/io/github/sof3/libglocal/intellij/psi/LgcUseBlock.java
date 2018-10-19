@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement;
 
 public interface LgcUseBlock extends PsiElement {
 
-  @NotNull
-  LgcEnd getEnd();
+  @Nullable
+  PsiElement getEol();
 
 }

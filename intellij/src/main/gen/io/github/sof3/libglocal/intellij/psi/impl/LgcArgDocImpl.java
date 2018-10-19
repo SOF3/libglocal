@@ -27,21 +27,21 @@ public class LgcArgDocImpl extends ASTWrapperPsiElement implements LgcArgDoc {
   }
 
   @Override
-  @NotNull
-  public LgcEnd getEnd() {
-    return findNotNullChildByClass(LgcEnd.class);
+  @Nullable
+  public LgcFullLiteral getFullLiteral() {
+    return findChildByClass(LgcFullLiteral.class);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getEol() {
+    return findChildByType(EOL);
   }
 
   @Override
   @NotNull
   public PsiElement getModDoc() {
     return findNotNullChildByType(MOD_DOC);
-  }
-
-  @Override
-  @Nullable
-  public LgcLiteral getText() {
-    return findChildByClass(LgcLiteral.class);
   }
 
 }

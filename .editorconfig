@@ -7,10 +7,16 @@ insert_final_newline = true
 indent_style = tab
 indent_size = 4
 
+[intellij/src/main/gen/**.java]
+end_of_line = crlf
+
 [*.lang]
-indent_style = tab
 indent_size = 2
 
 [*.md]
-indent-style = space
+indent_style = space
+indent_size = 2
+
+[*.yml]
+indent_style = space
 indent_size = 2

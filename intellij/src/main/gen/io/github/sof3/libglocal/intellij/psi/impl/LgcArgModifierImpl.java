@@ -45,9 +45,9 @@ public class LgcArgModifierImpl extends ASTWrapperPsiElement implements LgcArgMo
   }
 
   @Override
-  @NotNull
-  public LgcEnd getEnd() {
-    return findNotNullChildByClass(LgcEnd.class);
+  @Nullable
+  public PsiElement getEol() {
+    return findChildByType(EOL);
   }
 
   @Override

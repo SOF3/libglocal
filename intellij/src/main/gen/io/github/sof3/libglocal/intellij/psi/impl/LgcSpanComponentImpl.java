@@ -28,8 +28,8 @@ public class LgcSpanComponentImpl extends ASTWrapperPsiElement implements LgcSpa
 
   @Override
   @NotNull
-  public LgcLiteral getLiteral() {
-    return findNotNullChildByClass(LgcLiteral.class);
+  public LgcFullLiteral getFullLiteral() {
+    return findNotNullChildByClass(LgcFullLiteral.class);
   }
 
   @Override

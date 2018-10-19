@@ -28,14 +28,14 @@ public class LgcLangBlockImpl extends ASTWrapperPsiElement implements LgcLangBlo
 
   @Override
   @NotNull
-  public LgcEnd getEnd() {
-    return findNotNullChildByClass(LgcEnd.class);
+  public LgcStaticLiteral getStaticLiteral() {
+    return findNotNullChildByClass(LgcStaticLiteral.class);
   }
 
   @Override
-  @NotNull
-  public LgcStaticLiteral getStaticLiteral() {
-    return findNotNullChildByClass(LgcStaticLiteral.class);
+  @Nullable
+  public PsiElement getEol() {
+    return findChildByType(EOL);
   }
 
   @Override

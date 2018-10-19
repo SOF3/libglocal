@@ -45,9 +45,9 @@ public class LgcArgFieldImpl extends ASTWrapperPsiElement implements LgcArgField
   }
 
   @Override
-  @NotNull
-  public LgcEnd getEnd() {
-    return findNotNullChildByClass(LgcEnd.class);
+  @Nullable
+  public PsiElement getEol() {
+    return findChildByType(EOL);
   }
 
   @Override

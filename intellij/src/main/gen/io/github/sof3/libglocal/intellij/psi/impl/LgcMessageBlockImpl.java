@@ -40,20 +40,20 @@ public class LgcMessageBlockImpl extends ASTWrapperPsiElement implements LgcMess
 
   @Override
   @NotNull
-  public LgcEnd getEnd() {
-    return findNotNullChildByClass(LgcEnd.class);
-  }
-
-  @Override
-  @NotNull
-  public LgcLiteral getLiteral() {
-    return findNotNullChildByClass(LgcLiteral.class);
+  public LgcFullLiteral getFullLiteral() {
+    return findNotNullChildByClass(LgcFullLiteral.class);
   }
 
   @Override
   @NotNull
   public List<LgcVersionModifier> getVersionModifierList() {
     return PsiTreeUtil.getChildrenOfTypeAsList(this, LgcVersionModifier.class);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getEol() {
+    return findChildByType(EOL);
   }
 
   @Override

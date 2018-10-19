@@ -41,7 +41,7 @@ class LibglocalParserDef : ParserDefinition {
 	override fun createElement(node: ASTNode) = LgcElements.Factory.createElement(node)
 
 	override fun getStringLiteralElements() = TokenSet.create(
-		LgcElements.LITERAL,
+		LgcElements.LITERAL_STRING,
 		LgcElements.LITERAL_ESCAPE,
 		LgcElements.CONT_SPACE,
 		LgcElements.CONT_NEWLINE,

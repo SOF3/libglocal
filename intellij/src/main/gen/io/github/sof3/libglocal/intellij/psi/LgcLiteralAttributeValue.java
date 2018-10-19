@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement;
 public interface LgcLiteralAttributeValue extends PsiElement {
 
   @NotNull
-  LgcLiteral getLiteral();
+  LgcFullLiteral getFullLiteral();
 
   @NotNull
   PsiElement getCloseBrace();

@@ -16,8 +16,8 @@ public interface LgcArgModifier extends PsiElement {
   @Nullable
   LgcAttributeValue getAttributeValue();
 
-  @NotNull
-  LgcEnd getEnd();
+  @Nullable
+  PsiElement getEol();
 
   @Nullable
   PsiElement getEquals();

@@ -7,8 +7,8 @@ import com.intellij.psi.PsiElement;
 
 public interface LgcModuleBlock extends PsiElement {
 
-  @NotNull
-  LgcEnd getEnd();
+  @Nullable
+  PsiElement getEol();
 
   @NotNull
   PsiElement getModule();

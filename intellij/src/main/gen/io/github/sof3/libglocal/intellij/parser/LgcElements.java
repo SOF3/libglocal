@@ -14,13 +14,12 @@ public interface LgcElements {
   IElementType ARG_MODIFIER = new LgcElementType("ARG_MODIFIER");
   IElementType ARG_REF_COMPONENT = new LgcElementType("ARG_REF_COMPONENT");
   IElementType ARITHMETIC_PREDICATE = new LgcElementType("ARITHMETIC_PREDICATE");
-  IElementType ATTRIBUTE = new LgcElementType("ATTRIBUTE");
+  IElementType ATTRIBUTE_RULE = new LgcElementType("ATTRIBUTE_RULE");
   IElementType ATTRIBUTE_VALUE = new LgcElementType("ATTRIBUTE_VALUE");
   IElementType AUTHOR_BLOCK = new LgcElementType("AUTHOR_BLOCK");
   IElementType DOC_MODIFIER = new LgcElementType("DOC_MODIFIER");
-  IElementType END = new LgcElementType("END");
+  IElementType FULL_LITERAL = new LgcElementType("FULL_LITERAL");
   IElementType LANG_BLOCK = new LgcElementType("LANG_BLOCK");
-  IElementType LITERAL = new LgcElementType("LITERAL");
   IElementType LITERAL_ATTRIBUTE_VALUE = new LgcElementType("LITERAL_ATTRIBUTE_VALUE");
   IElementType MATH_COMPARATOR = new LgcElementType("MATH_COMPARATOR");
   IElementType MATH_RULE_BLOCK = new LgcElementType("MATH_RULE_BLOCK");
@@ -74,8 +73,6 @@ public interface LgcElements {
   IElementType SPAN_NAME = new LgcTokenType("SPAN_NAME");
   IElementType SPAN_START = new LgcTokenType("SPAN_START");
   IElementType WHITESPACE = new LgcTokenType("whitespace");
-  IElementType _ABSTRACT_MESSAGE_BLOCK_ = new LgcTokenType("<abstract message block>");
-  IElementType _META_BLOCK_ = new LgcTokenType("<meta block>");
 
   class Factory {
     public static PsiElement createElement(ASTNode node) {
@@ -98,8 +95,8 @@ public interface LgcElements {
       else if (type == ARITHMETIC_PREDICATE) {
         return new LgcArithmeticPredicateImpl(node);
       }
-      else if (type == ATTRIBUTE) {
-        return new LgcAttributeImpl(node);
+      else if (type == ATTRIBUTE_RULE) {
+        return new LgcAttributeRuleImpl(node);
       }
       else if (type == ATTRIBUTE_VALUE) {
         return new LgcAttributeValueImpl(node);
@@ -110,14 +107,11 @@ public interface LgcElements {
       else if (type == DOC_MODIFIER) {
         return new LgcDocModifierImpl(node);
       }
-      else if (type == END) {
-        return new LgcEndImpl(node);
+      else if (type == FULL_LITERAL) {
+        return new LgcFullLiteralImpl(node);
       }
       else if (type == LANG_BLOCK) {
         return new LgcLangBlockImpl(node);
-      }
-      else if (type == LITERAL) {
-        return new LgcLiteralImpl(node);
       }
       else if (type == LITERAL_ATTRIBUTE_VALUE) {
         return new LgcLiteralAttributeValueImpl(node);

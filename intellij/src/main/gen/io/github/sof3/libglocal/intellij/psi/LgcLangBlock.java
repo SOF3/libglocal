@@ -8,10 +8,10 @@ import com.intellij.psi.PsiElement;
 public interface LgcLangBlock extends PsiElement {
 
   @NotNull
-  LgcEnd getEnd();
-
-  @NotNull
   LgcStaticLiteral getStaticLiteral();
+
+  @Nullable
+  PsiElement getEol();
 
   @NotNull
   PsiElement getEquals();

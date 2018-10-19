@@ -5,15 +5,15 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface LgcAttribute extends PsiElement {
+public interface LgcFullLiteral extends PsiElement {
 
   @NotNull
-  LgcAttributeValue getAttributeValue();
+  List<LgcArgRefComponent> getArgRefComponentList();
 
   @NotNull
-  PsiElement getEquals();
+  List<LgcMessageRefComponent> getMessageRefComponentList();
 
   @NotNull
-  PsiElement getAttributeName();
+  List<LgcSpanComponent> getSpanComponentList();
 
 }

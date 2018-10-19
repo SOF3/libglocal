@@ -7,13 +7,13 @@ import com.intellij.psi.PsiElement;
 
 public interface LgcArithmeticPredicate extends PsiElement {
 
+  @NotNull
+  LgcMathComparator getMathComparator();
+
   @Nullable
   PsiElement getMathMod();
 
   @NotNull
   PsiElement getMathSeparator();
-
-  @NotNull
-  LgcMathComparator getComparator();
 
 }

@@ -28,8 +28,8 @@ public class LgcMessageRefComponentImpl extends ASTWrapperPsiElement implements 
 
   @Override
   @NotNull
-  public List<LgcAttribute> getAttributeList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, LgcAttribute.class);
+  public List<LgcAttributeRule> getAttributeRuleList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, LgcAttributeRule.class);
   }
 
   @Override

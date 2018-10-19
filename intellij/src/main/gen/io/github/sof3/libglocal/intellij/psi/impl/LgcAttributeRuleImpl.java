@@ -11,19 +11,37 @@ import static io.github.sof3.libglocal.intellij.parser.LgcElements.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.github.sof3.libglocal.intellij.psi.*;
 
-public class LgcMessageRefAttributeValueImpl extends ASTWrapperPsiElement implements LgcMessageRefAttributeValue {
+public class LgcAttributeRuleImpl extends ASTWrapperPsiElement implements LgcAttributeRule {
 
-  public LgcMessageRefAttributeValueImpl(@NotNull ASTNode node) {
+  public LgcAttributeRuleImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull LgcVisitor visitor) {
-    visitor.visitMessageRefAttributeValue(this);
+    visitor.visitAttributeRule(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof LgcVisitor) accept((LgcVisitor)visitor);
     else super.accept(visitor);
+  }
+
+  @Override
+  @NotNull
+  public LgcAttributeValue getAttributeValue() {
+    return findNotNullChildByClass(LgcAttributeValue.class);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getEquals() {
+    return findNotNullChildByType(EQUALS);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getAttributeName() {
+    return findNotNullChildByType(IDENTIFIER);
   }
 
 }

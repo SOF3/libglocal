@@ -28,8 +28,8 @@ public class LgcLiteralAttributeValueImpl extends ASTWrapperPsiElement implement
 
   @Override
   @NotNull
-  public LgcLiteral getLiteral() {
-    return findNotNullChildByClass(LgcLiteral.class);
+  public LgcFullLiteral getFullLiteral() {
+    return findNotNullChildByClass(LgcFullLiteral.class);
   }
 
   @Override

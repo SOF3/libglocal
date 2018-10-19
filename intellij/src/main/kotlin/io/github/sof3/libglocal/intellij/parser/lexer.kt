@@ -190,7 +190,7 @@ class LibglocalLexer {
 	private fun lexLiteral(closeable: Boolean) {
 		while(true) {
 			val literal = reader.readAny(CHARSET_LITERAL_STOP, true)
-			if(literal.isNotEmpty()) yield(Tokens.LITERAL, literal)
+			if(literal.isNotEmpty()) yield(Tokens.LITERAL_STRING, literal)
 
 			if(reader.eof()) return
 			if(reader.startsWithLf()) {
@@ -218,7 +218,7 @@ class LibglocalLexer {
 			}
 
 			if(reader.peek(2)[1] != '{') {
-				yield(Tokens.LITERAL, reader.read(1))
+				yield(Tokens.LITERAL_STRING, reader.read(1))
 				continue
 			}
 

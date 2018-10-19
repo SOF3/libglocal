@@ -10,8 +10,8 @@ public interface LgcMathRuleBlock extends PsiElement {
   @NotNull
   List<LgcArithmeticPredicate> getArithmeticPredicateList();
 
-  @NotNull
-  LgcEnd getEnd();
+  @Nullable
+  PsiElement getEol();
 
   @Nullable
   PsiElement getRuleName();

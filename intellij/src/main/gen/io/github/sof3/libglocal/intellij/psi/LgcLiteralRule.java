@@ -5,15 +5,15 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface LgcVersionModifier extends PsiElement {
-
-  @Nullable
-  PsiElement getEol();
+public interface LgcLiteralRule extends PsiElement {
 
   @NotNull
-  PsiElement getModVersion();
+  List<LgcArgRefComponent> getArgRefComponentList();
 
   @NotNull
-  PsiElement getTarget();
+  List<LgcMessageRefComponent> getMessageRefComponentList();
+
+  @NotNull
+  List<LgcSpanComponent> getSpanComponentList();
 
 }

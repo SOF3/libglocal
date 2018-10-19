@@ -44,79 +44,79 @@
 	psiImplUtilClass="io.github.sof3.libglocal.intellij.psi.PsiUtil"
 }
 
-private file ::= (<meta block>)+ <module block> (<abstract message block>)*
+private file ::= (meta_block)+ module_block (abstract_message_block)*
 
 
-private <meta block> ::= <lang block> | <version block> | <author block> | <require block> | <use block> | <math rule block>
+private meta_block ::= lang_block | version_block | author_block | require_block | use_block | math_rule_block
 
-<lang block> ::= "base"? "lang" IDENTIFIER EQUALS <static literal> <end> {
+lang_block ::= "base"? "lang" IDENTIFIER EQUALS static_literal end_rule {
 	methods=[
 		langId="IDENTIFIER"
 		langName="literal"
 	]
 }
 
-<version block> ::= "version" IDENTIFIER <end> {
+version_block ::= "version" IDENTIFIER end_rule {
 	methods=[
 		versionName="IDENTIFIER"
 	]
 }
 
-<author block> ::= "author" EQUALS <static literal> <end> {
+author_block ::= "author" EQUALS static_literal end_rule {
 	methods=[
 		authorName="literal"
 	]
 }
 
-<require block> ::= "require" IDENTIFIER <end> {
+require_block ::= "require" IDENTIFIER end_rule {
 	methods=[
 		target="IDENTIFIER"
 	]
 }
 
-<use block> ::= "use" IDENTIFIER IDENTIFIER <end> {
+use_block ::= "use" IDENTIFIER IDENTIFIER end_rule {
 	methods=[
 		target="IDENTIFIER[0]"
 		alias="IDENTIFIER[1]"
 	]
 }
 
-<math rule block> ::= MATH_AT? (MATH_AT | IDENTIFIER)? <arithmetic predicate>* <end> {
+math_rule_block ::= MATH_AT? (MATH_AT | IDENTIFIER)? arithmetic_predicate* end_rule {
 	methods=[
 		restriction="MATH_AT[1]"
 		ruleName="IDENTIFIER"
 	]
 }
-<arithmetic predicate> ::= MATH_SEPARATOR (MATH_MOD NUMBER)? <math comparator> NUMBER {
+arithmetic_predicate ::= MATH_SEPARATOR (MATH_MOD NUMBER)? math_comparator NUMBER {
 	methods=[
 		mod="NUMBER[0]"
 		comparator="math comparator"
 		operand="NUMBER[1]"
 	]
 }
-<math comparator> ::= MATH_EQ | MATH_NE | MATH_LE | MATH_LT | MATH_GE | MATH_GT
+math_comparator ::= MATH_EQ | MATH_NE | MATH_LE | MATH_LT | MATH_GE | MATH_GT
 
-<module block> ::= "module" IDENTIFIER <end> {
+module_block ::= "module" IDENTIFIER end_rule {
 	methods=[
 		module="IDENTIFIER"
 	]
 }
 
-private <abstract message block> ::= <message group> | <message block>
-<message group> ::= FLAG* IDENTIFIER EQUALS? <end> (INDENT_INCREASE <abstract message block> INDENT_DECREASE)? {
+private abstract_message_block ::= message_group | message_block
+message_group ::= FLAG* IDENTIFIER EQUALS? end_rule (INDENT_INCREASE abstract_message_block INDENT_DECREASE)? {
 	methods=[
 		groupId="IDENTIFIER"
 	]
 }
-<message block> ::= FLAG* IDENTIFIER EQUALS <literal> <end> (INDENT_INCREASE <message modifier>* INDENT_DECREASE)? {
+message_block ::= FLAG* IDENTIFIER EQUALS full_literal end_rule (INDENT_INCREASE message_modifier* INDENT_DECREASE)? {
 	methods=[
 		messageId="IDENTIFIER"
 	]
 }
 
-private <message modifier> ::= (<arg modifier> | <doc modifier> | <version modifier>)
+private message_modifier ::= (arg_modifier | doc_modifier | version_modifier)
 
-private <arg like block> ::= MOD_ARG IDENTIFIER FLAG* IDENTIFIER? (EQUALS <attribute value>)? <end> (INDENT_INCREASE <arg constraint>* INDENT_DECREASE)? {
+private arg_like_block ::= MOD_ARG IDENTIFIER FLAG* IDENTIFIER? (EQUALS attribute_value)? end_rule (INDENT_INCREASE arg_constraint* INDENT_DECREASE)? {
 	methods=[
 		argName="IDENTIFIER[0]"
 		typeFlags="FLAG"
@@ -125,54 +125,54 @@ private <arg like block> ::= MOD_ARG IDENTIFIER FLAG* IDENTIFIER? (EQUALS <attri
 	]
 }
 
-<arg modifier> ::= <arg like block>
+arg_modifier ::= arg_like_block
 
-private <arg constraint> ::= <arg field> | <arg doc>
-<arg field> ::= <arg like block>
-<arg doc> ::= MOD_DOC <literal>? <end> {
+private arg_constraint ::= arg_field | arg_doc
+arg_field ::= arg_like_block
+arg_doc ::= MOD_DOC full_literal? end_rule {
 	methods=[
-		text="literal"
+		literal="literal"
 	]
 }
 
-<doc modifier> ::= MOD_DOC <literal>? <end> {
+doc_modifier ::= MOD_DOC full_literal? end_rule {
 	methods=[
-		text="literal"
+		literal="literal"
 	]
 }
 
-<version modifier> ::= MOD_VERSION IDENTIFIER <end> {
+version_modifier ::= MOD_VERSION IDENTIFIER end_rule {
 	methods=[
 		target="IDENTIFIER"
 	]
 }
 
-<static literal> ::= <static literal component>+
-private <static literal component> ::= LITERAL_STRING | LITERAL_ESCAPE | CONT_NEWLINE | CONT_SPACE | CONT_CONCAT
-<literal> ::= <literal component>+
-private <literal component> ::= <static literal component> | <span component> | <arg ref component> | <message ref component>
-<span component> ::= SPAN_START SPAN_NAME <literal> CLOSE_BRACE
-<arg ref component> ::= ARG_REF_START IDENTIFIER <attribute>* CLOSE_BRACE {
+static_literal ::= static_literal_component+
+private static_literal_component ::= LITERAL_STRING | LITERAL_ESCAPE | CONT_NEWLINE | CONT_SPACE | CONT_CONCAT
+full_literal ::= literal_component+
+private literal_component ::= static_literal_component | span_component | arg_ref_component | message_ref_component
+span_component ::= SPAN_START SPAN_NAME full_literal CLOSE_BRACE
+arg_ref_component ::= ARG_REF_START IDENTIFIER attribute_rule* CLOSE_BRACE {
 	methods=[
 		argName="IDENTIFIER"
 	]
 }
-<message ref component> ::= MESSAGE_REF_START MOD_ARG? IDENTIFIER <attribute>* CLOSE_BRACE {
+message_ref_component ::= MESSAGE_REF_START MOD_ARG? IDENTIFIER attribute_rule* CLOSE_BRACE {
 	methods=[
 		dynamic="MOD_ARG"
 		messageId="IDENTIFIER"
 	]
 }
 
-<attribute> ::= IDENTIFIER EQUALS <attribute value> {
+attribute_rule ::= IDENTIFIER EQUALS attribute_value {
 	methods=[
 		attributeName="IDENTIFIER"
 	]
 }
-<attribute value> ::= <literal attribute value> | <number attribute value> | <argument attribute value> | <message attribute value>
-<literal attribute value> ::= OPEN_BRACE <literal> CLOSE_BRACE
-<number attribute value> ::= NUMBER
-<argument attribute value> ::= IDENTIFIER
-<message attribute value> ::= ATTRIBUTE_SIMPLE_MESSAGE IDENTIFIER
+attribute_value ::= literal_attribute_value | number_attribute_value | argument_attribute_value | message_attribute_value
+literal_attribute_value ::= OPEN_BRACE full_literal CLOSE_BRACE
+number_attribute_value ::= NUMBER
+argument_attribute_value ::= IDENTIFIER
+message_attribute_value ::= ATTRIBUTE_SIMPLE_MESSAGE IDENTIFIER
 
-<end> ::= EOL | <<eof>>
+private end_rule ::= EOL | <<eof>>

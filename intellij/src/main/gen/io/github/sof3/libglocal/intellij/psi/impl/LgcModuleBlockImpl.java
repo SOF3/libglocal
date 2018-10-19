@@ -27,9 +27,9 @@ public class LgcModuleBlockImpl extends ASTWrapperPsiElement implements LgcModul
   }
 
   @Override
-  @NotNull
-  public LgcEnd getEnd() {
-    return findNotNullChildByClass(LgcEnd.class);
+  @Nullable
+  public PsiElement getEol() {
+    return findChildByType(EOL);
   }
 
   @Override

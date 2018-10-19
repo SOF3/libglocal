@@ -7,14 +7,14 @@ import com.intellij.psi.PsiElement;
 
 public interface LgcMessageGroup extends PsiElement {
 
-  @NotNull
-  LgcEnd getEnd();
-
   @Nullable
   LgcMessageBlock getMessageBlock();
 
   @Nullable
   LgcMessageGroup getMessageGroup();
+
+  @Nullable
+  PsiElement getEol();
 
   @Nullable
   PsiElement getEquals();

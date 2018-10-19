@@ -14,13 +14,13 @@ public interface LgcMessageBlock extends PsiElement {
   List<LgcDocModifier> getDocModifierList();
 
   @NotNull
-  LgcEnd getEnd();
-
-  @NotNull
-  LgcLiteral getLiteral();
+  LgcFullLiteral getFullLiteral();
 
   @NotNull
   List<LgcVersionModifier> getVersionModifierList();
+
+  @Nullable
+  PsiElement getEol();
 
   @NotNull
   PsiElement getEquals();

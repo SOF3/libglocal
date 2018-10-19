@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement;
 public interface LgcArgRefComponent extends PsiElement {
 
   @NotNull
-  List<LgcAttribute> getAttributeList();
+  List<LgcAttributeRule> getAttributeRuleList();
 
   @NotNull
   PsiElement getArgRefStart();

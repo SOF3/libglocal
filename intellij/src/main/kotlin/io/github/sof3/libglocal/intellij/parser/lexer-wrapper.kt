@@ -140,8 +140,8 @@ class LexReader(val wrapper: LexerWrapper) {
 
 	fun startsWithAny(charset: CharArray) = charset.contains(buffer[readPointer])
 
-	inline fun startsWithLf() = startsWith("\n") || startsWith("\r\n")
-	inline fun startsWithLfe() = eof() || startsWithLf()
+	fun startsWithLf() = startsWith("\n") || startsWith("\r\n")
+	fun startsWithLfe() = eof() || startsWithLf()
 
 	fun readAny(charset: CharArray, invert: Boolean = false): String {
 		val ret = StringBuilder()

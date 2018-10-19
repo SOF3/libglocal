@@ -31,7 +31,7 @@ public class LgcVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitAttribute(@NotNull LgcAttribute o) {
+  public void visitAttributeRule(@NotNull LgcAttributeRule o) {
     visitPsiElement(o);
   }
 
@@ -47,15 +47,11 @@ public class LgcVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitEnd(@NotNull LgcEnd o) {
+  public void visitFullLiteral(@NotNull LgcFullLiteral o) {
     visitPsiElement(o);
   }
 
   public void visitLangBlock(@NotNull LgcLangBlock o) {
-    visitPsiElement(o);
-  }
-
-  public void visitLiteral(@NotNull LgcLiteral o) {
     visitPsiElement(o);
   }
 

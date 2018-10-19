@@ -27,12 +27,6 @@ public class LgcMessageGroupImpl extends ASTWrapperPsiElement implements LgcMess
   }
 
   @Override
-  @NotNull
-  public LgcEnd getEnd() {
-    return findNotNullChildByClass(LgcEnd.class);
-  }
-
-  @Override
   @Nullable
   public LgcMessageBlock getMessageBlock() {
     return findChildByClass(LgcMessageBlock.class);
@@ -42,6 +36,12 @@ public class LgcMessageGroupImpl extends ASTWrapperPsiElement implements LgcMess
   @Nullable
   public LgcMessageGroup getMessageGroup() {
     return findChildByClass(LgcMessageGroup.class);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getEol() {
+    return findChildByType(EOL);
   }
 
   @Override
