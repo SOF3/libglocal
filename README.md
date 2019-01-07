@@ -30,4 +30,4 @@ See [en_US.lang](LibglocalExample/resources/lang/en_US.lang) for example syntax.
 Libglocal is a virion. The [Official Poggit Virion Documentation](https://poggit.pmmp.io/virion) contains instructions for including a virion into your plugin.
 
 ## Plugin developer (libglocal user) guide
-See this document: [Guide for developers, translators and server owners](guide.md)
+See this document: [Guide for developers, translators and server owners](GUIDE.md)
